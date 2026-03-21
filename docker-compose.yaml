@@ -11,7 +11,7 @@ services:
 
   node:
     image: node:20
-    container_name: snowtricksnode
+    container_name: snowtricksnode # Nom du conteneur
     volumes:
       - ./:/var/www/public
     working_dir: /var/www/public
