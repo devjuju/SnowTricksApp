@@ -3,6 +3,7 @@ services:
     build: # Fabrique une image à partir d'un Dockerfile
       context: ./php # context = endroit où se trouve Dockerfile pour PHP
     container_name: snowtricksphp
+    working_dir: /var/www
     ports:
       - 8187:80 # 8080 port externe, 80 port dans l'image (EXPOSE 80)
     volumes:
@@ -13,8 +14,8 @@ services:
     image: node:20
     container_name: snowtricksnode # Nom du conteneur
     volumes:
-      - ./:/var/www/public
-    working_dir: /var/www/public
+      - ./:/var/www
+    working_dir: /var/www
     command: sh -c "npm install && npm run dev"
 
   database:
