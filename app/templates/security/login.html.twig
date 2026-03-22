@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Se connecter
+{% endblock %}
+
+{% block body %}
+	<section class="bg-[#007CCB] min-h-screen flex flex-col items-center pt-24 sm:pt-32 pd:pt-40 px-4 sm:mx-0">
+
+		<h1 class="font-[Raleway] text-white text-3xl sm:text-4xl md:text-5xl font-bold tracking-wide mb-12 text-center uppercase hidden md:block">
+			Se connecter
+		</h1>
+
+		<div class="
+											w-full
+									max-w-md
+									sm:max-w-lg
+									mx-4
+									sm:mx-auto
+								  bg-white
+								    py-12
+									px-8
+									sm:py-16
+									sm:px-12
+									md:px-20
+									rounded-[20px]
+									shadow-[0_18px_45px_rgba(0,0,0,0.12)]
+									space-y-6">
+			<h1 class="font-[Raleway] text-black text-3xl sm:text-4xl md:text-5xl font-bold tracking-wide mb-12 text-center uppercase md:hidden">
+				Se connecter
+			</h1>
+
+			{# Erreur globale venant du système de sécurité (mauvais identifiants) #}
+			{% if error %}
+				<div class="bg-red-600 text-white text-center py-3 px-4 mb-6 rounded-lg shadow-md">
+					Identifiants incorrects. Veuillez réessayer.
+				</div>
+			{% endif %}
+
+			{{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
+
+			{# Username #}
+			<div class="space-y-2 text-center">
+				{{ form_label(form.username, 'Nom d’utilisateur', { label_attr: { class: 'font-medium text-gray-700' } }) }}
+				{{ form_widget(form.username, { attr: {
+                class: 'w-full text-center border-b border-gray-300 focus:outline-none focus:border-blue-400 pb-2 text-gray-700'
+            }}) }}
+
+				<div class="text-red-500 text-sm">
+					{{ form_errors(form.username) }}
+				</div>
+			</div>
+
+			{# Password #}
+			<div class="space-y-2 text-center">
+				{{ form_label(form.password, 'Mot de passe', { label_attr: { class: 'font-medium text-gray-700' } }) }}
+
+				{{ form_widget(form.password, { attr: {
+                class: 'w-full text-center border-b border-gray-300 focus:outline-none focus:border-blue-400 pb-2 text-gray-700'
+            }}) }}
+
+				<div class="text-red-500 text-sm">
+					{{ form_errors(form.password) }}
+				</div>
+			</div>
+
+			{# Submit #}
+			<button type="submit" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition">
+				Se connecter
+			</button>
+
+			{{ form_end(form) }}
+
+			<div class="text-center mt-4">
+				<a href="#" class="text-blue-600 hover:underline">
+					Mot de passe oublié ?
+				</a>
+			</div>
+
+			<div class="text-center">
+				<a href="#" class="text-gray-600 hover:underline">
+					Pas encore de compte ? Inscription →
+				</a>
+			</div>
+
+		</div>
+	</section>
+
+{% endblock %}
