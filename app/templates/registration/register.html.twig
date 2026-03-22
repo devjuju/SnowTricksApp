@@ -1,0 +1,122 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}S'inscrire
+{% endblock %}
+
+{% block body %}
+<section class="bg-[#007CCB] min-h-screen flex flex-col items-center pt-24 sm:pt-32 pd:pt-40 px-4 sm:mx-0">
+
+	<h1 class="font-[Raleway] text-white text-3xl sm:text-4xl md:text-5xl font-bold tracking-wide mb-12 text-center uppercase hidden md:block">
+		S'inscrire
+	</h1>
+
+	<div class="
+			    w-full
+				max-w-md
+				sm:max-w-lg
+				mx-4
+				sm:mx-auto
+			  bg-white
+			    py-12
+				px-8
+				sm:py-16
+				sm:px-12
+				md:px-20
+				rounded-[20px]
+				shadow-[0_18px_45px_rgba(0,0,0,0.12)]
+				space-y-6">
+		<h1 class="font-[Raleway] text-black text-3xl sm:text-4xl md:text-5xl font-bold tracking-wide mb-12 text-center uppercase md:hidden">
+			S'inscrire
+		</h1>
+
+		{{ form_start(registrationForm, { attr: { novalidate: 'novalidate' } }) }}
+
+		{# Email #}
+		<div class="space-y-2 text-center">
+			{{ form_label(registrationForm.email, 'Email', { label_attr: { class: 'font-medium text-gray-700' } }) }}
+			{{ form_widget(registrationForm.email, { attr: {
+                class: 'w-full text-center border-b border-gray-300 focus:outline-none focus:border-blue-400 pb-2 text-gray-700'
+            }}) }}
+
+			<div class="text-red-500 text-sm">
+				{{ form_errors(registrationForm.email) }}
+			</div>
+		</div>
+
+		{# Username #}
+		<div class="space-y-2 text-center">
+			{{ form_label(registrationForm.username, 'Nom d\'utilisateur', { label_attr: { class: 'font-medium text-gray-700' } }) }}
+            {{ form_widget(registrationForm.username, { attr: {
+                class: 'w-full text-center border-b border-gray-300 focus:outline-none focus:border-blue-400 pb-2 text-gray-700'
+            }}) }}
+
+            <div class="text-red-500 text-sm">
+                {{ form_errors(registrationForm.username) }}
+            </div>
+        </div>
+
+        {# Password #}
+        <div class="space-y-2 text-center">
+            {{ form_label(registrationForm.plainPassword, 'Mot de passe', { label_attr: { class: 'font-medium text-gray-700' } }) }}
+            {{ form_widget(registrationForm.plainPassword, { attr: {
+                class: 'w-full text-center border-b border-gray-300 focus:outline-none focus:border-blue-400 pb-2 text-gray-700'
+            }}) }}
+
+            <div class="text-red-500 text-sm">
+                {{ form_errors(registrationForm.plainPassword) }}
+            </div>
+        </div>
+
+        {# AGREE TERMS #}
+        <div class="space-y-1">
+            <div class="relative flex items-center gap-3 cursor-pointer select-none">
+
+                {{ form_widget(registrationForm.agreeTerms, {
+                    attr: {
+                        class: "
+                            peer
+                            h-5 w-5
+                            rounded-md
+                            border-2 border-gray-400
+                            transition-all duration-300
+                            checked:border-[#007CCB]
+                            checked:bg-[#007CCB]
+                            checked:shadow-[0_0_8px_#007CCB]
+                            cursor-pointer
+                            appearance-none
+                            bg-white
+                        "
+                    }
+                }) }}
+
+                {{ form_label(registrationForm.agreeTerms, 'Accepter les termes', {
+                    label_attr: {
+                        class: 'text-gray-700 text-sm cursor-pointer'
+                    }
+                }) }}
+
+            </div>
+
+            <div class="text-red-500 text-sm">
+                {{ form_errors(registrationForm.agreeTerms) }}
+            </div>
+        </div>
+
+        {# SUBMIT #}
+        <button type="submit"
+                class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition">
+            S’inscrire
+        </button>
+
+        {{ form_end(registrationForm) }}
+
+        <div class="text-center">
+				<a href="{{ path('app_login') }}" class="text-gray-600 hover:underline">
+					Déjà un compte ? Connexion →
+				</a>
+		</div>
+
+    </div>
+</section>
+
+{% endblock %}
