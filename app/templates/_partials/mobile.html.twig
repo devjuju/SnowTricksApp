@@ -1,0 +1,93 @@
+{% if not app.user %}
+	<footer class="
+	fixed bottom-0 
+	left-0 
+	w-full 
+	h-16
+	bg-white 
+	border-t 
+	border-gray-200
+	px-6 
+	md:hidden 
+	z-50">
+		<div
+			class="h-full flex justify-around items-center text-2xl">
+
+			{# HOME #}
+			<a href="{{ path('app_main') }}" class="
+			flex 
+			flex-col 
+			items-center
+			{% if app.request.attributes.get('_route') == 'app_main' %}
+              text-blue-600
+			{% else %}
+			  text-blue-400 opacity-60
+			{% endif %}">
+				<i class="bi bi-house"></i>
+			</a>
+
+			{# REGISTER #}
+			<a href="{{ path('app_register') }}" class="
+			flex 
+			flex-col 
+			items-center
+			{% if app.request.attributes.get('_route') == 'app_register' %}
+	         text-blue-600
+			{% else %}
+	          text-blue-400 opacity-60
+			{% endif %}">
+				<i class="bi bi-person-plus"></i>
+			</a>
+
+			{# LOGIN #}
+			<a href="{{ path('app_login') }}" class="
+			flex 
+			flex-col 
+			items-center
+			{% if app.request.attributes.get('_route') == 'app_login' %}
+	          text-blue-600
+			{% else %}
+			  text-blue-400 opacity-60
+			{% endif %}">
+				<i class="bi bi-lock"></i>
+			</a>
+		</div>
+	</footer>
+{% else %}
+	<footer class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 py-3 px-6 md:hidden z-50">
+		<div
+			class="flex justify-around items-center text-2xl">
+
+			{# PROFILE #}
+			<a href="{{ path('app_profile_index') }}" class="
+			flex 
+			flex-col 
+			items-center
+			{% if app.request.attributes.get('_route') == 'app_profile_index' %}
+	          text-blue-600
+			{% else %}
+	          text-blue-400 opacity-60
+			{% endif %}">						          
+				<i class="bi bi-house"></i>
+			</a>
+
+			{# ADD TRICK #}
+			<a href="{{ path('app_profile_tricks_add') }}" class="
+			flex 
+			flex-col 
+			items-center
+			{% if app.request.attributes.get('_route') == 'app_profile_tricks_add' %}
+				text-blue-600
+			{% else %}
+	          text-blue-400 opacity-60
+			{% endif %}">
+				<i class="bi bi-plus-circle"></i>
+			</a>
+
+			{# LOGOUT #}
+			<a href="{{ path('app_logout') }}" class="flex flex-col items-center text-blue-400 opacity-60">
+				<i class="bi bi-box-arrow-in-right"></i>
+			</a>
+		</div>
+	</footer>
+{% endif %}
