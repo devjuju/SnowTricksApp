@@ -1,0 +1,10 @@
+<h1>Activation de votre compte sur Snowtricks</h1>
+<p>Bonjour
+	{{ user.username }},</p>
+<p>Merci de vous être inscrit sur Snowtricks. Veuillez cliquer sur le lien ci-dessous pour activer votre compte :</p>
+<p>
+	<a href="{{ absolute_url(path('verify_user', {token: token})) }}">Activer mon compte</a>
+	{{ token }}
+</p>
+<p>Merci</p>
+<p>L'équipe Snowtricks</p>
