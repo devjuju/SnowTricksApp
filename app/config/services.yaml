@@ -9,16 +9,52 @@
 parameters:
     app.jwtsecret: "%env(JWT_SECRET)%"
 
+    # Dossiers finaux
+    featured_image_directory: "%kernel.project_dir%/public/uploads/featured_images"
+    images_directory: "%kernel.project_dir%/public/uploads/images"
+
+    # Dossiers temporaires
+    featured_image_tmp_directory: "%kernel.project_dir%/public/uploads/featured_images_tmp"
+    images_tmp_directory: "%kernel.project_dir%/public/uploads/images_tmp"
+
 services:
     # default configuration for services in *this* file
     _defaults:
-        autowire: true # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        autowire: true
+        autoconfigure: true
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: "../src/"
+        exclude:
+            - "../src/DependencyInjection/"
+            - "../src/Entity/"
+            - "../src/Kernel.php"
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    # ==========================
+    # Services pour les images temporaires
+    # ==========================
+
+    App\Service\FeaturedImageTempService:
+        arguments:
+            $tempDir: "%featured_image_tmp_directory%"
+            $finalDir: "%featured_image_directory%"
+
+    App\Service\ImagesTempService:
+        arguments:
+            $tempDir: "%images_tmp_directory%"
+            $finalDir: "%images_directory%"
+
+    # ==========================
+    # Services pour les images finales
+    # ==========================
+
+    App\Service\FeaturedImageUploaderService:
+        arguments:
+            $targetDirectoryFeaturedImage: "%featured_image_directory%"
+
+    App\Service\ImagesUploaderService:
+        arguments:
+            $targetDirectoryImages: "%images_directory%"

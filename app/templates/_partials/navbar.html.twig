@@ -1,0 +1,202 @@
+{% if not app.user %}
+	<header id="main-header" class="fixed top-0 z-40 w-full pb-5 pt-5 bg-transparent transition-colors duration-300 hidden md:block">
+		<nav class="w-full border-gray-200 py-2.5 uppercase">
+			<div
+				class="flex flex-wrap items-center justify-between w-full px-4">
+
+				<!-- LOGO -->
+				<a href="{{ path('app_main') }}" class="flex items-center">
+					<img src="{{ asset('images/logos/logo-snowtricks-favicon.svg') }}" class="h-6 mr-3 sm:h-9" alt="SnowTricks Logo">
+					<span id="logo-text" class="font-[Raleway] self-center text-xl font-semibold text-white">SnowTricks</span>
+				</a>
+
+				<!-- BOUTON MOBILE -->
+				<div class="flex items-center space-x-4 lg:space-x-6 lg:order-2">
+					<button id="mobile-btn" data-collapse-toggle="mobile-menu-2" type="button" class="inline-flex items-center p-2 text-white rounded-lg lg:hidden hover:bg-[#26679c] focus:outline-none focus:ring-2 focus:ring-gray-100" aria-controls="mobile-menu-2" aria-expanded="false">
+						<span class="sr-only">Open main menu</span>
+						<svg class="w-6 h-6" fill="currentColor" viewbox="0 0 20 20">
+							<path fill-rule="evenodd" d="M3 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 5h14a1 1 0 010 2H3a1 1 0 010-2z" clip-rule="evenodd"></path>
+						</svg>
+					</button>
+				</div>
+
+				<!-- MENU DE NAVIGATION -->
+				<div id="mobile-menu-2" class="
+																hidden
+																lg:flex
+																lg:w-auto
+																lg:order-3
+																items-center
+																justify-end
+															  bg-white
+															    lg:bg-transparent
+																transition-colors
+																duration-300
+																lg:shadow-none">
+					<ul class="flex flex-col mt-4 font-medium lg:flex-row lg:mt-0">
+						<li class="lg:border-r lg:border-gray-300 lg:pr-4">
+							<a href="{{ path('app_main') }}" class="menu-link block py-2 pl-3 pr-4											{% if app.request.attributes.get('_route') == 'app_main' %}
+																									    text-blue-600
+																										{% else %}
+																										text-blue-400 opacity-60
+																										{% endif %}
+																										text-[#001236]
+																										lg:text-white
+																										hover:underline">
+								Accueil
+							</a>
+						</li>
+
+						<li class="lg:border-r lg:border-gray-300 lg:px-4">
+							<a href="{{ path('app_register') }}" class="
+																									menu-link
+																									block
+																									py-2
+																									pl-3
+																									pr-4
+																									{% if app.request.attributes.get('_route') == 'app_register' %}
+																									  text-blue-600
+																									{% else %}
+																									  text-blue-400 opacity-60
+																									{% endif %}
+																								  text-[#001236]
+																								  lg:text-white
+																								    hover:underline">
+								S'inscrire
+							</a>
+						</li>
+
+						<li class="lg:pl-4">
+							<a href="{{ path('app_login') }}" class="
+																									menu-link
+																									block
+																									py-2
+																									pl-3
+																									pr-4
+																									{% if app.request.attributes.get('_route') == 'app_login' %}
+																									  text-blue-600
+																									{% else %}
+																									  text-blue-400 opacity-60
+																									{% endif %}
+																									text-[#001236]
+																									lg:text-white
+																									hover:underline">
+								Se connecter
+							</a>
+						</li>
+					</ul>
+				</div>
+
+			</div>
+		</nav>
+	</header>
+{% else %}
+	<header id="main-header" class="fixed top-0 z-20 w-full pb-5 pt-5 bg-transparent transition-colors duration-300 hidden md:block">
+		<nav class="w-full border-gray-200 py-2.5 uppercase">
+			<div
+				class="flex flex-wrap items-center justify-between w-full px-4">
+
+				<!-- LOGO -->
+				<a href="{{ path('app_profile_index') }}" class="flex items-center">
+					<img src="{{asset('images/logos/logo-snowtricks-favicon.svg')}}" class="h-6 mr-3 sm:h-9" alt="SnowTricks Logo">
+					<span id="logo-text" class="font-[Raleway] self-center text-xl font-semibold text-white">SnowTricks</span>
+				</a>
+
+				<!-- FLASH MESSAGES -->
+				<div class="absolute top-full left-0 w-full flex flex-col items-center mt-2 z-50 space-y-2">
+					{% for label, messages in app.flashes %}
+						{% for message in messages %}
+							<div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform -translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100 transform translate-y-0" x-transition:leave-end="opacity-0 transform -translate-y-2" class="
+																									px-4
+																									py-3
+																									rounded-lg
+																									shadow-md
+																									max-w-xl
+																									w-full
+																		                            {% if label == 'success' %} bg-green-100 text-green-800 {% endif %}
+																									{% if label == 'error' %} bg-red-100 text-red-800 {% endif %}
+																									{% if label == 'warning' %} bg-yellow-100 text-yellow-800 {% endif %}
+																									{% if label == 'info' %} bg-blue-100 text-blue-800 {% endif %}">
+								<div class="flex items-center justify-between">
+									<div class="flex items-center space-x-2">
+										{% if label == 'success' %}
+											<i class="ri-checkbox-circle-line text-lg"></i>
+										{% elseif label == 'error' %}
+											<i class="ri-error-warning-line text-lg"></i>
+										{% elseif label == 'warning' %}
+											<i class="ri-alert-line text-lg"></i>
+										{% elseif label == 'info' %}
+											<i class="ri-information-line text-lg"></i>
+										{% endif %}
+										<span>{{ message|raw }}</span>
+									</div>
+									<button @click="show = false" class="ml-4 font-bold text-xl">&times;</button>
+								</div>
+							</div>
+						{% endfor %}
+					{% endfor %}
+				</div>
+
+				<!-- BOUTON MOBILE -->
+				<div class="flex items-center space-x-4 lg:space-x-6 lg:order-2">
+					<button id="mobile-btn" data-collapse-toggle="mobile-menu-2" type="button" class="inline-flex items-center p-2 text-white rounded-lg lg:hidden hover:bg-[#26679c] focus:outline-none focus:ring-2 focus:ring-gray-100" aria-controls="mobile-menu-2" aria-expanded="false">
+						<span class="sr-only">Open main menu</span>
+						<svg class="w-6 h-6" fill="currentColor" viewbox="0 0 20 20">
+							<path fill-rule="evenodd" d="M3 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 5h14a1 1 0 010 2H3a1 1 0 010-2z" clip-rule="evenodd"></path>
+						</svg>
+					</button>
+				</div>
+
+				<!-- MENU DE NAVIGATION -->
+				<div id="mobile-menu-2" class="
+																hidden
+																lg:flex
+																lg:w-auto
+																lg:order-3
+																items-center
+																justify-end
+															  bg-white
+															    lg:bg-transparent
+																transition-colors
+																duration-300
+																lg:shadow-none">
+					<ul class="flex flex-col mt-4 font-medium lg:flex-row lg:mt-0">
+						<li class="lg:border-r lg:border-gray-300 lg:pr-4">
+							<a href="{{ path('app_profile_index') }}" class="menu-link block py-2 pl-3 pr-4											{% if app.request.attributes.get('_route') == 'app_profile_index' %}
+																									  text-blue-600
+																									{% else %}
+																									text-blue-400 opacity-60
+																									{% endif %}
+																									text-[#001236]
+																									lg:text-white
+																									hover:underline">
+								Accueil
+							</a>
+						</li>
+
+						<li class="lg:border-r lg:border-gray-300 lg:px-4">
+							<a href="{{ path('app_profile_tricks_add') }}" class="menu-link block py-2 pl-3 pr-4
+																									{% if app.request.attributes.get('_route') == 'app_profile_tricks_add' %}
+																									text-blue-600
+																									{% else %}
+																									text-blue-400 opacity-60
+																									{% endif %}
+																								  text-[#001236]
+																								  lg:text-white
+																								    hover:underline">
+								Ajouter une figure
+							</a>
+						</li>
+
+						<li class="lg:pl-4">
+							<a href="{{ path('app_logout') }}" class="menu-link block py-2 pl-3 pr-4 text-blue-400 opacity-60
+																									lg:text-white hover:underline">
+								Se déconnecter
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+{% endif %}

@@ -2,9 +2,9 @@ module.exports = {
   content: [
     "./templates/**/*.html.twig",
     "./assets/**/*.js",
+    "./node_modules/flowbite/**/*.js"
   ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
+  plugins: [
+    require('flowbite/plugin')
+  ],
 }
