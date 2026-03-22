@@ -12,11 +12,11 @@ services:
 
   node:
     image: node:20
-    container_name: snowtricksnode # Nom du conteneur
+    container_name: snowtricksnode
     volumes:
-      - ./:/var/www
+      - ./app:/var/www
     working_dir: /var/www
-    command: sh -c "npm install && npm run dev"
+    command: sh -c "tail -f /dev/null"
 
   database:
     image: mysql:8.0

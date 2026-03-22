@@ -1,4 +1,3 @@
-import './stimulus_bootstrap.js';
 /*
  * Welcome to your app's main JavaScript file!
  *
@@ -6,5 +5,10 @@ import './stimulus_bootstrap.js';
  * which should already be in your base.html.twig.
  */
 import './styles/app.css';
+
+import './js/scroll.js';
+import './js/load-more.js';
+
+
 
 console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
