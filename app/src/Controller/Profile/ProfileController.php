@@ -53,4 +53,91 @@ final class ProfileController extends AbstractController
             'page' => $page,
         ]);
     }
+
+
+    #[Route('/edit', name: 'edit')]
+    public function edit(
+        Request $request,
+        EntityManagerInterface $em,
+        UserPasswordHasherInterface $passwordHasher,
+        AvatarUploaderService $avatarUploaderService,
+        AvatarTempService $avatarTempService
+    ): Response {
+        /** @var \App\Entity\Users $user */
+        $user = $this->getUser();
+
+        if (!$request->isMethod('POST')) {
+            $avatarTempService->clear();
+        }
+
+        $form = $this->createForm(ProfileFormType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted()) {
+            // Intention utilisateur : suppression avatar
+            if ($form->get('deleteAvatar')->getData()) {
+                if ($user->getAvatar()) {
+                    $avatarUploaderService->delete($user->getAvatar());
+                    $user->setAvatar(null);
+                }
+
+                if ($avatarTempService->get()) {
+                    $avatarTempService->clear();
+                }
+            }
+
+            // Validation OK → actions définitives
+            if ($form->isValid()) {
+                // -----------------
+                // Mot de passe
+                // -----------------
+                $plainPassword = $form->get('plainPassword')->getData();
+                if ($plainPassword) {
+                    $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
+                    $user->setPassword($hashedPassword);
+                }
+
+                // -----------------
+                // Suppression avatar
+                // -----------------
+                if ($form->get('deleteAvatar')->getData()) {
+                    if ($user->getAvatar()) {
+                        $avatarUploaderService->delete($user->getAvatar());
+                        $user->setAvatar(null);
+                    }
+                    // Si un avatar temporaire existe, on le supprime aussi
+                    if ($avatarTempService->get()) {
+                        $avatarTempService->clear();
+                    }
+                }
+
+                // -----------------
+                // Avatar upload (temp -> final)
+                // -----------------
+                $tempAvatar = $avatarTempService->get();
+                if ($tempAvatar && !$form->get('deleteAvatar')->getData()) { // uniquement si on ne supprime pas
+                    if ($user->getAvatar()) {
+                        $avatarUploaderService->delete($user->getAvatar());
+                    }
+                    $avatarTempService->moveToFinal($tempAvatar);
+                    $user->setAvatar($tempAvatar);
+                }
+
+                // -----------------
+                // Enregistrement
+                // -----------------
+                $em->flush();
+
+                $this->addFlash('success', 'Profil mis à jour avec succès !');
+
+                return $this->redirectToRoute('app_profile_index');
+            }
+        }
+
+        return $this->render('profile/profile/edit.html.twig', [
+            'profileForm' => $form->createView(),
+            'user' => $user,
+            'tempAvatar' => $avatarTempService->get(),
+        ]);
+    }
 }

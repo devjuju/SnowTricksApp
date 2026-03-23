@@ -1,0 +1,133 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon profil
+{% endblock %}
+
+{% block body %}
+<section class="bg-[#007CCB] min-h-screen flex flex-col items-center pt-24 sm:pt-32 pd:pt-40 px-4 sm:mx-0 pb-24">
+
+	<h1 class="font-[Raleway] text-white text-3xl sm:text-4xl md:text-5xl font-bold tracking-wide mb-12 text-center uppercase hidden md:block">
+		Mon profil
+	</h1>
+
+	<div class="
+				w-full
+				max-w-md
+				sm:max-w-lg
+				mx-4
+				sm:mx-auto
+			  bg-white
+			    py-12
+				px-8
+				sm:py-16
+				sm:px-12
+				md:px-20
+				rounded-[20px]
+				shadow-[0_18px_45px_rgba(0,0,0,0.12)]
+				space-y-6">
+		<h1 class="font-[Raleway] text-black text-3xl sm:text-4xl md:text-5xl font-bold tracking-wide mb-12 text-center uppercase md:hidden">
+			Mon profil
+		</h1>
+
+		{{ form_start(profileForm, { attr: { novalidate: 'novalidate', enctype:'multipart/form-data' } }) }}
+
+		{# Avatar Upload #}
+		<div
+			class="mb-6 flex flex-col items-center relative group">
+			{# Détermination du chemin de l'avatar à afficher #}
+			{% set avatarPath =
+                tempAvatar
+                ? asset('uploads/avatars_tmp/' ~ tempAvatar)
+                : (user.avatar ? asset('uploads/avatars/' ~ user.avatar) : null)
+            %}
+			{# Conteneur cercle avatar #}
+			<div
+				id="avatar-container" data-existing-image="{{ avatarPath ?? '' }}" class="w-32 h-32 border-2 rounded-full flex items-center justify-center cursor-pointer overflow-hidden relative transition-all duration-300 hover:border-blue-400 hover:bg-gray-50 bg-blue-600 ">
+
+				{# Aperçu image #}
+				<img
+				id="avatar-preview" src="{{ avatarPath }}" class="absolute inset-0 w-full h-full object-cover rounded-full {{ avatarPath ? '' : 'opacity-0' }}">
+
+				{# Placeholder #}
+				<span id="avatar-placeholder" class="absolute text-white transition-opacity duration-300 text-center
+									{{ avatarPath ? 'opacity-0' : '' }}" style="font-size:24px;">
+					<i class="bi bi-person-circle"></i>
+				</span>
+
+				{# Champ file Symfony #}
+				{{ form_widget(profileForm.avatar, { 
+                    attr: { 
+                        class: 'absolute w-full h-full opacity-0 cursor-pointer rounded-full', 
+                        accept: 'image/png, image/jpeg, image/webp' 
+                        } 
+                }) }}
+			</div>
+
+			{# Actions Edit/Delete sous le cercle #}
+			<div class="flex gap-2 mt-2 " id="avatar-actions">
+				<button type="button" id="edit-avatar" class="p-1 rounded bg-[#1b84ff] hover:bg-[#056ee9] text-white text-xs">
+					<i class="bi bi-pencil"></i>
+					<span class="sr-only">Edit</span>
+				</button>
+				<button type="button" id="delete-avatar" class="p-1 rounded border-[#f8285a] bg-[#f8285a] text-white hover:bg-[#d81a48] text-xs">
+					<i class="bi bi-trash"></i>
+					<span class="sr-only">Delete</span>
+				</button>
+			</div>
+
+			{# Erreur validation #}
+			<div id="avatar-error" class="absolute bottom-1 left-1 text-red-500 text-sm">
+				{{ form_errors(profileForm.avatar) }}
+			</div>
+
+			{# Champ caché suppression (backend) #}
+			{{ form_widget(profileForm.deleteAvatar) }}
+		</div>
+
+		{# Email #}
+		<div class="space-y-2 text-center">
+			{{ form_label(profileForm.email, 'Email', { label_attr: { class: 'font-medium text-gray-700' } }) }}
+			{{ form_widget(profileForm.email, { attr: {
+                class: 'w-full text-center border-b border-gray-300 focus:outline-none focus:border-blue-400 pb-2 text-gray-700'
+            }}) }}
+
+			<div class="text-red-500 text-sm">
+				{{ form_errors(profileForm.email) }}
+			</div>
+		</div>
+
+		{# Username #}
+		<div class="space-y-2 text-center">
+			{{ form_label(profileForm.username, 'Nom d\'utilisateur', { label_attr: { class: 'font-medium text-gray-700' } }) }}
+            {{ form_widget(profileForm.username, { attr: {
+                class: 'w-full text-center border-b border-gray-300 focus:outline-none focus:border-blue-400 pb-2 text-gray-700'
+            }}) }}
+
+            <div class="text-red-500 text-sm">
+                {{ form_errors(profileForm.username) }}
+            </div>
+        </div>
+
+        {# Password #}
+        <div class="space-y-2 text-center">
+           {{ form_label(profileForm.plainPassword.first, 'Nouveau mot de passe') }}
+				{{ form_widget(profileForm.plainPassword.first, { attr: { class: 'w-full border-b pb-2 text-gray-700 text-center focus:outline-none focus:border-blue-400' } }) }}
+				{{ form_label(profileForm.plainPassword.second, 'Répéter le mot de passe') }}
+				{{ form_widget(profileForm.plainPassword.second, { attr: { class: 'w-full border-b pb-2 text-gray-700 text-center focus:outline-none focus:border-blue-400' } }) }}
+				<div class="text-red-500 text-sm">{{ form_errors(profileForm.plainPassword) }}</div>
+        </div>
+
+        {# SUBMIT #}
+        <button type="submit"
+                class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition">
+            Modifier mon profil
+        </button>
+        {{ form_end(profileForm) }}
+    </div>
+</section>
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script src="{{ asset('js/avatar.js') }}"></script>
+{% endblock %}
