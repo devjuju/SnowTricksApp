@@ -18,8 +18,7 @@ import './js/navbar.js';
 import './js/scroll.js';
 import './js/load-more.js';
 import './js/featured-image.js';
-
-
-
+import './js/carousel.js';
+import './js/collapse.js';
 
 console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
