@@ -20,4 +20,6 @@ import './js/load-more.js';
 import './js/featured-image.js';
 
 
+
+
 console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
