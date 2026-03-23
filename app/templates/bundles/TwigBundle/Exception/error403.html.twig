@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accès interdit 403
+{% endblock %}
+
+{% block body %}
+	<section class="
+			px-6
+			md:px-[93px]
+		  bg-[#D3DCEB]
+			pt-[120px]
+			pb-[42px]
+			bg-cover
+			bg-center
+			bg-no-repeat
+			min-h-screen
+			flex
+			items-center
+			justify-center" style="background-image: url('{{ asset('images/backgrounds/image-cover.jpg') }}')">
+		<div class="bg-[#00214D]/50 backdrop-blur-sm p-6 md:p-10 rounded-xl max-w-xl text-center">
+			<h1 class="text-7xl text-white font-bold uppercase mb-4">403</h1>
+			<p class="text-white text-2xl font-semibold mb-6">
+				Vous n'avez pas accès à cette zone
+			</p>
+			<div
+				class="flex flex-col sm:flex-row gap-4 justify-center">
+				{# Bouton vers le profil #}
+				<a href="{{ path('app_profile_index') }}" class="bg-blue-600 hover:bg-blue-800 text-white px-6 py-3 rounded transition">
+					Retour au profil
+				</a>
+				{# Bouton vers l'accueil #}
+				<a href="{{ path('app_main') }}" class="bg-gray-500 hover:bg-gray-700 text-white px-6 py-3 rounded transition">
+					Retour à l'accueil
+				</a>
+			</div>
+
+			{# Debug info (APP_DEBUG = true) #}
+			{% if app.debug %}
+				<div class="mt-6 text-left text-sm text-white/80 bg-black/30 p-4 rounded overflow-x-auto">
+					<strong>Message :</strong>
+					{{ message }}<br>
+					<strong>Code :</strong>
+					{{ status_code }}
+				</div>
+			{% endif %}
+		</div>
+	</section>
+{% endblock %}
