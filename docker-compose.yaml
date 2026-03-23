@@ -34,7 +34,7 @@ services:
   phpmyadmin:
     image: phpmyadmin
     environment:
-      PMA_HOST: snowtricksdb # Nom du service de base de données
+      PMA_HOST: database # Nom du service de base de données
       PMA_USER: root
       PMA_PASSWORD: snowtricks_pass # MYSQL_ROOT_PASSWORD
     ports:
