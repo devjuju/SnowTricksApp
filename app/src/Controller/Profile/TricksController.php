@@ -103,6 +103,138 @@ class TricksController extends AbstractController
     }
 
 
+
+    #[Route('/modifier/{slug}', name: 'app_profile_tricks_edit')]
+    public function edit(
+        string $slug,
+        Request $request,
+        EntityManagerInterface $em,
+        TricksRepository $repository,
+        ImagesUploaderService $imagesUploaderService,
+        FeaturedImageUploaderService $featuredImageUploaderService,
+        FeaturedImageTempService $featuredImageTempService,
+        ImagesTempService $imagesTempService,
+        SlugService $slugService
+    ): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $trick = $repository->findOneBy(['slug' => $slug]);
+        if (!$trick) throw $this->createNotFoundException('Figure introuvable');
+
+        $this->denyAccessUnlessGranted('TRICK_EDIT', $trick);
+
+        if (!$request->isMethod('POST')) {
+            $featuredImageTempService->clear();
+            $imagesTempService->clear();
+        }
+
+        $form = $this->createForm(TrickUpdateFormType::class, $trick, [
+            'featured_image_temp_service' => $featuredImageTempService,
+        ]);
+        $form->handleRequest($request);
+
+        $deleteButton = $form->get('delete');
+        $saveButton = $form->get('save');
+
+        if ($form->isSubmitted()) {
+
+            // SUPPRESSION
+            if ($deleteButton instanceof \Symfony\Component\Form\SubmitButton && $deleteButton->isClicked()) {
+                if ($trick->getFeaturedImage()) {
+                    $featuredImageUploaderService->delete($trick->getFeaturedImage());
+                }
+
+                foreach ($trick->getImages() as $image) {
+                    $imagesUploaderService->delete($image->getPicture());
+                    $em->remove($image);
+                }
+
+                foreach ($trick->getVideos() as $video) {
+                    $em->remove($video);
+                }
+
+                $em->remove($trick);
+                $em->flush();
+
+                $this->addFlash('success', 'Figure supprimée avec succès');
+                return $this->redirectToRoute('app_profile_index');
+            }
+
+            // MODIFICATION
+            if ($saveButton instanceof \Symfony\Component\Form\SubmitButton && $saveButton->isClicked()) {
+
+                // Générer un slug unique si le titre a changé
+                if ($trick->getTitle()) {
+                    $trick->setSlug($slugService->generateUniqueSlug($trick, 'title', $em));
+                }
+
+                if ($form->isValid()) {
+                    // Featured image
+                    $tempFeaturedImage = $featuredImageTempService->get();
+                    if ($tempFeaturedImage) {
+                        $featuredImageTempService->moveToFinal($tempFeaturedImage);
+                        $trick->setFeaturedImage($tempFeaturedImage);
+                        $featuredImageTempService->clear();
+                    }
+
+                    $this->handleMedia($trick, $request, $em, $imagesUploaderService, $imagesTempService);
+                    $em->flush();
+
+                    $this->addFlash('success', 'Figure modifiée avec succès');
+                    return $this->redirectToRoute('app_profile_index');
+                }
+            }
+        }
+
+        return $this->render('profile/tricks/edit.html.twig', [
+            'form' => $form->createView(),
+            'trick' => $trick,
+            'tempFeaturedImage' => $featuredImageTempService->get(),
+            'tempImages' => $imagesTempService->getAll(),
+        ]);
+    }
+
+
+    #[Route('/supprimer/{slug}', name: 'app_profile_tricks_delete', methods: ['POST'])]
+    public function delete(
+        string $slug,
+        Request $request,
+        TricksRepository $repository,
+        EntityManagerInterface $em,
+        FeaturedImageUploaderService $featuredImageUploaderService,
+        ImagesUploaderService $imagesUploaderService
+    ): Response {
+        $trick = $repository->findOneBy(['slug' => $slug]);
+        if (!$trick) throw $this->createNotFoundException('Figure introuvable');
+
+        $this->denyAccessUnlessGranted('TRICK_DELETE', $trick);
+
+        if (!$this->isCsrfTokenValid('delete-trick-' . $trick->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token invalide.');
+            return $this->redirectToRoute('app_profile_index');
+        }
+
+        if ($trick->getFeaturedImage()) {
+            $featuredImageUploaderService->delete($trick->getFeaturedImage());
+        }
+
+        foreach ($trick->getImages() as $image) {
+            $imagesUploaderService->delete($image->getPicture());
+            $em->remove($image);
+        }
+
+        foreach ($trick->getVideos() as $video) {
+            $em->remove($video);
+        }
+
+        $em->remove($trick);
+        $em->flush();
+
+        $this->addFlash('success', 'Figure supprimée avec succès');
+        return $this->redirectToRoute('app_profile_index');
+    }
+
+
     // ---------------------
     // handleMedia sécurisé
     // ---------------------
