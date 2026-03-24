@@ -1,29 +1,44 @@
 FROM php:8.4-apache
 
-# Installation des pré-requis Symfony
+# Installation des dépendances système
 RUN apt-get update \
-    && apt-get install -y build-essential curl zlib1g-dev g++ libicu-dev zip libzip-dev libpng-dev libjpeg-dev libwebp-dev libfreetype-dev \
-    && docker-php-ext-install mysqli pdo pdo_mysql intl opcache \
-    && pecl install apcu \
-    && docker-php-ext-enable apcu \
-    && docker-php-ext-configure zip \
-    && docker-php-ext-install zip
+    && apt-get install -y --no-install-recommends \
+        build-essential=12.9 \
+        curl=7.88.* \
+        zlib1g-dev=1:1.2.* \
+        g++=4:12.* \
+        libicu-dev=72.* \
+        zip=3.* \
+        libzip-dev=1.7.* \
+        libpng-dev=1.6.* \
+        libjpeg-dev=1:2.* \
+        libwebp-dev=1.2.* \
+        libfreetype-dev=2.12.* \
+    && rm -rf /var/lib/apt/lists/*
 
-# Installation de la gestion des images (GD + EXIF)
+# Extensions PHP
+RUN docker-php-ext-install mysqli pdo pdo_mysql intl opcache zip
+
+# APCU
+RUN pecl install apcu \
+    && docker-php-ext-enable apcu
+
+# GD + EXIF
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install gd exif
 
-RUN a2enmod rewrite && a2enmod socache_shmcb
-
-RUN a2enmod rewrite && a2enmod ssl && a2enmod socache_shmcb
+# Apache modules (corrigé doublons)
+RUN a2enmod rewrite ssl socache_shmcb
 
 WORKDIR /var/www
 
-# On installe composer et Symfony CLI dans le conteneur
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Installation Composer
+RUN curl -sS https://getcomposer.org/installer \
+    | php -- --install-dir=/usr/local/bin --filename=composer
 
-RUN curl -sS https://get.symfony.com/cli/installer | bash
-RUN mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
+# Symfony CLI
+RUN curl -sS https://get.symfony.com/cli/installer | bash \
+    && mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
 
-# Donne les droits au serveur Apache
+# Permissions
 RUN chown -R www-data:www-data /var/www
