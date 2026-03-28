@@ -66,6 +66,8 @@ trait TrickBaseFieldsTrait
                 'mapped' => false,
                 'required' => false,
                 'label' => false,
+                // 🔥 clé importante
+                'delete_empty' => true,
             ])
             ->add('videos', CollectionType::class, [
                 'entry_type' => VideoType::class,
@@ -76,6 +78,7 @@ trait TrickBaseFieldsTrait
                 'prototype_name' => '__video__',
                 'required' => false,
                 'label' => false,
+                'delete_empty' => true,
             ]);
     }
 }

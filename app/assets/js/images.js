@@ -1,11 +1,12 @@
-/* global cloneTemplate, smartScroll */
 document.addEventListener("DOMContentLoaded", () => {
-    /* -------- IMAGE SECTION -------- */
     const imageWrapper = document.getElementById("image-wrapper");
     if (!imageWrapper) return;
 
     let index = parseInt(imageWrapper.dataset.index || 0);
 
+    // =========================
+    // 🔍 VALIDATION FILE
+    // =========================
     const validateFile = (file) => {
         const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
         const maxSize = 2 * 1024 * 1024;
@@ -23,7 +24,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return true;
     };
 
-    const initImageItem = (item, isNew = false) => {
+    // =========================
+    // 🎯 INIT ITEM
+    // =========================
+    const initImageItem = (item) => {
         const input = item.querySelector(".item-input");
         const preview = item.querySelector(".image-preview");
         const placeholder = item.querySelector(".image-placeholder");
@@ -36,8 +40,26 @@ document.addEventListener("DOMContentLoaded", () => {
         const hiddenInput = item.querySelector(".uploaded-filename");
         const removedInput = item.querySelector(".removed-image");
 
+        const status = item.dataset.imageStatus;
+
+        const isExisting = status === "existing";
+        const isNew = status === "new";
+
         if (!hiddenInput) return;
 
+        let isOpen = false;
+
+        // =========================
+        // STATE
+        // =========================
+        const getState = () => ({
+            hasImage: item.dataset.imageStatus === "existing",
+            isOpen
+        });
+
+        // =========================
+        // PREVIEW
+        // =========================
         const showPreview = (src) => {
             preview.src = src;
             preview.classList.remove("hidden");
@@ -50,24 +72,56 @@ document.addEventListener("DOMContentLoaded", () => {
             placeholder?.classList.remove("hidden");
         };
 
-        const updateUI = () => {
-            const hasImage = !!hiddenInput.value;
-            const isOpen = input && !input.classList.contains("w-0");
+        // =========================
+        // UI RENDER
+        // =========================
+        const renderUI = (state) => {
+            const isExisting = item.dataset.imageStatus === "existing";
 
-            addBtn?.classList.toggle("hidden", isOpen || hasImage);
-            editBtn?.classList.toggle("hidden", !(hasImage && !isOpen));
-            closeBtn?.classList.toggle("hidden", !isOpen);
-            removeBtn?.classList.toggle("hidden", isOpen);
+            // ADD
+            addBtn?.classList.toggle("hidden", state.isOpen || state.hasImage);
+
+            // EDIT (STRICT)
+            if (!isExisting) {
+                editBtn?.classList.add("hidden");
+            } else {
+                editBtn?.classList.toggle("hidden", !(state.hasImage && !state.isOpen));
+            }
+
+            // CLOSE
+            closeBtn?.classList.toggle("hidden", !state.isOpen);
+
+            // REMOVE
+            removeBtn?.classList.toggle("hidden", state.isOpen);
         };
 
-        const openInput = () => input?.click();
+        const render = () => renderUI(getState());
+
+        // =========================
+        // OPEN / CLOSE INPUT
+        // =========================
+        const openInput = () => {
+            isOpen = true;
+
+            input.classList.remove("w-0", "opacity-0");
+            input.classList.add("w-full", "opacity-100");
+
+            input.focus();
+            render();
+        };
 
         const closeInput = () => {
-            input?.classList.add("w-0", "opacity-0");
-            input?.classList.remove("w-full", "opacity-100");
-            updateUI();
+            isOpen = false;
+
+            input.classList.add("w-0", "opacity-0");
+            input.classList.remove("w-full", "opacity-100");
+
+            render();
         };
 
+        // =========================
+        // UPLOAD
+        // =========================
         const upload = async (file, replace = false) => {
             if (!validateFile(file)) return;
 
@@ -93,29 +147,45 @@ document.addEventListener("DOMContentLoaded", () => {
                 const image = data.images[0];
                 const oldFilename = hiddenInput.value;
 
+                // replace image
                 if (replace && oldFilename) {
                     const form = item.closest("form");
-                    const input = document.createElement("input");
+                    const inputReplace = document.createElement("input");
 
-                    input.type = "hidden";
-                    input.name = `replace_images[${oldFilename}]`;
-                    input.value = image.filename;
+                    inputReplace.type = "hidden";
+                    inputReplace.name = `replace_images[${oldFilename}]`;
+                    inputReplace.value = image.filename;
 
-                    form.appendChild(input);
+                    form.appendChild(inputReplace);
                 }
 
+                // update state
                 hiddenInput.value = image.filename;
+                item.dataset.imageStatus = "existing";
+
                 showPreview(image.url);
-                updateUI();
+
+                closeInput();
+                render();
+
             } catch (e) {
                 console.error(e);
                 alert("Erreur serveur");
             }
         };
 
+        // =========================
+        // EVENTS
+        // =========================
         input?.addEventListener("change", () => {
-            if (!input.files?.[0]) return;
-            upload(input.files[0], !!hiddenInput.value);
+            const file = input.files?.[0];
+
+            if (!file) {
+                if (!hiddenInput.value) item.remove();
+                return;
+            }
+
+            upload(file, !!hiddenInput.value);
         });
 
         addBtn?.addEventListener("click", openInput);
@@ -126,39 +196,52 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!confirm("Supprimer cette image ?")) return;
 
             const filename = hiddenInput.value;
+
             if (removedInput && filename) {
                 removedInput.value = filename;
             }
 
             item.classList.add("opacity-30", "pointer-events-none");
+            hidePreview();
         });
 
-        if (preview?.getAttribute("src")) {
+        // =========================
+        // INIT STATE
+        // =========================
+        if (preview?.src) {
             hiddenInput.value = preview.dataset.filename || "";
-        } else {
+        }
+
+        if (!hiddenInput.value) {
             hidePreview();
         }
 
-        isNew ? openInput() : updateUI();
+        requestAnimationFrame(() => {
+            if (isNew) openInput();
+        });
+
+        render();
     };
 
+    // =========================
+    // ➕ ADD IMAGE
+    // =========================
     const addImage = () => {
         const element = cloneTemplate("image-prototype", index++);
         if (!element) return;
 
         imageWrapper.appendChild(element);
-        initImageItem(element, true);
-        smartScroll(imageWrapper, element);
+        initImageItem(element);
 
-        element.classList.add("ring-2", "ring-blue-400");
-        setTimeout(() => {
-            element.classList.remove("ring-2", "ring-blue-400");
-        }, 1500);
+        if (typeof smartScroll === "function") {
+            smartScroll(imageWrapper, element);
+        }
     };
 
     document.getElementById("add-image")?.addEventListener("click", addImage);
 
-    imageWrapper
-        .querySelectorAll(".media-item")
-        .forEach((item) => initImageItem(item));
+    // =========================
+    // INIT EXISTING ITEMS
+    // =========================
+    imageWrapper.querySelectorAll(".media-item").forEach(initImageItem);
 });

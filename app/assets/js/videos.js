@@ -1,4 +1,3 @@
-/* global smartScroll */
 document.addEventListener("DOMContentLoaded", () => {
     /* -------- VIDEO SECTION -------- */
     const videoWrapper = document.getElementById("video-wrapper");

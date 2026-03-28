@@ -4,6 +4,7 @@ namespace App\Controller\Profile;
 
 use App\Entity\Tricks;
 use App\Entity\Images;
+use App\Entity\Users;
 use App\Entity\Videos;
 use App\Form\TrickAddFormType;
 use App\Form\TrickUpdateFormType;
@@ -18,7 +19,7 @@ use App\Service\FeaturedImageUploaderService;
 use App\Service\FeaturedImageTempService;
 use App\Service\ImagesTempService;
 use App\Service\SlugService;
-
+use App\Service\VideosTempService;
 
 #[Route('/profile/tricks')]
 class TricksController extends AbstractController
@@ -36,9 +37,9 @@ class TricksController extends AbstractController
 
         $trick = new Tricks();
         $trick->setUser($this->getUser());
+
         $imagesTempService->setContext('trick_add');
 
-        // Si ce n'est pas un POST, on vide les temporaires
         if (!$request->isMethod('POST')) {
             $featuredImageTempService->clear();
             $imagesTempService->clear();
@@ -51,16 +52,26 @@ class TricksController extends AbstractController
         $form->handleRequest($request);
         $saveButton = $form->get('save');
 
+        // TEMP uploads vidéos
+        $videosUrls = $request->request->all('videos_urls', []);
+
+        foreach ($videosUrls as $url) {
+
+            if (!is_string($url)) {
+                continue; // ⛔ ignore les valeurs invalides
+            }
+
+            $url = trim($url);
+            if ($url === '') continue;
+        }
+
         if ($form->isSubmitted() && $saveButton instanceof \Symfony\Component\Form\SubmitButton && $saveButton->isClicked()) {
 
-            // Générer un slug unique si le titre existe
             if ($trick->getTitle()) {
                 $trick->setSlug($slugService->generateUniqueSlug($trick, 'title', $em));
             }
 
-            // -------------------------
-            // Gestion des images temporaires même si le formulaire est invalide
-            // -------------------------
+            // Images temp upload (déjà existant)
             $uploadedImages = $request->files->get('trick_add_form')['images'] ?? [];
             foreach ($uploadedImages as $imageFormData) {
                 $file = $imageFormData['file'] ?? null;
@@ -69,7 +80,6 @@ class TricksController extends AbstractController
                 }
             }
 
-            // Si le formulaire est valide
             if ($form->isValid()) {
 
                 // Featured image
@@ -80,8 +90,13 @@ class TricksController extends AbstractController
                     $featuredImageTempService->clear();
                 }
 
-                // Gestion images et vidéos
-                $this->handleMedia($trick, $request, $em, $imagesUploaderService, $imagesTempService);
+                $this->handleMedia(
+                    $trick,
+                    $request,
+                    $em,
+                    $imagesUploaderService,
+                    $imagesTempService,
+                );
 
                 $em->persist($trick);
                 $em->flush();
@@ -91,9 +106,6 @@ class TricksController extends AbstractController
             }
         }
 
-        // -------------------------
-        // Rendu du formulaire
-        // -------------------------
         return $this->render('profile/tricks/add.html.twig', [
             'form' => $form->createView(),
             'trick' => $trick,
@@ -101,7 +113,6 @@ class TricksController extends AbstractController
             'tempImages' => $imagesTempService->getAll(),
         ]);
     }
-
 
 
     #[Route('/modifier/{slug}', name: 'app_profile_tricks_edit')]
@@ -114,12 +125,21 @@ class TricksController extends AbstractController
         FeaturedImageUploaderService $featuredImageUploaderService,
         FeaturedImageTempService $featuredImageTempService,
         ImagesTempService $imagesTempService,
+
+
         SlugService $slugService
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $user = $this->getUser();
+
+        if (!$user) {
+            throw new \LogicException('User not authenticated');
+        }
 
         $trick = $repository->findOneBy(['slug' => $slug]);
-        if (!$trick) throw $this->createNotFoundException('Figure introuvable');
+        if (!$trick) {
+            throw $this->createNotFoundException('Figure introuvable');
+        }
 
         $this->denyAccessUnlessGranted('TRICK_EDIT', $trick);
 
@@ -131,15 +151,20 @@ class TricksController extends AbstractController
         $form = $this->createForm(TrickUpdateFormType::class, $trick, [
             'featured_image_temp_service' => $featuredImageTempService,
         ]);
+
         $form->handleRequest($request);
 
         $deleteButton = $form->get('delete');
         $saveButton = $form->get('save');
 
+
+
+
         if ($form->isSubmitted()) {
 
-            // SUPPRESSION
+            // DELETE TRICK
             if ($deleteButton instanceof \Symfony\Component\Form\SubmitButton && $deleteButton->isClicked()) {
+
                 if ($trick->getFeaturedImage()) {
                     $featuredImageUploaderService->delete($trick->getFeaturedImage());
                 }
@@ -160,15 +185,23 @@ class TricksController extends AbstractController
                 return $this->redirectToRoute('app_profile_index');
             }
 
-            // MODIFICATION
+            // UPDATE
             if ($saveButton instanceof \Symfony\Component\Form\SubmitButton && $saveButton->isClicked()) {
 
-                // Générer un slug unique si le titre a changé
                 if ($trick->getTitle()) {
                     $trick->setSlug($slugService->generateUniqueSlug($trick, 'title', $em));
                 }
 
                 if ($form->isValid()) {
+
+                    // 🔥 FIX ICI
+                    $user = $this->getUser();
+
+                    if (!$user) {
+                        throw new \LogicException('User not authenticated');
+                    }
+
+
                     // Featured image
                     $tempFeaturedImage = $featuredImageTempService->get();
                     if ($tempFeaturedImage) {
@@ -177,7 +210,14 @@ class TricksController extends AbstractController
                         $featuredImageTempService->clear();
                     }
 
-                    $this->handleMedia($trick, $request, $em, $imagesUploaderService, $imagesTempService);
+                    $this->handleMedia(
+                        $trick,
+                        $request,
+                        $em,
+                        $imagesUploaderService,
+                        $imagesTempService,
+                    );
+
                     $em->flush();
 
                     $this->addFlash('success', 'Figure modifiée avec succès');
@@ -191,8 +231,10 @@ class TricksController extends AbstractController
             'trick' => $trick,
             'tempFeaturedImage' => $featuredImageTempService->get(),
             'tempImages' => $imagesTempService->getAll(),
+
         ]);
     }
+
 
 
     #[Route('/supprimer/{slug}', name: 'app_profile_tricks_delete', methods: ['POST'])]
@@ -235,9 +277,6 @@ class TricksController extends AbstractController
     }
 
 
-    // ---------------------
-    // handleMedia sécurisé
-    // ---------------------
     private function handleMedia(
         Tricks $trick,
         Request $request,
@@ -245,99 +284,265 @@ class TricksController extends AbstractController
         ImagesUploaderService $imagesUploaderService,
         ImagesTempService $imagesTempService
     ): void {
-        $currentUser = $this->getUser();
+        $user = $this->getUser();
 
-        // REPLACEMENT DES IMAGES TEMPORAIRES
-        $replacements = $request->request->all('replace_images', []);
-
-        foreach ($replacements as $old => $new) {
-
-            foreach ($trick->getImages() as $image) {
-
-                if ($image->getPicture() === $old) {
-
-                    $imagesUploaderService->delete($old);
-
-                    $image->setPicture($new);
-
-                    break;
-                }
-            }
+        if (!$user instanceof Users) {
+            throw new \LogicException('Utilisateur non authentifié.');
         }
 
-        $replacedFiles = array_values($replacements);
+        $formData = $request->request->all('trick_add_form');
 
-        // AJOUT DES IMAGES TEMP → FINAL
-        foreach ($imagesTempService->moveAllToFinal() as $filename) {
+        // ------------------------
+        // Gérer les images
+        // ------------------------
+        $this->handleImagesReplace($trick, $request, $imagesUploaderService, $imagesTempService);
+        $this->handleImagesAdd($trick, $request, $em, $imagesTempService, $user);
+        $this->handleImagesDelete($trick, $request, $em, $imagesUploaderService);
 
-            if (!$filename) continue;
+        // ------------------------
+        // Gérer les vidéos
+        // ------------------------
+        $this->handleVideosDelete($trick, $request, $em);
 
-            // 🔥 si déjà utilisé pour remplacement → on skip
-            if (in_array($filename, $replacedFiles, true)) {
+        $this->handleVideosReplace($trick, $request, $em);
+
+        $this->handleVideosAdd($trick, $request, $em);
+
+        // ------------------------
+        // Nettoyage des images sans fichier
+        // ------------------------
+        $this->cleanupEmptyImages($trick, $em);
+    }
+
+
+    private function handleImagesReplace(
+        Tricks $trick,
+        Request $request,
+        ImagesUploaderService $imagesUploaderService,
+        ImagesTempService $imagesTempService
+    ): void {
+        $replacements = $request->request->all('replace_images', []);
+
+        foreach ($trick->getImages() as $image) {
+            $old = $image->getPicture();
+
+            if (!isset($replacements[$old])) {
                 continue;
             }
 
-            $image = new Images();
-            $image->setPicture($filename);
-            $image->setTrick($trick);
-            $image->setUser($this->getUser());
+            $new = $replacements[$old];
+
+            if (!$new) {
+                continue;
+            }
+
+            if (!$this->isGranted('MEDIA_EDIT', $image)) {
+                continue;
+            }
+
+            // 🔥 delete old file
+            $imagesUploaderService->delete($old);
+
+            // 🔥 move new file
+            $imagesTempService->moveToFinal($new);
+
+            // 🔥 update entity
+            $image->setPicture($new);
+
+            // 🔥 CRUCIAL: prevent double-processing later
+            unset($replacements[$old]);
+        }
+    }
+
+
+
+
+
+    private function handleImagesAdd(
+        Tricks $trick,
+        Request $request,
+        EntityManagerInterface $em,
+        ImagesTempService $imagesTempService,
+        Users $user
+    ): void {
+
+
+        $removed = $request->request->all('removed_images', []);
+        $replacements = $request->request->all('replace_images', []);
+
+        // 🔥 build blacklist (removed + replaced old files)
+        $blacklist = array_merge($removed, array_keys($replacements));
+
+        foreach ($imagesTempService->getAll() as $filename) {
+
+            if (!$filename) {
+                continue;
+            }
+
+            // ❌ skip removed
+            if (in_array($filename, $removed, true)) {
+                continue;
+            }
+
+            // ❌ skip replaced originals
+            if (in_array($filename, $blacklist, true)) {
+                continue;
+            }
+
+            // ❌ avoid duplicates already in DB
+            $exists = $trick->getImages()->exists(
+                fn($i, $img) => $img->getPicture() === $filename
+            );
+
+            if ($exists) {
+                continue;
+            }
+
+            $imagesTempService->moveToFinal($filename);
+
+            $image = (new Images())
+                ->setPicture($filename)
+                ->setTrick($trick)
+                ->setUser($user);
 
             $trick->addImage($image);
             $em->persist($image);
         }
+    }
 
-        // SUPPRESSION DES IMAGES EXISTANTES
-        $removedImages = $request->request->all('removed_images', []);
-        foreach ($removedImages as $filename) {
-            if (!$filename || $filename === 'new') continue;
+    private function handleImagesDelete(
+        Tricks $trick,
+        Request $request,
+        EntityManagerInterface $em,
+        ImagesUploaderService $imagesUploaderService
+    ): void {
 
-            foreach ($trick->getImages() as $image) {
-                if ($image->getPicture() === $filename && $this->isGranted('MEDIA_DELETE', $image)) {
-                    $imagesUploaderService->delete($filename);
-                    $trick->removeImage($image);
-                    $em->remove($image);
-                    break;
-                }
+        $removed = $request->request->all('removed_images', []);
+
+        foreach ($trick->getImages() as $image) {
+
+            if (!in_array($image->getPicture(), $removed, true)) {
+                continue;
             }
+
+            if (!$this->isGranted('MEDIA_DELETE', $image)) {
+                continue;
+            }
+
+            $imagesUploaderService->delete($image->getPicture());
+
+            $trick->removeImage($image);
+            $em->remove($image);
         }
+    }
 
-        // SUPPRESSION DES VIDÉOS
-        $removedVideos = $request->request->all('removed_videos', []);
-        foreach ($removedVideos as $id) {
-            if (!ctype_digit((string)$id)) continue;
+    private function handleVideosAdd(
+        Tricks $trick,
+        Request $request,
+        EntityManagerInterface $em
+    ): void {
 
-            $video = $em->getRepository(Videos::class)->find($id);
-            if ($video && $this->isGranted('MEDIA_DELETE', $video)) {
-                $trick->removeVideo($video);
-                $em->remove($video);
+        $removed = $request->request->all('removed_videos', []);
+        $replacements = $request->request->all('replace_videos', []);
+
+        $blacklist = array_merge($removed, array_keys($replacements));
+
+        $videos = $request->request->all('videos_urls', []);
+
+        foreach ($videos as $url) {
+
+            $url = trim($url);
+
+            if (!$url) {
+                continue;
             }
-        }
 
-        // AJOUT DES VIDÉOS
-        $videosData = $request->request->all('videos', []);
-        foreach ($videosData as $videoData) {
-            $url = trim($videoData['url'] ?? '');
-            if (!$url) continue;
-
-            $exists = false;
-            foreach ($trick->getVideos() as $existing) {
-                if ($existing->getUrl() === $url) {
-                    $exists = true;
-                    break;
-                }
+            if (in_array($url, $removed, true)) {
+                continue;
             }
-            if ($exists) continue;
 
-            $video = new Videos();
-            $video->setUrl($url);
-            $video->setTrick($trick);
-            $video->setUser($currentUser);
+            if (in_array($url, $blacklist, true)) {
+                continue;
+            }
+
+            $exists = $trick->getVideos()->exists(
+                fn($i, $v) => $v->getUrl() === $url
+            );
+
+            if ($exists) {
+                continue;
+            }
+
+            $video = (new Videos())
+                ->setUrl($url)
+                ->setTrick($trick)
+                ->setUser($this->getUser());
 
             $trick->addVideo($video);
+
             $em->persist($video);
         }
+    }
 
-        // SUPPRESSION DES IMAGES VIDES CRÉÉES PAR SYMFONY
+
+
+    private function handleVideosReplace(
+        Tricks $trick,
+        Request $request,
+        EntityManagerInterface $em
+    ): void {
+
+        $replacements = $request->request->all('replace_videos', []);
+
+        foreach ($trick->getVideos() as $video) {
+
+            $old = $video->getUrl();
+
+            if (!isset($replacements[$old])) {
+                continue;
+            }
+
+            $new = trim($replacements[$old]);
+
+            if (!$new) {
+                continue;
+            }
+
+            if (!$this->isGranted('MEDIA_EDIT', $video)) {
+                continue;
+            }
+
+            $video->setUrl($new);
+        }
+    }
+
+
+
+    private function handleVideosDelete(
+        Tricks $trick,
+        Request $request,
+        EntityManagerInterface $em
+    ): void {
+
+        $removed = $request->request->all('removed_videos', []);
+
+        foreach ($trick->getVideos() as $video) {
+
+            if (!in_array($video->getUrl(), $removed, true)) {
+                continue;
+            }
+
+            if (!$this->isGranted('MEDIA_DELETE', $video)) {
+                continue;
+            }
+
+            $trick->removeVideo($video);
+            $em->remove($video);
+        }
+    }
+
+    private function cleanupEmptyImages(Tricks $trick, EntityManagerInterface $em): void
+    {
         foreach ($trick->getImages() as $image) {
             if (!$image->getPicture()) {
                 $trick->removeImage($image);

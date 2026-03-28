@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\VideosRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: VideosRepository::class)]
 class Videos
@@ -13,7 +15,7 @@ class Videos
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $url = null;
 
     #[ORM\ManyToOne(inversedBy: 'videos')]
@@ -21,8 +23,8 @@ class Videos
     private ?Tricks $trick = null;
 
     #[ORM\ManyToOne(inversedBy: 'videos')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Users $user = null; // <-- singulier
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Users $user = null;
 
     public function getId(): ?int
     {
@@ -34,7 +36,7 @@ class Videos
         return $this->url;
     }
 
-    public function setUrl(string $url): static
+    public function setUrl(?string $url): static
     {
         $this->url = $url;
         return $this;
@@ -62,26 +64,59 @@ class Videos
         return $this;
     }
 
-    public function getType(): string
+    public function getMediaType(): string
     {
-        return 'video';
+        return 'youtube_video';
     }
 
     public function getYoutubeId(): ?string
     {
-        if (str_contains($this->url, 'youtube.com')) {
-            parse_str(parse_url($this->url, PHP_URL_QUERY), $vars);
-            return $vars['v'] ?? null;
+        if (!$this->url) {
+            return null;
         }
-        if (str_contains($this->url, 'youtu.be')) {
-            return basename($this->url);
+
+        $url = $this->url;
+        $id = null;
+
+        // youtu.be/ID
+        if (str_contains($url, 'youtu.be')) {
+            $id = trim(basename(parse_url($url, PHP_URL_PATH)));
         }
-        return null;
+
+        // youtube.com/shorts/ID
+        elseif (str_contains($url, '/shorts/')) {
+            $id = basename(parse_url($url, PHP_URL_PATH));
+        }
+
+        // youtube.com/watch?v=ID
+        elseif (str_contains($url, 'youtube.com')) {
+            parse_str(parse_url($url, PHP_URL_QUERY) ?? '', $vars);
+            $id = $vars['v'] ?? null;
+        }
+
+        // 🔥 VALIDATION FINALE (clé)
+        return ($id && preg_match('/^[a-zA-Z0-9_-]{11}$/', $id)) ? $id : null;
     }
 
     public function getEmbedUrl(): ?string
     {
         $id = $this->getYoutubeId();
-        return $id ? 'https://www.youtube.com/embed/' . $id : null;
+
+        return $id ? sprintf('https://www.youtube.com/embed/%s', $id) : null;
+    }
+
+
+    #[Assert\Callback]
+    public function validateYoutubeUrl(ExecutionContextInterface $context): void
+    {
+        if (!$this->url) {
+            return; // champ optionnel
+        }
+
+        if (!$this->getYoutubeId()) {
+            $context->buildViolation('Lien YouTube invalide')
+                ->atPath('url')
+                ->addViolation();
+        }
     }
 }

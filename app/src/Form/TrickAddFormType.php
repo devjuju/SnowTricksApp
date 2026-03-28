@@ -15,8 +15,6 @@ use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-
-
 class TrickAddFormType extends AbstractType
 {
     use FormTrickBaseFieldsTrait;
