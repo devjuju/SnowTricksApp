@@ -58,17 +58,7 @@ trait TrickBaseFieldsTrait
                 'required' => false,
                 'label' => false,
             ])
-            ->add('images_tmp', CollectionType::class, [
-                'entry_type' => HiddenType::class,
-                'allow_add' => true,
-                'allow_delete' => true,
-                'by_reference' => false,
-                'mapped' => false,
-                'required' => false,
-                'label' => false,
-                // 🔥 clé importante
-                'delete_empty' => true,
-            ])
+
             ->add('videos', CollectionType::class, [
                 'entry_type' => VideoType::class,
                 'allow_add' => true,

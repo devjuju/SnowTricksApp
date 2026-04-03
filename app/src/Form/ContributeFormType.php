@@ -10,6 +10,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -50,6 +51,13 @@ class ContributeFormType extends AbstractType
                 'prototype_name' => '__video__',
                 'required' => false,
                 'label' => false,
+            ])
+
+            ->add('save', SubmitType::class, [
+                'label' => 'Contribuer',
+                'attr' => [
+                    'class' => 'bg-blue-600 text-white px-6 py-3 rounded-2xl hover:bg-blue-800 font-semibold transition-all duration-300 uppercase'
+                ]
             ]);
     }
 

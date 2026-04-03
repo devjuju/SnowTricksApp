@@ -20,11 +20,22 @@ class ImagesFixtures extends Fixture implements DependentFixtureInterface
             /** @var \App\Entity\Tricks $trick */
             $trick = $this->getReference($trickRef, \App\Entity\Tricks::class);
 
+
+            // 🔁 Reproduire EXACTEMENT la logique VideosFixtures
             foreach ($files as $file) {
+
                 $image = new Images();
                 $image->setPicture($file);
                 $image->setTrick($trick);
-                $image->setUser($trick->getUser()); // ✅ setter corrigé
+
+                // 🔥 éviter doublons dans UNE trick (OK ici)
+                $exists = $trick->getImages()->exists(
+                    fn($i, $img) => $img->getPicture() === $file
+                );
+
+                if ($exists) {
+                    continue;
+                }
 
                 $manager->persist($image);
             }

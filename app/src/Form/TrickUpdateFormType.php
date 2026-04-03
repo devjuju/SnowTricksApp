@@ -3,8 +3,8 @@
 namespace App\Form;
 
 use App\Entity\Tricks;
-use App\Form\Traits\TrickBaseFieldsTrait;
-use App\Form\TrickBaseFieldsTrait as FormTrickBaseFieldsTrait;
+
+use App\Form\TrickBaseFieldsTrait;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -17,7 +17,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class TrickUpdateFormType extends AbstractType
 {
-    use FormTrickBaseFieldsTrait;
+    use TrickBaseFieldsTrait;
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

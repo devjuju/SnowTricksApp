@@ -10,9 +10,9 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class TrickVoter extends Voter
 {
-    public const EDIT        = 'TRICK_EDIT';
-    public const DELETE      = 'TRICK_DELETE';
-    public const CONTRIBUTE  = 'TRICK_CONTRIBUTE';
+    public const EDIT       = 'TRICK_EDIT';
+    public const DELETE     = 'TRICK_DELETE';
+    public const CONTRIBUTE = 'TRICK_CONTRIBUTE';
 
     public function __construct(private Security $security) {}
 
@@ -22,7 +22,7 @@ class TrickVoter extends Voter
             self::EDIT,
             self::DELETE,
             self::CONTRIBUTE
-        ]) && $subject instanceof Tricks;
+        ], true) && $subject instanceof Tricks;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $trick, TokenInterface $token): bool
@@ -33,18 +33,44 @@ class TrickVoter extends Voter
             return false;
         }
 
-        $isAuthor = $trick->getUser()?->getId() === $user->getId();
-
         return match ($attribute) {
-
-            // Seul le propriétaire peut modifier/supprimer
-            self::EDIT,
-            self::DELETE => $isAuthor,
-
-            // Tout utilisateur connecté peut contribuer
-            self::CONTRIBUTE => true,
-
-            default => false,
+            self::EDIT       => $this->canEdit($trick, $user),
+            self::DELETE     => $this->canDelete($trick, $user),
+            self::CONTRIBUTE => $this->canContribute($trick, $user),
+            default          => false,
         };
+    }
+
+    // =========================
+    // 🧠 LOGIQUE MÉTIER
+    // =========================
+
+    private function canEdit(Tricks $trick, Users $user): bool
+    {
+        return $this->isAuthor($trick, $user);
+    }
+
+    private function canDelete(Tricks $trick, Users $user): bool
+    {
+        return $this->isAuthor($trick, $user);
+    }
+
+    private function canContribute(Tricks $trick, Users $user): bool
+    {
+        // 👉 Ici tu peux évoluer facilement plus tard (ex: banni, privé, etc.)
+        return true;
+    }
+
+    // =========================
+    // 🔍 HELPERS FACTORISÉS
+    // =========================
+
+    private function isAuthor(Tricks $trick, Users $user): bool
+    {
+        if (!$trick->getUser()) {
+            return false;
+        }
+
+        return $trick->getUser()->getId() === $user->getId();
     }
 }

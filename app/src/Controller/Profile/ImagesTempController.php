@@ -31,11 +31,12 @@ class ImagesTempController extends AbstractController
                 return new JsonResponse(['error' => 'Type invalide'], 400);
             }
 
-            $filename = $imagesTempService->upload($file);
+            $result = $imagesTempService->upload($file);
 
             $uploaded[] = [
-                'filename' => $filename,
-                'url' => '/uploads/images_tmp/' . $filename,
+                'publicId' => $result['publicId'],
+                'filename' => $result['filename'],
+                'url' => '/uploads/images_tmp/' . $result['filename'],
             ];
         }
 
