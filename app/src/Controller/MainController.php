@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Tricks;
 use App\Repository\TricksRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,37 +15,38 @@ final class MainController extends AbstractController
     #[Route('/', name: 'app_main')]
     public function index(Request $request, TricksRepository $tricksRepository): Response
     {
-        $page = max(1, (int) $request->query->get('page', 1));
+        $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
-        $offset = ($page - 1) * $limit;
 
-        // ----------------------------
-        // QueryBuilder pour les Tricks actifs
-        // ----------------------------
-        $query = $tricksRepository->createQueryBuilder('t')
+        $tricks = $tricksRepository->findByTrickPaginated($page, $limit);
 
-            ->orderBy('t.createdAt', 'DESC')
-            ->setFirstResult($offset)
-            ->setMaxResults($limit)
-            ->getQuery();
-
-        $tricks = new Paginator($query);
-
-        // ----------------------------
-        // Réponse AJAX pour infinite scroll ou load more
-        // ----------------------------
         if ($request->isXmlHttpRequest()) {
-            return $this->render('_partials/tricks.html.twig', [
-                'tricks' => $tricks,
+
+            $html = $this->renderView('_partials/tricks.html.twig', [
+                'tricks' => $tricks
+            ]);
+
+            $offset = ($page - 1) * $limit;
+
+            // ✅ CORRECTION ICI
+            $totalTricks = $tricksRepository->count([]);
+
+            $hasMore = ($offset + $limit) < $totalTricks;
+
+            return $this->json([
+                'html' => $html,
+                'hasMore' => $hasMore
             ]);
         }
 
-        // ----------------------------
         // Page classique
-        // ----------------------------
+        $totalTricks = $tricksRepository->count([]);
+
         return $this->render('main/index.html.twig', [
             'tricks' => $tricks,
             'page' => $page,
+            'totalTricks' => $totalTricks,
+            'limit' => $limit,
         ]);
     }
 }

@@ -24,18 +24,33 @@ class VideosFixtures extends Fixture implements DependentFixtureInterface
             'trick_frontside' => [
                 'https://youtu.be/pJxmL9uh27c?si=VFucBvk_TtDzl7Dc',
             ]
-
         ];
 
         foreach ($videosData as $trickRef => $urls) {
+
             /** @var \App\Entity\Tricks $trick */
             $trick = $this->getReference($trickRef, \App\Entity\Tricks::class);
 
             foreach ($urls as $url) {
+
                 $video = new Videos();
                 $video->setUrl($url);
                 $video->setTrick($trick);
-                $video->setUser($trick->getUser()); // ✅ setter corrigé
+
+                // 🔥 CMS SAFE GUARD
+                if (!$video->getYoutubeId()) {
+                    // option : log ou skip silencieux
+                    continue;
+                }
+
+                // 🔥 éviter doublons dans fixtures
+                $exists = $trick->getVideos()->exists(
+                    fn($i, $v) => $v->getYoutubeId() === $video->getYoutubeId()
+                );
+
+                if ($exists) {
+                    continue;
+                }
 
                 $manager->persist($video);
             }

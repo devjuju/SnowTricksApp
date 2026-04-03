@@ -138,38 +138,21 @@
 				<!-- Comment List -->
 				<div class="w-full max-w-xl mx-auto bg-white p-4 rounded-lg mt-6">
 					<h2 class="font-[Raleway] text-2xl font-bold mb-6">Commentaires ({{ trick.comments|length }})</h2>
-					<div id="comments-container" class="space-y-6">
+					<div id="comments-container" class="space-y-4 ">
 						{% include '_partials/comments.html.twig' with { comments: comments } %}
 					</div>
-					<!-- Pagination -->
-					{% if totalPages > 0 %}
-						<div
-							class="mt-6 flex justify-center gap-2">
-							{# Bouton Précédent #}
-							{% if page > 1 %}
-								<a href="{{ path('app_tricks_details', { slug: trick.slug, page: page-1 }) }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
-									Précédent
-								</a>
-							{% endif %}
 
-							{# Numéros de pages #}
-							{% for p in 1..totalPages %}
-								{% if p == page %}
-									<span class="px-3 py-1 bg-blue-600 text-white rounded">{{ p }}</span>
-								{% else %}
-									<a href="{{ path('app_tricks_details', { slug: trick.slug, page: p }) }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">{{ p }}</a>
-								{% endif %}
-							{% endfor %}
-
-							{# Bouton Suivant #}
-							{% if page < totalPages %}
-								<a href="{{ path('app_tricks_details', { slug: trick.slug, page: page+1 }) }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
-									Suivant
-								</a>
-							{% endif %}
+					<!-- Bouton Load More -->
+					{% if totalComments > limit %}
+						<div class="text-center mt-6">
+							<button id="load-more-comments" data-load-more data-container="#comments-container" data-url="{{ path('app_tricks_details', { slug: trick.slug }) }}" data-page="{{ page }}" class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-800 font-semibold transition-all duration-300 uppercase">
+								<span class="load-text">Afficher plus</span>
+							</button>
 						</div>
 					{% endif %}
+
 				</div>
+
 
 			</div>
 		</div>
@@ -184,4 +167,5 @@
 	{{ parent() }}
 	<script src="{{ asset('js/carousel.js') }}"></script>
 	<script src="{{ asset('js/collapse.js') }}"></script>
+	<script src="{{ asset('js/load-more.js') }}"></script>
 {% endblock %}

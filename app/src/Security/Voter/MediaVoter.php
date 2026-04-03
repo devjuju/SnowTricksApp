@@ -16,48 +16,64 @@ class MediaVoter extends Voter
 
     public function __construct(private Security $security) {}
 
-    /**
-     * Détermine si cet attribut et ce sujet sont pris en charge
-     */
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return in_array($attribute, [self::EDIT, self::DELETE])
-            && ($subject instanceof Images || $subject instanceof Videos);
+        return in_array($attribute, [self::EDIT, self::DELETE], true)
+            && $this->isMedia($subject);
     }
 
-    /**
-     * Logique de vote
-     */
     protected function voteOnAttribute(string $attribute, mixed $media, TokenInterface $token): bool
     {
         $user = $token->getUser();
 
-        // Sécurité : si l'utilisateur n'est pas connecté ou n'est pas un Users, on refuse
         if (!$user instanceof Users) {
             return false;
         }
 
-        // -------------------
-        // Vérification propriétaire
-        // -------------------
-        // Le propriétaire du média
-        $isOwnerOfMedia = $media->getUser()?->getId() === $user->getId();
-
-        // L’auteur de la Trick associée au média
-        $isAuthorOfTrick = $media->getTrick()?->getUser()?->getId() === $user->getId();
-
-        // -------------------
-        // Retour du droit selon l'action
-        // -------------------
         return match ($attribute) {
-
-            // Seul le propriétaire du média peut le modifier
-            self::EDIT => $isOwnerOfMedia,
-
-            // Suppression : propriétaire du média OU auteur du trick
-            self::DELETE => $isOwnerOfMedia || $isAuthorOfTrick,
-
-            default => false,
+            self::EDIT   => $this->canEdit($media, $user),
+            self::DELETE => $this->canDelete($media, $user),
+            default      => false,
         };
+    }
+
+    // =========================
+    // 🧠 LOGIQUE MÉTIER
+    // =========================
+
+    private function canEdit(Images|Videos $media, Users $user): bool
+    {
+        return $this->isOwner($media, $user);
+    }
+
+    private function canDelete(Images|Videos $media, Users $user): bool
+    {
+        return $this->isOwner($media, $user)
+            || $this->isAuthorOfTrick($media, $user);
+    }
+
+    // =========================
+    // 🔍 HELPERS FACTORISÉS
+    // =========================
+
+    private function isMedia(mixed $subject): bool
+    {
+        return $subject instanceof Images || $subject instanceof Videos;
+    }
+
+    private function isOwner(Images|Videos $media, Users $user): bool
+    {
+        return $media->getTrick()?->getUser()?->getId() === $user->getId();
+    }
+
+    private function isAuthorOfTrick(Images|Videos $media, Users $user): bool
+    {
+        $trick = $media->getTrick();
+
+        if (!$trick || !$trick->getUser()) {
+            return false;
+        }
+
+        return $trick->getUser()->getId() === $user->getId();
     }
 }

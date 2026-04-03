@@ -50,60 +50,39 @@ final class TricksController extends AbstractController
             ]);
         }
 
-        // Pagination commentaires
+        // Afficher les commentaires
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 10;
-        $offset = ($page - 1) * $limit;
+        $limit = 5;
 
-        $comments = $commentsRepository->findBy(
-            ['trick' => $trick],
-            ['createdAt' => 'DESC'],
-            $limit,
-            $offset
-        );
+        $comments = $commentsRepository->findByTrickPaginated($trick, $page, $limit);
 
-        // Nombre total de commentaires pour le calcul des pages
+        if ($request->isXmlHttpRequest()) {
+
+            $html = $this->renderView('_partials/comments.html.twig', [
+                'comments' => $comments
+            ]);
+
+            $offset = ($page - 1) * $limit;
+            $totalComments = $commentsRepository->count(['trick' => $trick]);
+
+            $hasMore = ($offset + $limit) < $totalComments;
+
+            return $this->json([
+                'html' => $html,
+                'hasMore' => $hasMore
+            ]);
+        }
+
+        // Nombre total de commentaires pour le compteur
         $totalComments = $commentsRepository->count(['trick' => $trick]);
-        $totalPages = (int) ceil($totalComments / $limit);
-
-
-
 
         return $this->render('tricks/details.html.twig', [
             'trick' => $trick,
             'comments' => $comments,
             'commentForm' => $form->createView(),
             'page' => $page,
-            'totalPages' => $totalPages,
-        ]);
-    }
-
-
-
-    #[Route('/{slug}/comments/load', name: 'comments_load')]
-    public function loadMoreComments(
-        string $slug,
-        Request $request,
-        TricksRepository $tricksRepository,
-        CommentsRepository $commentsRepository
-    ): Response {
-        $offset = $request->query->getInt('offset', 0);
-
-        $trick = $tricksRepository->findOneBy(['slug' => $slug]);
-
-        if (!$trick) {
-            return new Response('', 404);
-        }
-
-        $comments = $commentsRepository->findBy(
-            ['trick' => $trick],
-            ['createdAt' => 'DESC'],
-            10,
-            $offset
-        );
-
-        return $this->render('_partials/comments.html.twig', [
-            'comments' => $comments
+            'totalComments' => $totalComments,
+            'limit' => $limit,
         ]);
     }
 }

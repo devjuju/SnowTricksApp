@@ -16,7 +16,6 @@ import 'flowbite';
 
 import './js/navbar.js';
 import './js/scroll.js';
-import './js/load-more.js';
 
 
 console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');

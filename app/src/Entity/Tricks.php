@@ -17,6 +17,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
     message: 'Une figure avec ce titre existe déjà.',
     errorPath: 'title'
 )]
+
 #[ORM\Entity(repositoryClass: TricksRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 class Tricks
@@ -61,6 +62,7 @@ class Tricks
         cascade: ['persist', 'remove'],
         orphanRemoval: true
     )]
+    #[ORM\OrderBy(['id' => 'ASC'])]
     private Collection $images;
 
     #[ORM\OneToMany(
@@ -260,5 +262,28 @@ class Tricks
     {
         $this->tmpFeaturedImage = $tmpFeaturedImage;
         return $this;
+    }
+
+    #[Assert\Callback]
+    public function validateUniqueVideos(ExecutionContextInterface $context): void
+    {
+        $seen = [];
+
+        foreach ($this->getVideos() as $index => $video) {
+
+            $id = $video->getYoutubeId();
+
+            if (!$id) {
+                continue;
+            }
+
+            if (in_array($id, $seen, true)) {
+                $context->buildViolation('Cette vidéo est déjà ajoutée')
+                    ->atPath("videos[$index].url") // 🔥 clé importante
+                    ->addViolation();
+            }
+
+            $seen[] = $id;
+        }
     }
 }

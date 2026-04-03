@@ -4,25 +4,85 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let index = parseInt(imageWrapper.dataset.index || 0);
 
+    /* =========================
+       TOAST (reuse si existe)
+    ========================= */
+    const showToast = (message, type = "error") => {
+        const container = document.getElementById("toast-container");
+        if (!container) return;
+
+        const toast = document.createElement("div");
+
+        const baseClasses =
+            "flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg text-sm font-medium transition-all duration-300 transform opacity-0 translate-y-2";
+
+        const types = {
+            error: "bg-[#f8285a] text-white",
+            success: "bg-[#17c653] text-white",
+            info: "bg-[#1b84ff] text-white"
+        };
+
+        toast.className = `${baseClasses} ${types[type] || types.error}`;
+
+        toast.innerHTML = `
+            <span>${message}</span>
+            <button class="ml-auto text-white/80 hover:text-white">&times;</button>
+        `;
+
+        container.appendChild(toast);
+
+        requestAnimationFrame(() => {
+            toast.classList.remove("opacity-0", "translate-y-2");
+        });
+
+        toast.querySelector("button").addEventListener("click", () => {
+            toast.remove();
+        });
+
+        setTimeout(() => toast.remove(), 4000);
+    };
+
+    /* =========================
+       VALIDATION FILE
+    ========================= */
     const validateFile = (file) => {
         const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
         const maxSize = 2 * 1024 * 1024;
 
         if (!allowedTypes.includes(file.type)) {
-            alert("Type de fichier non autorisé");
+            showToast("Type de fichier non autorisé");
             return false;
         }
 
         if (file.size > maxSize) {
-            alert("Fichier trop lourd (max 2 Mo)");
+            showToast("Fichier trop lourd (max 2 Mo)");
             return false;
         }
 
         return true;
     };
 
-    const initImageItem = (item, isNew = false) => {
+    /* =========================
+       DUPLICATE CHECK
+    ========================= */
+    const isDuplicateImage = (currentItem, filename) => {
+        const allInputs = imageWrapper.querySelectorAll(".uploaded-filename");
 
+        for (const input of allInputs) {
+            if (input === currentItem.querySelector(".uploaded-filename")) continue;
+
+            if (input.value && input.value === filename) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    /* =========================
+       INIT ITEM
+    ========================= */
+    const initImageItem = (item) => {
         const input = item.querySelector(".item-input");
         const preview = item.querySelector(".image-preview");
         const placeholder = item.querySelector(".image-placeholder");
@@ -37,12 +97,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!hiddenInput) return;
 
-        // STATE
-        const state = {
-            isTemp: item.dataset.state === "temp" || isNew,
-            isLocked: false
-        };
+        let isOpen = false;
 
+        /* -------- STATE -------- */
+        const getState = () => ({
+            hasImage: !!hiddenInput.value,
+            isOpen
+        });
+
+        /* -------- PREVIEW -------- */
         const showPreview = (src) => {
             preview.src = src;
             preview.classList.remove("hidden");
@@ -55,38 +118,41 @@ document.addEventListener("DOMContentLoaded", () => {
             placeholder?.classList.remove("hidden");
         };
 
-        const updateUI = () => {
-            const hasImage = !!hiddenInput.value;
-            const isOpen = input && !input.classList.contains("w-0");
+        /* -------- UI -------- */
+        const renderUI = (state) => {
+            const isExisting = item.dataset.imageStatus === "existing";
 
-            // 🔒 Lock uniquement pour images TEMP après upload
-            if (state.isTemp && state.isLocked) {
-                addBtn?.classList.add("hidden");
+            addBtn?.classList.toggle("hidden", state.isOpen || state.hasImage);
+
+            if (!isExisting) {
                 editBtn?.classList.add("hidden");
-                closeBtn?.classList.add("hidden");
-                removeBtn?.classList.remove("hidden");
-
-                input?.classList.add("pointer-events-none", "opacity-50");
-                return;
+            } else {
+                editBtn?.classList.toggle("hidden", !(state.hasImage && !state.isOpen));
             }
 
-            // 🧾 Images existantes → éditables
-            addBtn?.classList.toggle("hidden", isOpen || hasImage);
-            editBtn?.classList.toggle("hidden", !(hasImage && !isOpen));
-            closeBtn?.classList.toggle("hidden", !isOpen);
-            removeBtn?.classList.toggle("hidden", isOpen);
+            closeBtn?.classList.toggle("hidden", !state.isOpen);
+            removeBtn?.classList.toggle("hidden", state.isOpen);
         };
 
+        const render = () => renderUI(getState());
+
+        /* -------- INPUT -------- */
         const openInput = () => {
-            input?.click();
+            isOpen = true;
+            input.classList.remove("w-0", "opacity-0");
+            input.classList.add("w-full", "opacity-100");
+            input.focus();
+            render();
         };
 
         const closeInput = () => {
-            input?.classList.add("w-0", "opacity-0");
-            input?.classList.remove("w-full", "opacity-100");
-            updateUI();
+            isOpen = false;
+            input.classList.add("w-0", "opacity-0");
+            input.classList.remove("w-full", "opacity-100");
+            render();
         };
 
+        /* -------- UPLOAD -------- */
         const upload = async (file, replace = false) => {
             if (!validateFile(file)) return;
 
@@ -94,58 +160,65 @@ document.addEventListener("DOMContentLoaded", () => {
             formData.append("images[]", file);
 
             try {
-                const res = await fetch("/profile/images/temp", {
+                const res = await fetch(IMAGE_ROUTES.upload, {
                     method: "POST",
                     body: formData,
-                    headers: {
-                        "X-Requested-With": "XMLHttpRequest",
-                    },
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
                 });
 
                 const data = await res.json();
 
                 if (!res.ok || !data.images?.[0]) {
-                    alert(data.error || "Erreur upload");
+                    showToast(data.error || "Erreur upload");
                     return;
                 }
 
                 const image = data.images[0];
+
+                // 🔥 DUPLICATE CHECK
+                if (isDuplicateImage(item, image.filename)) {
+                    showToast("Cette image est déjà ajoutée.", "error");
+                    return;
+                }
+
                 const oldFilename = hiddenInput.value;
 
-                // remplacement existant
+                // replace logique
                 if (replace && oldFilename) {
                     const form = item.closest("form");
-                    const inputHidden = document.createElement("input");
+                    const inputReplace = document.createElement("input");
 
-                    inputHidden.type = "hidden";
-                    inputHidden.name = `replace_images[${oldFilename}]`;
-                    inputHidden.value = image.filename;
+                    inputReplace.type = "hidden";
+                    inputReplace.name = `replace_images[${oldFilename}]`;
+                    inputReplace.value = image.filename;
 
-                    form.appendChild(inputHidden);
+                    form.appendChild(inputReplace);
                 }
 
                 hiddenInput.value = image.filename;
+                item.dataset.imageStatus = "existing";
+
                 showPreview(image.url);
 
-                // 🔒 verrouillage uniquement si image était temporaire
-                if (state.isTemp) {
-                    state.isLocked = true;
-                    item.dataset.state = "existing";
-                    input?.classList.add("pointer-events-none", "opacity-50");
-                }
-
-                updateUI();
+                closeInput();
+                render();
 
             } catch (e) {
                 console.error(e);
-                alert("Erreur serveur");
+                showToast("Erreur serveur");
             }
         };
 
-        // EVENTS
+        /* -------- EVENTS -------- */
         input?.addEventListener("change", () => {
-            if (!input.files?.[0]) return;
-            upload(input.files[0], !!hiddenInput.value);
+            const file = input.files?.[0];
+
+            if (!file) {
+                if (!hiddenInput.value) item.remove();
+                return;
+            }
+
+            upload(file, !!hiddenInput.value);
         });
 
         addBtn?.addEventListener("click", openInput);
@@ -162,36 +235,46 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             item.classList.add("opacity-30", "pointer-events-none");
+            hidePreview();
         });
 
-        // INIT preview
-        if (preview?.getAttribute("src")) {
-            hiddenInput.value = preview.dataset.filename || "";
-        } else {
+        /* -------- INIT -------- */
+        if (preview?.dataset.filename) {
+            hiddenInput.value = preview.dataset.filename;
+        }
+
+        if (!hiddenInput.value) {
             hidePreview();
         }
 
-        isNew ? openInput() : updateUI();
+        requestAnimationFrame(() => {
+            if (item.dataset.imageStatus === "new") {
+                openInput();
+            }
+        });
+
+        render();
     };
 
+    /* =========================
+       ADD IMAGE
+    ========================= */
     const addImage = () => {
         const element = cloneTemplate("image-prototype", index++);
         if (!element) return;
 
         imageWrapper.appendChild(element);
-        initImageItem(element, true);
+        initImageItem(element);
 
-        smartScroll(imageWrapper, element);
-
-        element.classList.add("ring-2", "ring-blue-400");
-        setTimeout(() => {
-            element.classList.remove("ring-2", "ring-blue-400");
-        }, 1500);
+        if (typeof smartScroll === "function") {
+            smartScroll(imageWrapper, element);
+        }
     };
 
     document.getElementById("add-image")?.addEventListener("click", addImage);
 
-    imageWrapper
-        .querySelectorAll(".media-item")
-        .forEach((item) => initImageItem(item));
+    /* =========================
+       INIT EXISTING
+    ========================= */
+    imageWrapper.querySelectorAll(".media-item").forEach(initImageItem);
 });

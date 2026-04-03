@@ -17,15 +17,17 @@
 		<div class="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32 pt-20 ">
 			<div
 				class="bg-white rounded-xl shadow-lg max-w-6xl mx-auto overflow-hidden pb-[42px]">
+
+
 				{# Flash messages #}
-				{% for label, messages in app.flashes %}
-					{% for message in messages %}
-						<div class="p-4 mb-4 rounded bg-green-100 text-green-800">
-							{{ message }}
-						</div>
-					{% endfor %}
+				{% for message in app.flashes('error') %}
+					<div class="alert alert-danger">
+						{{ message }}
+					</div>
 				{% endfor %}
+
 				{{ form_start(form, { attr: { novalidate:'novalidate', enctype:'multipart/form-data' } }) }}
+
 
 				{# Featured image Upload #}
 
@@ -36,29 +38,30 @@
                     : (trick.featuredImage ? asset('uploads/featured_images/' ~ trick.featuredImage) : null)
                 %}
 
+
 				{# Conteneur featured image #}
 					<div
 					id="featured-container" data-existing-image="{{ featuredPath ?? '' }}" class="
-																																																																																																																																																																																																																																																																																																																																			relative
-																																																																																																																																																																																																																																																																																																																																			w-full
-																																																																																																																																																																																																																																																																																																																																			min-h-[30vh]
-																																																																																																																																																																																																																																																																																																																																			sm:min-h-[55vh]
-																																																																																																																																																																																																																																																																																																																																			md:min-h-[60vh]
-																																																																																																																																																																																																																																																																																																																																			border-2
-																																																																																																																																																																																																																																																																																																																																		    flex items-center justify-center
-																																																																																																																																																																																																																																																																																																																																	        overflow-hidden"> {# Aperçu image #}
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							relative
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							w-full
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							min-h-[30vh]
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							sm:min-h-[55vh]
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							md:min-h-[60vh]
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							border-2
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																						    flex items-center justify-center
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					        overflow-hidden"> {# Aperçu image #}
 					<img
 					id="featured-preview" src="{{ featuredPath }}" class="
-																																																																																																																																																																																																																																																																																																																																			absolute
-																																																																																																																																																																																																																																																																																																																																			inset-0
-																																																																																																																																																																																																																																																																																																																																			w-full
-																																																																																																																																																																																																																																																																																																																																			h-full
-																																																																																																																																																																																																																																																																																																																																			object-cover
-																																																																																																																																																																																																																																																																																																																																			object-center
-																																																																																																																																																																																																																																																																																																																																			transition-opacity
-																																																																																																																																																																																																																																																																																																																																			duration-300
-																																																																																																																																																																																																																																																																																																																																			rounded-t-xl
-																																																																																																																																																																																																																																																																																																																																			{{ featuredPath ? '' : 'opacity-0' }}">
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							absolute
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							inset-0
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							w-full
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							h-full
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							object-cover
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							object-center
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							transition-opacity
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							duration-300
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							rounded-t-xl
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							{{ featuredPath ? '' : 'opacity-0' }}">
 
 					{# Placeholder #}
 					<span id="featured-placeholder" class="absolute inset-0 flex items-center justify-center bg-gray-200 {{ featuredPath ? 'opacity-0' : '' }}" style="font-size:24px;">
@@ -96,18 +99,21 @@
 					{{ form_widget(form.deleteFeaturedImage) }}
 				</div>
 
+
 				{# Erreur validation #}
 				<div id="featured-error" class="text-red-500 text-sm px-4 md:px-8 lg:px-8 mt-4">{{ form_errors(form.featuredImage) }}</div>
 
+				<div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3"></div>
+
 				{% set imagePrototype %}
 				<div class="
-																																																																																																																																																																																																																																																																																																																media-item
-																																																																																																																																																																																																																																																																																																																media-image
-																																																																																																																																																																																																																																																																																																																relative
-																																																																																																																																																																																																																																																																																																																w-full
-																																																																																																																																																																																																																																																																																																																md:w-40
-																																																																																																																																																																																																																																																																																																														        md:flex-shrink-0
-																																																																																																																																																																																																																																																																																																														        md:snap-start" data-image-status="new">
+																																																																																																																																																																																																																																																																																																																																																			media-item
+																																																																																																																																																																																																																																																																																																																																																			media-image
+																																																																																																																																																																																																																																																																																																																																																			relative
+																																																																																																																																																																																																																																																																																																																																																			w-full
+																																																																																																																																																																																																																																																																																																																																																			md:w-40
+																																																																																																																																																																																																																																																																																																																																																	        md:flex-shrink-0
+																																																																																																																																																																																																																																																																																																																																																	        md:snap-start" data-image-status="new">
 					<div class="mb-3 w-full aspect-video rounded overflow-hidden border relative">
 						<img class="image-preview hidden w-full h-full object-cover object-center"/>
 						<div class="image-placeholder absolute inset-0 bg-gray-100 flex items-center justify-center rounded border">
@@ -115,9 +121,9 @@
 						</div>
 					</div>
 
-					<input type="hidden" class="uploaded-filename" name="images_tmp[]">
-					<input type="hidden" class="removed-image" name="removed_images[]">
-					<input type="hidden" class="replace-image" name="replace_images[]">
+					<input type="hidden" class="uploaded-publicid" name="images_tmp[]">
+					<input type="hidden" class="removed-image">
+					<input type="hidden" class="replace-image">
 
 					<div class="media-actions flex justify-end gap-2 mt-2">
 						<div class="flex flex-row-reverse items-center gap-2">
@@ -150,16 +156,15 @@
 					</div>
 				</div>
 				{% endset %}
-
 				{% set videoPrototype %}
 				<div class="
-																media-item
-																media-video
-																relative
-														        w-full
-																md:w-40
-															    md:flex-shrink-0
-															    md:snap-start">
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				media-item
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				media-video
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				relative
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																		        w-full
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				md:w-40
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																			    md:flex-shrink-0
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																			    md:snap-start">
 					<div class="mb-3 w-full aspect-video rounded border relative">
 						<iframe class="hidden w-full h-full rounded border" frameborder="0" allowfullscreen></iframe>
 
@@ -167,6 +172,8 @@
 							<i class="bi bi-play-btn text-3xl text-gray-400"></i>
 						</div>
 					</div>
+
+					<input type="hidden" name="videos_urls[]" class="video-url">
 
 					<input type="hidden" class="removed-video" name="removed_videos[]">
 
@@ -196,13 +203,17 @@
                                     placeholder: 'Lien YouTube'
                                 }
                             }) }}
+
+
 						</div>
+
 					</div>
+
 				</div>
 				{% endset %}
 
 
-				{# ----- BOUTON COLLAPSE UNIQUE MOBILE ----- #}
+				{# -------- BOUTON COLLAPSE UNIQUE MOBILE -------- #}
 				<div class="md:hidden mt-6 px-4 mb-6">
 					<button type="button" class="w-full flex justify-between items-center px-4 py-3 bg-gray-100 rounded-lg font-medium" data-collapse-toggle="media-collapse">
 						<span>Médias</span>
@@ -219,103 +230,112 @@
 						<div class="relative">
 							<div
 								id="image-wrapper" data-index="{{ form.images|length }}" class="
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					grid
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					grid-cols-1
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					gap-6
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				    md:flex
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					md:flex-row
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					md:gap-4
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																	                md:overflow-x-auto
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					md:scroll-smooth
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					md:snap-x md:snap-mandatory">
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																												grid
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																												grid-cols-1
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																												gap-6
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																											    md:flex
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																												md:flex-row
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																												md:gap-4
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																								                md:overflow-x-auto
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																												md:scroll-smooth
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																												md:snap-x md:snap-mandatory">
 
 								{# Images existantes #}
 								{% for imageForm in form.images %}
-									{% if imageForm.vars.data and imageForm.vars.data.picture %}
-										<div class="media-item media-image relative w-full md:w-40 md:flex-shrink-0 md:snap-start" data-image-status="existing">
-											<div class="mb-3 w-full aspect-video rounded overflow-hidden border relative">
-												{% if imageForm.vars.data.picture %}
-													<img src="{{ asset('uploads/images/' ~ imageForm.vars.data.picture) }}" class="image-preview w-full h-full object-cover" data-filename="{{ imageForm.vars.data.picture }}">
-												{% else %}
-													<img class="image-preview hidden w-full h-full object-cover">
-												{% endif %}
-												<div class="image-placeholder absolute inset-0 bg-gray-100 flex items-center justify-center rounded border {{ imageForm.vars.data.picture ? 'hidden' : '' }}">
-													<i class="bi bi-image text-2xl text-gray-400"></i>
-												</div>
-											</div>
+									{% set image = imageForm.vars.data %}
 
-											<input type="hidden" class="uploaded-filename" name="images_filenames[]" value="{{ imageForm.vars.data.picture }}">
-											<input type="hidden" class="removed-image" name="removed_images[]">
+									<div class="media-item media-image relative w-full md:w-40 md:flex-shrink-0 md:snap-start" data-image-status="existing" data-image-id="{{ image.getIdentifier() }}">
 
-											<div class="media-actions flex justify-end gap-2 mt-2">
-												<div class="flex flex-row-reverse items-center gap-2">
-													<button type="button" class="remove-item p-2 rounded bg-[#f8285a] text-white hover:bg-[#d81a48] hover:border-[#d81a48]">
-														<i class="bi bi-trash3-fill"></i>
-														<span class="sr-only">Remove</span>
-													</button>
-
-													<button type="button" class="item-add p-2 rounded border border-[#2563eb] bg-[#2563eb] text-white hover:bg-[#1e40af] hover:text-white transition">
-														<i class="bi bi-pencil-fill"></i>
-														<span class="sr-only">Add</span>
-													</button>
-
-													<button type="button" class="item-edit p-2 rounded border border-[#2563eb] text-white hover:bg-[#1f40ae] hover:text-white transition hidden bg-[#2563eb] hover:border-[#1f40ae]">
-														<i class="bi bi-pencil-fill"></i>
-														<span class="sr-only">Edit</span>
-													</button>
-
-													<button type="button" class="item-close hidden p-2 rounded border border-[#f6c000] text-[#f6c000]">
-														<i class="bi bi-eye-slash-fill"></i>
-														<span class="sr-only">Close</span>
-													</button>
-
-													{{ form_widget(imageForm.file, {attr:{class:'item-input w-0 opacity-0 transition-all duration-300'}}) }}
-												</div>
-											</div>
-										</div>
-									{% endif %}
-								{% endfor %}
-
-
-								{# --- Images temporaires --- #}
-								{% for filename in tempImages %}
-									<div class="media-item media-image flex-shrink-0 w-40 snap-start relative" data-image-status="new">
 										<div class="mb-3 w-full aspect-video rounded overflow-hidden border relative">
-											<img src="{{ asset('uploads/images_tmp/' ~ filename) }}" class="image-preview w-full h-full object-cover object-center" data-filename="{{ filename }}">
-											<div class="image-placeholder absolute inset-0 bg-gray-100 flex items-center justify-center rounded border hidden">
+
+											<img src="{{ asset('uploads/images/' ~ image.picture) }}" class="image-preview w-full h-full object-cover" data-publicid="{{ image.publicId }}">
+
+											<div class="image-placeholder hidden absolute inset-0 bg-gray-100 flex items-center justify-center">
 												<i class="bi bi-image text-2xl text-gray-400"></i>
 											</div>
 										</div>
 
-										{# Input pour Symfony #}
-										<input type="hidden" class="uploaded-filename" name="images_filenames[]" value="{{ filename }}">
-										<input type="hidden" class="removed-image" name="removed_images[]">
+										{# 🔥 SOURCE UNIQUE #}
+										<input type="hidden" class="uploaded-filename" value="{{ image.publicId }}">
 
+										<input type="hidden" name="removed_images" id="removed-images">
+										<input type="hidden" name="replace_images" id="replace-images">
 
 										<div class="media-actions flex justify-end gap-2 mt-2">
 											<div class="flex flex-row-reverse items-center gap-2">
-												<button type="button" class="remove-item p-2 rounded border-[#f8285a] bg-[#f8285a] text-white hover:bg-[#d81a48] hover:border-[#d81a48]">
+												<button type="button" class="remove-item p-2 rounded bg-[#f8285a] text-white hover:bg-[#d81a48] hover:border-[#d81a48]">
 													<i class="bi bi-trash3-fill"></i>
 													<span class="sr-only">Remove</span>
 												</button>
 
-												<button type="button" class="item-add p-2 rounded border border-[#2563eb] hover:border-[#1e40af] text-white bg-[#2663eb] hover:bg-[#1e40af] hover:text-white transition">
+												<button type="button" class="item-add p-2 rounded border border-[#2563eb] bg-[#2563eb] text-white hover:bg-[#1e40af] hover:text-white transition">
 													<i class="bi bi-pencil-fill"></i>
+													<span class="sr-only">Add</span>
 												</button>
 
-												<button type="button" class="item-edit hidden p-2 rounded border border-[#2563eb] hover:border-[#1e40af] text-white bg-[#2663eb] hover:bg-[#1e40af] hover:text-white transition">
+												<button type="button" class="item-edit p-2 rounded border border-[#2563eb] text-white hover:bg-[#1f40ae] hover:text-white transition hidden bg-[#2563eb] hover:border-[#1f40ae]">
 													<i class="bi bi-pencil-fill"></i>
+													<span class="sr-only">Edit</span>
 												</button>
 
-												<button type="button" class="item-close hidden p-2 rounded border border-[#f6c000] text-[#f6c000] hover:bg-[#f6c000] hover:text-white transition">
+												<button type="button" class="item-close hidden p-2 rounded border border-[#f6c000] text-[#f6c000]">
 													<i class="bi bi-eye-slash-fill"></i>
+													<span class="sr-only">Close</span>
 												</button>
 
-
-												<input type="file" class="item-input h-10 w-0 opacity-0 transition-all duration-300 border rounded px-3 text-sm file:h-full file:border-0 file:bg-transparent" accept="image/png,image/jpeg,image/webp">
+												{{ form_widget(imageForm.file, {attr:{class:'item-input w-0 opacity-0 transition-all duration-300'}}) }}
 											</div>
 										</div>
+
+
 									</div>
+								{% endfor %}
+
+
+								{# --- Images temporaires --- #}
+								{% for image in tempImages %}
+
+
+									<div class="media-item media-image relative w-full md:w-40 md:flex-shrink-0 md:snap-start" data-image-status="new">
+
+										<div class="mb-3 w-full aspect-video rounded overflow-hidden border relative">
+
+											<img src="{{ asset('uploads/images_tmp/' ~ image.filename) }}" class="image-preview w-full h-full object-cover" data-publicid="{{ image.publicId }}">
+
+											<div class="image-placeholder hidden absolute inset-0 bg-gray-100 flex items-center justify-center">
+												<i class="bi bi-image text-2xl text-gray-400"></i>
+											</div>
+										</div>
+
+
+										<input type="hidden" class="uploaded-publicid" value="{{ image.publicId }}">
+
+										<input type="hidden" name="removed_images[]" class="removed-image">
+
+
+										<div class="media-actions flex justify-end gap-2 mt-2">
+
+											<button type="button" class="remove-item p-2 bg-red-500 text-white rounded">
+												<i class="bi bi-trash3-fill"></i>
+											</button>
+
+											<button type="button" class="item-add p-2 bg-blue-600 text-white rounded">
+												<i class="bi bi-pencil-fill"></i>
+											</button>
+
+											<button type="button" class="item-edit hidden p-2 bg-blue-600 text-white rounded">
+												<i class="bi bi-pencil-fill"></i>
+											</button>
+
+											<button type="button" class="item-close hidden p-2 border border-yellow-400 text-yellow-400 rounded">
+												<i class="bi bi-eye-slash-fill"></i>
+											</button>
+
+											<input type="file" class="item-input w-0 opacity-0 transition-all duration-300" accept="image/png,image/jpeg,image/webp"/>
+
+										</div>
+									</div>
+
 								{% endfor %}
 
 							</div>
@@ -327,29 +347,29 @@
 							</div>
 
 						</div>
-
 						{# ========== VIDEOS =========== #}
 						<div class="relative">
 
 							<div id="video-wrapper" class="
-																									grid
-																									grid-cols-1
-																									gap-6
-																									md:flex
-																									md:flex-row
-																									md:gap-4
-																									md:overflow-x-auto
-																									md:scroll-smooth
-																									md:snap-x md:snap-mandatory">
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																															grid
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																															grid-cols-1
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																															gap-6
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																															md:flex
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																															md:flex-row
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																															md:gap-4
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																															md:overflow-x-auto
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																															md:scroll-smooth
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																															md:snap-x md:snap-mandatory">
 
 								{% for videoForm in form.videos %}
-									<div class="media-item media-video relative w-full md:w-40 md:flex-shrink-0 md:snap-start">
+									<div class="media-item media-video relative w-full md:w-40 md:flex-shrink-0 md:snap-start" data-video-id="{{ videoForm.vars.data.getIdentifier() }}">
 										<div class="mb-3 w-full aspect-video rounded border relative">
 											<iframe src="{{ videoForm.vars.data.getEmbedUrl()|default('') }}" class="w-full h-full rounded border"></iframe>
 											<div class="video-placeholder absolute inset-0 bg-gray-100 flex items-center justify-center rounded border {{ videoForm.vars.data.getEmbedUrl() ? 'hidden' : '' }}">
 												<i class="bi bi-play-btn text-3xl text-gray-400"></i>
 											</div>
 										</div>
+
 
 										<input type="hidden" class="removed-video" name="removed_videos[]">
 
@@ -383,11 +403,13 @@
 
 							</div>
 
+
 							<div class="mt-4">
 								<button type="button" id="add-video" class="w-full px-4 py-2 bg-[#f1f1f4] text-[#2663eb] hover:bg-[#e6e6e6] rounded-2xl hover:text-[#2663eb] font-semibold transition-all duration-300 uppercase border border-[#c4cada]">
 									Ajouter une vidéo
 								</button>
 							</div>
+
 
 						</div>
 
@@ -395,6 +417,10 @@
 					</div>
 
 					{# ---------------- PROTOTYPES CACHÉS ---------------- #}
+
+					{# =========================
+																																																							  IMAGE PROTOTYPE
+																																																							========================= #}
 					<template id="image-prototype">
 						{{ imagePrototype|raw }}
 					</template>
@@ -403,42 +429,45 @@
 						{{ videoPrototype|raw }}
 					</template>
 
-					<!-- Title, Content, Category -->
-					<div class="px-4 md:px-8 lg:px-24">
-						<div class="mb-4">
-							{{ form_widget(form.title, {
+				</div>
+
+				<!-- Title, Content, Category -->
+				<div class="px-4 md:px-8 lg:px-24">
+					<div class="mb-4">
+						{{ form_widget(form.title, {
                             attr: {
                                 class: 'w-full rounded-xl border border-[#1b84ff]  bg-[white] px-4 py-2',
                             }
                         }) }}
-							<div class="text-[#d81a48] text-sm">{{ form_errors(form.title) }}</div>
-						</div>
-						<div class="mb-4">
-							{{ form_widget(form.content, {
+						<div class="text-[#d81a48] text-sm">{{ form_errors(form.title) }}</div>
+					</div>
+					<div class="mb-4">
+						{{ form_widget(form.content, {
                             attr: {
                                 class: 'w-full h-28 sm:h-36 rounded-xl border border-[#1b84ff]  bg-white px-4 py-2 ',
                             }
                         }) }}
-							<div class="text-[#d81a48] text-sm">{{ form_errors(form.content) }}</div>
-						</div>
-						<div class="mb-4">
-							{{ form_widget(form.category, {
+						<div class="text-[#d81a48] text-sm">{{ form_errors(form.content) }}</div>
+					</div>
+					<div class="mb-4">
+						{{ form_widget(form.category, {
                             attr: {
                                 class: ' rounded-xl border border-[#1b84ff]  bg-white px-4 py-2  px-4 pr-10 py-2 ',
                             }
                         }) }}
-							<div class="text-[#d81a48] text-sm">{{ form_errors(form.category) }}</div>
-						</div>
-						<div class="flex justify-end mt-4 gap-4">
-
-							{{ form_row(form.delete) }}
-							{{ form_row(form.save) }}
-						</div>
-						{# Token CSRF #}
-						{{ form_widget(form._token) }}
-						{{ form_end(form, { render_rest: false }) }}
+						<div class="text-[#d81a48] text-sm">{{ form_errors(form.category) }}</div>
 					</div>
+					<div class="flex justify-end mt-4 gap-4">
+
+						{{ form_row(form.delete) }}
+						{{ form_row(form.save) }}
+					</div>
+					{# Token CSRF #}
+
 				</div>
+
+				{{ form_widget(form._token) }}
+				{{ form_end(form, { render_rest: false }) }}
 			</section>
 
 		{% endblock %}
@@ -452,6 +481,8 @@ upload: "{{ path('profile_images_temp') }}",
 delete: "{{ path('profile_images_temp_delete') }}"
 };
 			</script>
+			<script src="{{ asset('js/featured-image.js') }}"></script>
+
 			<script src="{{ asset('js/media-collapse.js') }}"></script>
 			<script src="{{ asset('js/utils.js') }}"></script>
 			<script src="{{ asset('js/template.js') }}"></script>

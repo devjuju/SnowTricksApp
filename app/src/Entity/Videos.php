@@ -4,8 +4,6 @@ namespace App\Entity;
 
 use App\Repository\VideosRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: VideosRepository::class)]
 class Videos
@@ -15,16 +13,23 @@ class Videos
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    // URL brute (toujours stockée)
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $url = null;
 
-    #[ORM\ManyToOne(inversedBy: 'videos')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Tricks $trick = null;
+    // ID YouTube (nullable = vidéo invalide possible)
+    #[ORM\Column(length: 11, nullable: true)]
+    private ?string $youtubeId = null;
 
     #[ORM\ManyToOne(inversedBy: 'videos')]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?Users $user = null;
+    #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
+    private ?Tricks $trick = null;
+
+
+
+    // -------------------------
+    // GETTERS / SETTERS
+    // -------------------------
 
     public function getId(): ?int
     {
@@ -39,6 +44,19 @@ class Videos
     public function setUrl(?string $url): static
     {
         $this->url = $url;
+        $this->youtubeId = self::extractYoutubeId($url);
+
+        return $this;
+    }
+
+    public function getYoutubeId(): ?string
+    {
+        return $this->youtubeId;
+    }
+
+    public function setYoutubeId(?string $youtubeId): static
+    {
+        $this->youtubeId = $youtubeId;
         return $this;
     }
 
@@ -53,70 +71,82 @@ class Videos
         return $this;
     }
 
-    public function getUser(): ?Users
+   
+
+    // -------------------------
+    // 🎬 CMS HELPERS
+    // -------------------------
+
+    /**
+     * Identifiant unique utilisé pour update/delete côté CMS
+     * (ULTRA IMPORTANT pour ton système front/back)
+     */
+    public function getIdentifier(): string
     {
-        return $this->user;
+        return $this->youtubeId
+            ?? $this->url
+            ?? (string) $this->id;
     }
 
-    public function setUser(?Users $user): static
+    /**
+     * URL embed YouTube (si valide)
+     */
+    public function getEmbedUrl(): ?string
     {
-        $this->user = $user;
-        return $this;
+        return $this->youtubeId
+            ? "https://www.youtube.com/embed/{$this->youtubeId}"
+            : null;
     }
 
-    public function getMediaType(): string
+    /**
+     * URL classique YouTube (si possible)
+     */
+    public function getWatchUrl(): ?string
     {
-        return 'youtube_video';
+        return $this->youtubeId
+            ? "https://www.youtube.com/watch?v={$this->youtubeId}"
+            : null;
     }
 
-    public function getYoutubeId(): ?string
+    /**
+     * Statut validité (utile UI CMS)
+     */
+    public function isValid(): bool
     {
-        if (!$this->url) {
+        return $this->youtubeId !== null;
+    }
+
+    // -------------------------
+    // 🧠 PARSER YOUTUBE
+    // -------------------------
+
+    public static function extractYoutubeId(?string $url): ?string
+    {
+        if (!$url) {
             return null;
         }
 
-        $url = $this->url;
-        $id = null;
-
-        // youtu.be/ID
+        // youtu.be/xxxx
         if (str_contains($url, 'youtu.be')) {
             $id = trim(basename(parse_url($url, PHP_URL_PATH)));
         }
 
-        // youtube.com/shorts/ID
-        elseif (str_contains($url, '/shorts/')) {
-            $id = basename(parse_url($url, PHP_URL_PATH));
-        }
-
-        // youtube.com/watch?v=ID
+        // youtube.com/watch?v=xxxx
         elseif (str_contains($url, 'youtube.com')) {
             parse_str(parse_url($url, PHP_URL_QUERY) ?? '', $vars);
             $id = $vars['v'] ?? null;
         }
 
-        // 🔥 VALIDATION FINALE (clé)
-        return ($id && preg_match('/^[a-zA-Z0-9_-]{11}$/', $id)) ? $id : null;
-    }
-
-    public function getEmbedUrl(): ?string
-    {
-        $id = $this->getYoutubeId();
-
-        return $id ? sprintf('https://www.youtube.com/embed/%s', $id) : null;
-    }
-
-
-    #[Assert\Callback]
-    public function validateYoutubeUrl(ExecutionContextInterface $context): void
-    {
-        if (!$this->url) {
-            return; // champ optionnel
+        // youtube shorts
+        elseif (str_contains($url, '/shorts/')) {
+            $id = basename(parse_url($url, PHP_URL_PATH));
+        } else {
+            $id = null;
         }
 
-        if (!$this->getYoutubeId()) {
-            $context->buildViolation('Lien YouTube invalide')
-                ->atPath('url')
-                ->addViolation();
-        }
+        // validation finale
+        return ($id && preg_match('/^[a-zA-Z0-9_-]{11}$/', $id))
+            ? $id
+            : null;
     }
 }

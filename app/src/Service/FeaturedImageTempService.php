@@ -17,7 +17,8 @@ class FeaturedImageTempService
         private string $tempDir,
         private string $finalDir,
         private SluggerInterface $slugger,
-        RequestStack $requestStack
+        RequestStack $requestStack,
+
     ) {
         $this->session = $requestStack->getSession();
         $this->filesystem = new Filesystem();
@@ -46,7 +47,9 @@ class FeaturedImageTempService
 
     public function get(): ?string
     {
-        return $this->session?->get('temp_featured_image');
+        $value = $this->session?->get('temp_featured_image');
+
+        return is_string($value) ? $value : null;
     }
 
     public function clear(): void
@@ -81,5 +84,10 @@ class FeaturedImageTempService
         if (!$this->filesystem->exists($dir)) {
             $this->filesystem->mkdir($dir, 0755);
         }
+    }
+
+    public function getTempPath(string $filename): string
+    {
+        return $this->tempDir . '/' . $filename;
     }
 }

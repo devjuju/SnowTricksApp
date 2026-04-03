@@ -32,10 +32,10 @@
 			{% for label, messages in app.flashes %}
 				{% for message in messages %}
 					<div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" class="px-4 py-3 rounded-lg shadow-md max-w-xl w-full
-																					                {% if label == 'success' %} bg-green-100 text-green-800 {% endif %}
-																					                {% if label == 'error' %} bg-red-100 text-red-800 {% endif %}
-																					                {% if label == 'warning' %} bg-yellow-100 text-yellow-800 {% endif %}
-																					                {% if label == 'info' %} bg-blue-100 text-blue-800 {% endif %}">
+																																			                {% if label == 'success' %} bg-green-100 text-green-800 {% endif %}
+																																			                {% if label == 'error' %} bg-red-100 text-red-800 {% endif %}
+																																			                {% if label == 'warning' %} bg-yellow-100 text-yellow-800 {% endif %}
+																																			                {% if label == 'info' %} bg-blue-100 text-blue-800 {% endif %}">
 
 						<div class="flex justify-between items-center">
 							<span>{{ message|raw }}</span>
@@ -49,5 +49,7 @@
 		{% block body %}{% endblock %}
 		{% include '_partials/mobile.html.twig' %}
 		{% include '_partials/footer.html.twig' %}
+
+
 	</body>
 </html>

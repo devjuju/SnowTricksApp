@@ -4,13 +4,17 @@
 {% endblock %}
 
 {% block body %}
-	<section class="relative bg-[#D9E2F1] pb-12">
+	<section
+		class="relative bg-[#979EAB] pb-12">
+
+		<!-- Hero image -->
 		<div class="absolute inset-0">
-			<img src="{{ asset('assets/images/image-cover.jpg') }}" alt="Hero" class="w-full h-[400px] sm:h-[500px] md:h-[600px] object-cover brightness-75">
+			<img src="{{ asset('images/backgrounds/image-cover.jpg') }}" alt="Hero" class="w-full h-[400px] sm:h-[500px] md:h-[600px] object-cover brightness-75">
 			<div class="absolute inset-0 bg-gradient-to-b from-transparent to-white/80"></div>
 		</div>
 
-		<div class="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32 pt-20">
+		<!-- Centered card -->
+		<div class="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32 pt-20 ">
 			<div
 				class="bg-white rounded-xl shadow-lg max-w-6xl mx-auto overflow-hidden pb-[42px]">
 
@@ -26,25 +30,27 @@
 					</div>
 
 				</div>
-
 				{# Flash messages #}
 				{% for label, messages in app.flashes %}
 					{% for message in messages %}
-						<div class="p-4 mb-4 rounded bg-green-100 text-green-800">{{ message }}</div>
+						<div class="p-4 mb-4 rounded bg-green-100 text-green-800">
+							{{ message }}
+						</div>
 					{% endfor %}
 				{% endfor %}
-
 				{{ form_start(form, { attr: { novalidate:'novalidate', enctype:'multipart/form-data' } }) }}
+
+				{# ----- PROTOTYPE DES ITEMS (CACHÉ) ----- #}
 
 				{% set imagePrototype %}
 				<div class="
-										media-item
-										media-image
-										relative
-										w-full
-										md:w-40
-								        md:flex-shrink-0
-										md:snap-start">
+																																																																																																																																																																																																																																																																																																																																																																																																																																													media-item
+																																																																																																																																																																																																																																																																																																																																																																																																																																													media-image
+																																																																																																																																																																																																																																																																																																																																																																																																																																													relative
+																																																																																																																																																																																																																																																																																																																																																																																																																																													w-full
+																																																																																																																																																																																																																																																																																																																																																																																																																																													md:w-40
+																																																																																																																																																																																																																																																																																																																																																																																																																																											        md:flex-shrink-0
+																																																																																																																																																																																																																																																																																																																																																																																																																																											        md:snap-start" data-image-status="new">
 					<div class="mb-3 w-full aspect-video rounded overflow-hidden border relative">
 						<img class="image-preview hidden w-full h-full object-cover object-center"/>
 						<div class="image-placeholder absolute inset-0 bg-gray-100 flex items-center justify-center rounded border">
@@ -54,15 +60,17 @@
 
 					<input type="hidden" class="uploaded-filename" name="images_tmp[]">
 					<input type="hidden" class="removed-image" name="removed_images[]">
+					<input type="hidden" class="replace-image" name="replace_images[]">
 
 					<div class="media-actions flex justify-end gap-2 mt-2">
 						<div class="flex flex-row-reverse items-center gap-2">
 
 							<button type="button" class="remove-item p-2 rounded bg-[#f8285a] text-white hover:bg-[#d81a48]">
 								<i class="bi bi-trash3-fill"></i>
+								<span class="sr-only">Remove</span>
 							</button>
 
-							<button type="button" class="item-add p-2 rounded border border-[#2563eb] text-white hover:bg-[#1e40af] hover:text-white transition">
+							<button type="button" class="item-add p-2 rounded border border-[#2563eb] hover:border-[#1e40af] text-white bg-[#2663eb] hover:bg-[#1e40af] hover:text-white transition">
 								<i class="bi bi-pencil-fill"></i>
 							</button>
 
@@ -73,6 +81,7 @@
 							<button type="button" class="item-close hidden p-2 rounded border border-[#f6c000] text-[#f6c000] hover:bg-[#f6c000] hover:text-white transition">
 								<i class="bi bi-eye-slash-fill"></i>
 							</button>
+
 
 							{{ form_widget(form.images.vars.prototype.file, {
                                 attr: {
@@ -87,13 +96,13 @@
 
 				{% set videoPrototype %}
 				<div class="
-										media-item
-										media-video
-										relative
-										w-full
-										md:w-40
-										md:flex-shrink-0
-										md:snap-start">
+																																																																																																																																																																						media-item
+																																																																																																																																																																						media-video
+																																																																																																																																																																						relative
+																																																																																																																																																																				        w-full
+																																																																																																																																																																						md:w-40
+																																																																																																																																																																					    md:flex-shrink-0
+																																																																																																																																																																					    md:snap-start">
 					<div class="mb-3 w-full aspect-video rounded border relative">
 						<iframe class="hidden w-full h-full rounded border" frameborder="0" allowfullscreen></iframe>
 
@@ -108,8 +117,9 @@
 						<div class="flex flex-row-reverse items-center gap-2">
 
 							<button type="button" class="remove-item p-2 rounded bg-[#f8285a] text-white hover:bg-[#d81a48]">
-								<i class="bi bi-trash3-fill"></i>
+								<i class="bi bi-trash"></i>
 							</button>
+
 
 							<button type="button" class="item-add p-2 rounded border border-[#2563eb] bg-white hover:bg-[#2563eb] hover:text-white transition text-[#2563eb]">
 								<i class="bi bi-pencil-fill"></i>
@@ -135,7 +145,7 @@
 				{% endset %}
 
 
-				{# -------- BOUTON COLLAPSE UNIQUE MOBILE ------- #}
+				{# ----- BOUTON COLLAPSE UNIQUE MOBILE ----- #}
 				<div class="md:hidden mt-6 px-4 mb-6">
 					<button type="button" class="w-full flex justify-between items-center px-4 py-3 bg-gray-100 rounded-lg font-medium" data-collapse-toggle="media-collapse">
 						<span>Médias</span>
@@ -143,59 +153,103 @@
 					</button>
 				</div>
 
-				{# -------- WRAPPER COLLAPSE / GRILLE ------ #}
+				{# ------ WRAPPER COLLAPSE / GRILLE ----- #}
 				<div id="media-collapse" class="hidden md:block">
-
 					<div
 						class="grid md:grid-cols-2 gap-8 px-4 md:px-8 lg:px-8 mt-8 mb-8">
 
-						{# ============= IMAGES =========== #}
+						{# ============== IMAGES ============= #}
 						<div class="relative">
-
 							<div
 								id="image-wrapper" data-index="{{ form.images|length }}" class="
-																	grid
-																	grid-cols-1
-																	gap-6
-																	md:flex
-																	md:flex-row
-																	md:gap-4
-																	md:overflow-x-auto
-																	md:scroll-smooth
-																	md:snap-x
-																	md:snap-mandatory">
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																						grid
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																						grid-cols-1
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																						gap-6
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					    md:flex
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																						md:flex-row
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																						md:gap-4
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																		                md:overflow-x-auto
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																						md:scroll-smooth
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																						md:snap-x md:snap-mandatory">
 
 								{# Images existantes #}
 								{% for imageForm in form.images %}
-									{% set media = imageForm.vars.data %}
-									{% if media.picture %}
-										<div class="media-item media-image relative w-full md:w-40 md:flex-shrink-0 md:snap-start">
-											<div class="mb-3 w-full aspect-video rounded overflow-hidden border relative" data-id="{{ media.id }}">
-												<img src="{{ asset('uploads/images/' ~ media.picture) }}" class="image-preview w-full h-full object-cover object-center" data-filename="{{ media.picture }}">
+									{% if imageForm.vars.data and imageForm.vars.data.picture %}
+										{% set media = imageForm.vars.data %}
+
+										<div class="media-item media-image relative w-full md:w-40 md:flex-shrink-0 md:snap-start" data-image-status="existing">
+											<div class="mb-3 w-full aspect-video rounded overflow-hidden border relative">
+												{% if imageForm.vars.data.picture %}
+													<img src="{{ asset('uploads/images/' ~ imageForm.vars.data.picture) }}" class="image-preview w-full h-full object-cover" data-filename="{{ imageForm.vars.data.picture }}">
+												{% else %}
+													<img class="image-preview hidden w-full h-full object-cover">
+												{% endif %}
+												<div class="image-placeholder absolute inset-0 bg-gray-100 flex items-center justify-center rounded border {{ imageForm.vars.data.picture ? 'hidden' : '' }}">
+													<i class="bi bi-image text-2xl text-gray-400"></i>
+												</div>
 											</div>
 
-											<input type="hidden" class="uploaded-filename" name="images_filenames[]" value="{{ media.picture }}">
-
-											<input type="hidden" class="removed-image" name="removed_images[]" value="">
+											<input type="hidden" class="uploaded-filename" name="images_filenames[]" value="{{ imageForm.vars.data.picture }}">
+											<input type="hidden" class="removed-image" name="removed_images[]">
 
 											<div class="media-actions flex justify-end gap-2 mt-2">
 												<div class="flex flex-row-reverse items-center gap-2">
 													{% if is_granted('MEDIA_DELETE', media) %}
-														<button type="button" class="remove-item p-2 rounded border-[#f8285a] bg-[#f8285a] text-white hover:bg-[#d81a48]">
+														<button type="button" class="remove-item p-2 rounded bg-[#f8285a] text-white hover:bg-[#d81a48] hover:border-[#d81a48]">
 															<i class="bi bi-trash3-fill"></i>
+															<span class="sr-only">Remove</span>
 														</button>
+
 													{% endif %}
 
-													{{ form_widget(imageForm.file, {
-                                                        attr: {
-                                                            class: 'item-input h-10 w-0 opacity-0 hidden',
-                                                            accept: 'image/png,image/jpeg,image/webp'
-                                                        }
-                                                    }) }}
+
+													{{ form_widget(imageForm.file, {attr:{class:'item-input w-0 opacity-0 transition-all duration-300'}}) }}
 												</div>
 											</div>
 										</div>
 									{% endif %}
+								{% endfor %}
+
+
+								{# --- Images temporaires --- #}
+								{% for filename in tempImages %}
+									<div class="media-item media-image flex-shrink-0 w-40 snap-start relative" data-image-status="new">
+										<div class="mb-3 w-full aspect-video rounded overflow-hidden border relative">
+											<img src="{{ asset('uploads/images_tmp/' ~ filename) }}" class="image-preview w-full h-full object-cover object-center" data-filename="{{ filename }}">
+											<div class="image-placeholder absolute inset-0 bg-gray-100 flex items-center justify-center rounded border hidden">
+												<i class="bi bi-image text-2xl text-gray-400"></i>
+											</div>
+										</div>
+
+										{# Input pour Symfony #}
+										<input type="hidden" class="uploaded-filename" name="images_filenames[]" value="{{ filename }}">
+										<input type="hidden" class="removed-image" name="removed_images[]">
+
+
+										<div class="media-actions flex justify-end gap-2 mt-2">
+											<div class="flex flex-row-reverse items-center gap-2">
+												<button type="button" class="remove-item p-2 rounded border-[#f8285a] bg-[#f8285a] text-white hover:bg-[#d81a48] hover:border-[#d81a48]">
+													<i class="bi bi-trash3-fill"></i>
+													<span class="sr-only">Remove</span>
+												</button>
+
+												<button type="button" class="item-add p-2 rounded border border-[#2563eb] hover:border-[#1e40af] text-white bg-[#2663eb] hover:bg-[#1e40af] hover:text-white transition">
+													<i class="bi bi-pencil-fill"></i>
+												</button>
+
+												<button type="button" class="item-edit hidden p-2 rounded border border-[#2563eb] hover:border-[#1e40af] text-white bg-[#2663eb] hover:bg-[#1e40af] hover:text-white transition">
+													<i class="bi bi-pencil-fill"></i>
+												</button>
+
+												<button type="button" class="item-close hidden p-2 rounded border border-[#f6c000] text-[#f6c000] hover:bg-[#f6c000] hover:text-white transition">
+													<i class="bi bi-eye-slash-fill"></i>
+												</button>
+
+
+												<input type="file" class="item-input h-10 w-0 opacity-0 transition-all duration-300 border rounded px-3 text-sm file:h-full file:border-0 file:bg-transparent" accept="image/png,image/jpeg,image/webp">
+											</div>
+										</div>
+									</div>
 								{% endfor %}
 
 							</div>
@@ -208,44 +262,47 @@
 
 						</div>
 
-						{# ============== VIDEOS ============== #}
+						{# ========== VIDEOS =========== #}
 						<div class="relative">
 
 							<div id="video-wrapper" class="
-																grid
-																grid-cols-1
-																gap-6
-																md:flex
-																md:flex-row
-																md:gap-4
-																md:overflow-x-auto
-																md:scroll-smooth
-																md:snap-x
-																md:snap-mandatory">
+																																																																																																																																																																																																																																																										grid
+																																																																																																																																																																																																																																																										grid-cols-1
+																																																																																																																																																																																																																																																										gap-6
+																																																																																																																																																																																																																																																										md:flex
+																																																																																																																																																																																																																																																										md:flex-row
+																																																																																																																																																																																																																																																										md:gap-4
+																																																																																																																																																																																																																																																										md:overflow-x-auto
+																																																																																																																																																																																																																																																										md:scroll-smooth
+																																																																																																																																																																																																																																																										md:snap-x md:snap-mandatory">
 
 								{% for videoForm in form.videos %}
-									{% set media = videoForm.vars.data %}
-									<div class="media-item media-video relative w-full md:w-40 md:flex-shrink-0 md:snap-start" data-id="{{ media.id }}">
+
+
+									<div class="media-item media-video relative w-full md:w-40 md:flex-shrink-0 md:snap-start">
 										<div class="mb-3 w-full aspect-video rounded border relative">
-											<iframe src="{{ media.getEmbedUrl()|default('') }}" class="w-full h-full rounded border" frameborder="0" allowfullscreen></iframe>
+											<iframe src="{{ videoForm.vars.data.getEmbedUrl()|default('') }}" class="w-full h-full rounded border"></iframe>
+											<div class="video-placeholder absolute inset-0 bg-gray-100 flex items-center justify-center rounded border {{ videoForm.vars.data.getEmbedUrl() ? 'hidden' : '' }}">
+												<i class="bi bi-play-btn text-3xl text-gray-400"></i>
+											</div>
 										</div>
 
-										<input type="hidden" class="removed-video" name="removed_videos[]" value="">
+										<input type="hidden" class="removed-video" name="removed_videos[]">
 
 										<div class="media-actions flex justify-end gap-2 mt-2">
 											<div class="flex flex-row-reverse items-center gap-2">
-												{% if is_granted('MEDIA_DELETE', media) %}
-													<button type="button" class="remove-item p-2 rounded border-[#f8285a] bg-[#f8285a] text-white hover:bg-[#d81a48]">
+
+												{% set media = videoForm.vars.data %}
+
+
+												{% if media and is_granted('MEDIA_DELETE', media) %}
+													<button type="button" class="remove-item ...">
 														<i class="bi bi-trash3-fill"></i>
 													</button>
 												{% endif %}
 
-												{{ form_widget(videoForm.url, {
-                                                    attr: {
-                                                        class: 'item-input w-0 opacity-0 transition-all duration-300 border rounded px-3 py-2 hidden',
-                                                        placeholder: 'Lien YouTube'
-                                                    }
-                                                }) }}
+
+												{{ form_widget(videoForm.url, {attr:{class:'item-input w-0 opacity-0 transition-all duration-300'}}) }}
 											</div>
 										</div>
 									</div>
@@ -261,108 +318,109 @@
 
 						</div>
 
+
 					</div>
-				</div>
 
-				{# ----------- PROTOTYPES CACHÉS ----------- #}
-				<template id="image-prototype">
-					{{ imagePrototype|raw }}
-				</template>
+					{# ---------------- PROTOTYPES CACHÉS ---------------- #}
+					<template id="image-prototype">
+						{{ imagePrototype|raw }}
+					</template>
 
-				<template id="video-prototype">
-					{{ videoPrototype|raw }}
-				</template>
+					<template id="video-prototype">
+						{{ videoPrototype|raw }}
+					</template>
 
-				{{ form_widget(form._token) }}
+					<!-- Title, Content, Category -->
+					<div class="px-4 md:px-8 lg:px-24">
 
-				<div class="flex justify-end px-4 md:px-8 lg:px-24 mt-4">
-					<button class="bg-blue-600 text-white px-6 py-3 rounded-2xl hover:bg-blue-800 font-semibold transition-all duration-300 uppercase">Contribuer</button>
-				</div>
-
-				{{ form_end(form, { render_rest: false }) }}
-
-				<div class="px-4 md:px-8 lg:px-16 mt-6">
-					<p>{{ trick.content }}</p>
-
-					<hr class="border-0 h-px bg-gray-300 my-8">
-
-					<div class="flex flex-col md:flex-row items-center justify-center gap-4 text-gray-500 mb-6">
-						<div class="flex items-center border-r pr-4">
-							<span class="inline-block bg-blue-100 text-blue-600 text-sm font-semibold px-3 py-1 rounded-full">
-								{{ trick.category ? trick.category.name : 'Aucune catégorie' }}
-							</span>
+						<div class="flex justify-end mt-4 gap-4">
+							{{ form_row(form.save) }}
 						</div>
-						<div class="flex items-center border-r pr-4">
-							<div class="text-sm text-gray-500">
-								{% if trick.updatedAt %}
-									Modifié le
-									{{ trick.updatedAt|date('d/m/Y') }}
-								{% else %}
-									Créé le
-									{{ trick.createdAt|date('d/m/Y') }}
+						{# Token CSRF #}
+						{{ form_widget(form._token) }}
+						{{ form_end(form, { render_rest: false }) }}
+
+						<div class="px-4 md:px-8 lg:px-16 mt-6">
+							<p>{{ trick.content }}</p>
+
+							<hr class="border-0 h-px bg-gray-300 my-8">
+
+							<div class="flex flex-col md:flex-row items-center justify-center gap-4 text-gray-500 mb-6">
+								<div class="flex items-center border-r pr-4">
+									<span class="inline-block bg-blue-100 text-blue-600 text-sm font-semibold px-3 py-1 rounded-full">
+										{{ trick.category ? trick.category.name : 'Aucune catégorie' }}
+									</span>
+								</div>
+								<div class="flex items-center border-r pr-4">
+									<div class="text-sm text-gray-500">
+										{% if trick.updatedAt %}
+											Modifié le
+											{{ trick.updatedAt|date('d/m/Y') }}
+										{% else %}
+											Créé le
+											{{ trick.createdAt|date('d/m/Y') }}
+										{% endif %}
+									</div>
+								</div>
+							</div>
+
+							<hr
+							class="border-0 h-px bg-gray-300 my-8">
+							<!-- Comment List -->
+							<div class="w-full max-w-xl mx-auto bg-white p-4 rounded-lg mt-6">
+								<h2 class="text-2xl font-bold mb-6">Commentaires ({{ trick.comments|length }})</h2>
+								<div id="comments-container" class="space-y-6">
+									{% include '_partials/comments.html.twig' with { comments: comments } %}
+								</div>
+								<!-- Pagination -->
+								{% if totalPages > 0 %}
+									<div
+										class="mt-6 flex justify-center gap-2">
+										{# Bouton Précédent #}
+										{% if page > 1 %}
+											<a href="{{ path('app_tricks_details', { slug: trick.slug, page: page-1 }) }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
+												Précédent
+											</a>
+										{% endif %}
+
+										{# Numéros de pages #}
+										{% for p in 1..totalPages %}
+											{% if p == page %}
+												<span class="px-3 py-1 bg-blue-600 text-white rounded">{{ p }}</span>
+											{% else %}
+												<a href="{{ path('app_tricks_details', { slug: trick.slug, page: p }) }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">{{ p }}</a>
+											{% endif %}
+										{% endfor %}
+
+										{# Bouton Suivant #}
+										{% if page < totalPages %}
+											<a href="{{ path('app_tricks_details', { slug: trick.slug, page: page+1 }) }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
+												Suivant
+											</a>
+										{% endif %}
+									</div>
 								{% endif %}
 							</div>
+
 						</div>
 					</div>
-
-					<hr
-					class="border-0 h-px bg-gray-300 my-8">
-					<!-- Comment List -->
-					<div class="w-full max-w-xl mx-auto bg-white p-4 rounded-lg mt-6">
-						<h2 class="text-2xl font-bold mb-6">Commentaires ({{ trick.comments|length }})</h2>
-						<div id="comments-container" class="space-y-6">
-							{% include '_partials/comments.html.twig' with { comments: comments } %}
-						</div>
-						<!-- Pagination -->
-						{% if totalPages > 0 %}
-							<div
-								class="mt-6 flex justify-center gap-2">
-								{# Bouton Précédent #}
-								{% if page > 1 %}
-									<a href="{{ path('app_tricks_details', { slug: trick.slug, page: page-1 }) }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
-										Précédent
-									</a>
-								{% endif %}
-
-								{# Numéros de pages #}
-								{% for p in 1..totalPages %}
-									{% if p == page %}
-										<span class="px-3 py-1 bg-blue-600 text-white rounded">{{ p }}</span>
-									{% else %}
-										<a href="{{ path('app_tricks_details', { slug: trick.slug, page: p }) }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">{{ p }}</a>
-									{% endif %}
-								{% endfor %}
-
-								{# Bouton Suivant #}
-								{% if page < totalPages %}
-									<a href="{{ path('app_tricks_details', { slug: trick.slug, page: page+1 }) }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
-										Suivant
-									</a>
-								{% endif %}
-							</div>
-						{% endif %}
-					</div>
-
 				</div>
-			</div>
-		</div>
-	</section>
+			</section>
 
-{% endblock %}
+		{% endblock %}
 
-{% block javascripts %}
-	{{ parent() }}
-	<script>
-		const IMAGE_ROUTES = {
+
+		{% block javascripts %}
+			{{ parent() }}
+			<script>
+				const IMAGE_ROUTES = {
 upload: "{{ path('profile_images_temp') }}",
 delete: "{{ path('profile_images_temp_delete') }}"
 };
-	</script>
-
-	<script src="{{ asset('js/media-collapse.js') }}"></script>
-	<script src="{{ asset('js/template.js') }}"></script>
-	<script src="{{ asset('js/utils.js') }}"></script>
-	<script src="{{ asset('js/api.js') }}"></script>
-	<script src="{{ asset('js/images.js') }}"></script>
-	<script src="{{ asset('js/videos.js') }}"></script>
-{% endblock %}
+			</script>
+			<script src="{{ asset('js/media-collapse.js') }}"></script>
+			<script src="{{ asset('js/utils.js') }}"></script>
+			<script src="{{ asset('js/template.js') }}"></script>
+			<script src="{{ asset('js/images.js') }}"></script>
+			<script src="{{ asset('js/videos.js') }}"></script>
+		{% endblock %}
