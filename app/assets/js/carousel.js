@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const imagesContainer = document.querySelector('#image-wrapper');
   const addImageButton = document.querySelector('#add-image');
-  const prototypeHtml = document.querySelector('#image-prototype').dataset.prototype;
+  const template = document.querySelector('#image-prototype');
 
   let index = imagesContainer.querySelectorAll('.media-item').length;
 
@@ -14,8 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const placeholder = item.querySelector('.image-placeholder');
     const uploadedFilename = item.querySelector('.uploaded-filename');
 
-    // Initial state
-    if (previewImg && previewImg.src) {
+    if (previewImg?.src) {
       placeholder?.classList.add('hidden');
       addBtn?.classList.add('hidden');
       closeBtn?.classList.remove('hidden');
@@ -31,9 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
       reader.onload = (event) => {
         previewImg.src = event.target.result;
         previewImg.classList.remove('hidden');
-        placeholder.classList.add('hidden');
-        addBtn.classList.add('hidden');
-        closeBtn.classList.remove('hidden');
+        placeholder?.classList.add('hidden');
+        addBtn?.classList.add('hidden');
+        closeBtn?.classList.remove('hidden');
       };
       reader.readAsDataURL(file);
 
@@ -41,15 +40,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     removeBtn?.addEventListener('click', () => {
-      if (uploadedFilename.value) {
-        item.querySelector('.removed-image').value = uploadedFilename.value;
+      const removed = item.querySelector('.removed-image');
+      if (uploadedFilename.value && removed) {
+        removed.value = uploadedFilename.value;
       }
       item.remove();
     });
 
     closeBtn?.addEventListener('click', () => {
       previewImg.classList.add('hidden');
-      placeholder.classList.remove('hidden');
+      placeholder?.classList.remove('hidden');
       closeBtn.classList.add('hidden');
       addBtn.classList.remove('hidden');
       inputFile.value = '';
@@ -57,27 +57,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ----------------------
-  // SAFE HTML PARSING
-  // ----------------------
+  function getPrototype(index) {
+    const html = template.innerHTML;
+    return html.replace(/__name__/g, index);
+  }
 
   function createElementFromHTML(html) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    return doc.body.firstElementChild;
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html.trim();
+    return wrapper.firstElementChild;
   }
 
-  function getPrototype(index) {
-    return prototypeHtml.replace(/__name__/g, String(index));
-  }
+  imagesContainer
+    .querySelectorAll('.media-item')
+    .forEach(setupImageItem);
 
-  // ----------------------
-  // INIT
-  // ----------------------
-
-  imagesContainer.querySelectorAll('.media-item').forEach(setupImageItem);
-
-  addImageButton.addEventListener('click', () => {
+  addImageButton?.addEventListener('click', () => {
     const html = getPrototype(index);
     const newItem = createElementFromHTML(html);
 

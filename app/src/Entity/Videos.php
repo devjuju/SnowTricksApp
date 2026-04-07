@@ -13,19 +13,15 @@ class Videos
     #[ORM\Column]
     private ?int $id = null;
 
-    // URL brute (toujours stockée)
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $url = null;
 
-    // ID YouTube (nullable = vidéo invalide possible)
     #[ORM\Column(length: 11, nullable: true)]
     private ?string $youtubeId = null;
 
     #[ORM\ManyToOne(inversedBy: 'videos')]
     #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     private ?Tricks $trick = null;
-
-
 
     // -------------------------
     // GETTERS / SETTERS
@@ -71,24 +67,15 @@ class Videos
         return $this;
     }
 
-   
-
     // -------------------------
-    // 🎬 CMS HELPERS
+    // CMS HELPERS
     // -------------------------
 
-    /**
-     * Identifiant unique utilisé pour update/delete côté CMS
-     * (ULTRA IMPORTANT pour ton système front/back)
-     */
     public function getIdentifier(): string
     {
         return $this->youtubeId ?? (string) $this->id;
     }
 
-    /**
-     * URL embed YouTube (si valide)
-     */
     public function getEmbedUrl(): ?string
     {
         return $this->youtubeId
@@ -96,9 +83,6 @@ class Videos
             : null;
     }
 
-    /**
-     * URL classique YouTube (si possible)
-     */
     public function getWatchUrl(): ?string
     {
         return $this->youtubeId
@@ -106,47 +90,90 @@ class Videos
             : null;
     }
 
-    /**
-     * Statut validité (utile UI CMS)
-     */
     public function isValid(): bool
     {
         return !empty($this->youtubeId);
     }
 
     // -------------------------
-    // 🧠 PARSER YOUTUBE
+    // 🎬 YOUTUBE PARSER (GRADE A)
     // -------------------------
 
     public static function extractYoutubeId(?string $url): ?string
     {
-        if (!$url) {
+        if (empty($url)) {
             return null;
         }
 
-        // youtu.be/xxxx
-        if (str_contains($url, 'youtu.be')) {
-            $id = trim(basename(parse_url($url, PHP_URL_PATH)));
-        }
+        $host = parse_url($url, PHP_URL_HOST) ?? '';
+        $path = parse_url($url, PHP_URL_PATH) ?? '';
+        $query = parse_url($url, PHP_URL_QUERY) ?? '';
 
-        // youtube.com/watch?v=xxxx
-        elseif (str_contains($url, 'youtube.com')) {
-            parse_str(parse_url($url, PHP_URL_QUERY) ?? '', $vars);
-            $id = $vars['v'] ?? null;
-        }
+        $id = match (true) {
+            self::isShortUrl($host) => self::extractFromShortUrl($path),
+            self::isYoutubeDomain($host) => self::extractFromQuery($query),
+            self::isShortsUrl($path) => self::extractFromShorts($path),
+            default => null,
+        };
 
-        // youtube shorts
-        elseif (str_contains($url, '/shorts/')) {
-            $id = basename(parse_url($url, PHP_URL_PATH));
-        } else {
-            $id = null;
-        }
+        return self::isValidYoutubeId($id) ? $id : null;
+    }
 
-        // validation finale
-        return ($id && preg_match('/^[a-zA-Z0-9_-]{11}$/', $id))
-            ? $id
+    // -------------------------
+    // 🔧 HELPERS (SINGLE RESPONSIBILITY)
+    // -------------------------
+
+    private static function isShortUrl(string $host): bool
+    {
+        return str_contains($host, 'youtu.be');
+    }
+
+    private static function isYoutubeDomain(string $host): bool
+    {
+        return str_contains($host, 'youtube.com');
+    }
+
+    private static function isShortsUrl(string $path): bool
+    {
+        return str_contains($path, '/shorts/');
+    }
+
+    private static function extractFromShortUrl(string $path): ?string
+    {
+        $segments = explode('/', trim($path, '/'));
+        return $segments[0] ?? null;
+    }
+
+    private static function extractFromShorts(string $path): ?string
+    {
+        $segments = explode('/', trim($path, '/'));
+        $index = array_search('shorts', $segments, true);
+
+        return ($index !== false && isset($segments[$index + 1]))
+            ? $segments[$index + 1]
             : null;
     }
+
+    private static function extractFromQuery(string $query): ?string
+    {
+        foreach (explode('&', $query) as $param) {
+            if (str_starts_with($param, 'v=')) {
+                return substr($param, 2);
+            }
+        }
+
+        return null;
+    }
+
+    private static function isValidYoutubeId(?string $id): bool
+    {
+        return is_string($id)
+            && preg_match('/^[a-zA-Z0-9_-]{11}$/', $id) === 1;
+    }
+
+    // -------------------------
+    // STATIC HELPERS
+    // -------------------------
 
     public static function getEmbedFromUrl(string $url): ?string
     {
