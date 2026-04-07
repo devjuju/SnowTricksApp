@@ -1,109 +1,101 @@
+
 document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll("[data-load-more]").forEach(initLoadMore);
-});
+    const buttons = document.querySelectorAll("[data-load-more]");
 
-function initLoadMore(btn) {
-    const container = document.querySelector(btn.dataset.container);
-    if (!container) return;
+    buttons.forEach((button) => {
+        button.addEventListener("click", async () => {
+            if (button.dataset.loading === "1") return;
 
-    const ui = getUIElements(btn);
+            const url = button.dataset.url;
+            const containerSelector = button.dataset.container;
+            let page = parseInt(button.dataset.page || "1", 10);
 
-    btn.addEventListener("click", () => handleClick(btn, container, ui));
-}
+            const container = document.querySelector(containerSelector);
 
-// ----------------------
-// UI
-// ----------------------
+            if (!url || !container) {
+                console.error("LoadMore: URL ou container invalide");
+                return;
+            }
 
-function getUIElements(btn) {
-    return {
-        text: btn.querySelector(".load-text"),
-        spinner: btn.querySelector(".load-spinner")
-    };
-}
+            // UI loading
+            setLoading(button, true);
 
-function setLoadingState(btn, ui, isLoading) {
-    btn.disabled = isLoading;
+            try {
+                const response = await fetch(buildUrl(url, page), {
+                    method: "GET",
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        "Accept": "application/json"
+                    }
+                });
 
-    if (ui.text) {
-        ui.text.textContent = isLoading
-            ? "Chargement..."
-            : "Afficher plus";
-    }
+                if (!response.ok) {
+                    throw new Error("Erreur serveur");
+                }
 
-    if (ui.spinner) {
-        ui.spinner.classList.toggle("hidden", !isLoading);
-    }
-}
+                const data = await response.json();
 
-function setErrorState(btn, ui) {
-    btn.disabled = false;
-    if (ui.text) ui.text.textContent = "Erreur, réessayer";
-}
+                if (!data.html) {
+                    throw new Error("Réponse invalide");
+                }
 
-// ----------------------
-// Logic
-// ----------------------
+                // Inject HTML
+                container.insertAdjacentHTML("beforeend", data.html);
 
-async function handleClick(btn, container, ui) {
-    if (btn.dataset.loading === "1") return;
+                // Update page
+                button.dataset.page = page + 1;
 
-    btn.dataset.loading = "1";
-    setLoadingState(btn, ui, true);
+                // Optionnel : désactiver si plus de contenu
+                if (data.hasMore === false) {
+                    disableButton(button);
+                }
 
-    const nextPage = getNextPage(btn);
-
-    try {
-        const data = await fetchData(btn.dataset.url, nextPage);
-
-        appendContent(container, data.html);
-
-        updateButton(btn, data, nextPage, ui);
-
-    } catch (e) {
-        console.error("Load more error:", e);
-        setErrorState(btn, ui);
-    }
-
-    setLoadingState(btn, ui, false);
-    btn.dataset.loading = "0";
-}
-
-function getNextPage(btn) {
-    return parseInt(btn.dataset.page || "1", 10) + 1;
-}
-
-async function fetchData(url, page) {
-    const response = await fetch(`${url}?page=${page}`, {
-        headers: { "X-Requested-With": "XMLHttpRequest" }
+            } catch (error) {
+                console.error("LoadMore error:", error);
+            } finally {
+                setLoading(button, false);
+            }
+        });
     });
 
-    if (!response.ok) throw new Error("Erreur serveur");
-
-    return response.json();
-}
-
-// ----------------------
-// DOM
-// ----------------------
-
-function appendContent(container, html) {
-    if (!html || !html.trim()) return;
-
-    // safer than insertAdjacentHTML
-    const template = document.createElement("template");
-    template.innerHTML = html;
-    container.appendChild(template.content);
-}
-
-function updateButton(btn, data, page, ui) {
-    if (!data.hasMore) {
-        btn.remove();
-        return;
+    /**
+     * Build URL safely
+     */
+    function buildUrl(url, page) {
+        const fullUrl = new URL(url, window.location.origin);
+        fullUrl.searchParams.set("page", page);
+        return fullUrl.toString();
     }
 
-    btn.dataset.page = page;
-    btn.disabled = false;
+    /**
+     * Loading UI state
+     */
+    function setLoading(button, state) {
+        button.dataset.loading = state ? "1" : "0";
+        button.disabled = state;
 
-    if (ui.text) ui.text.textContent = "Afficher plus";
-}
+        const spinner = button.querySelector(".load-spinner");
+        const text = button.querySelector(".load-text");
+
+        if (spinner) {
+            spinner.classList.toggle("hidden", !state);
+        }
+
+        if (text) {
+            text.classList.toggle("opacity-50", state);
+        }
+    }
+
+    /**
+     * Disable button when no more data
+     */
+    function disableButton(button) {
+        button.disabled = true;
+        button.classList.add("opacity-50", "cursor-not-allowed");
+
+        const text = button.querySelector(".load-text");
+        if (text) {
+            text.textContent = "Plus de contenu";
+        }
+    }
+});
