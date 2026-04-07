@@ -36,8 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const removeBtn = item.querySelector(".remove-item");
 
         const updatePreview = () => {
-            const value = input.value.trim();
-            const id = extractYoutubeId(value);
+            const id = extractYoutubeId(input.value.trim());
 
             if (id) {
                 preview.src = `https://www.youtube.com/embed/${id}`;
