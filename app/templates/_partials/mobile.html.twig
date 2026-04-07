@@ -1,86 +1,44 @@
+{% set footerMobileClass = "fixed bottom-0 left-0 w-full h-16 bg-white border-t border-gray-200 px-6 md:hidden z-50" %}
+
+{% set currentRoute = app.request.attributes.get('_route') %}
+
+{% set base = "flex flex-col items-center" %}
+{% set active = "text-blue-600" %}
+{% set inactive = "text-blue-400 opacity-60" %}
+
 {% if not app.user %}
-	<footer class="
-	fixed bottom-0 
-	left-0 
-	w-full 
-	h-16
-	bg-white 
-	border-t 
-	border-gray-200
-	px-6 
-	md:hidden 
-	z-50">
+	<footer class="{{ footerMobileClass }}">
 		<div
 			class="h-full flex justify-around items-center text-2xl">
 
 			{# HOME #}
-			<a href="{{ path('app_main') }}" class="
-			flex 
-			flex-col 
-			items-center
-			{% if app.request.attributes.get('_route') == 'app_main' %}
-              text-blue-600
-			{% else %}
-			  text-blue-400 opacity-60
-			{% endif %}">
+			<a href="{{ path('app_main') }}" class="{{ base ~ ' ' ~ (currentRoute == 'app_main' ? active : inactive) }}">
 				<i class="bi bi-house"></i>
 			</a>
 
 			{# REGISTER #}
-			<a href="{{ path('app_register') }}" class="
-			flex 
-			flex-col 
-			items-center
-			{% if app.request.attributes.get('_route') == 'app_register' %}
-	         text-blue-600
-			{% else %}
-	          text-blue-400 opacity-60
-			{% endif %}">
+			<a href="{{ path('app_register') }}" class="{{ base ~ ' ' ~ (currentRoute == 'app_register' ? active : inactive) }}">
 				<i class="bi bi-person-plus"></i>
 			</a>
 
 			{# LOGIN #}
-			<a href="{{ path('app_login') }}" class="
-			flex 
-			flex-col 
-			items-center
-			{% if app.request.attributes.get('_route') == 'app_login' %}
-	          text-blue-600
-			{% else %}
-			  text-blue-400 opacity-60
-			{% endif %}">
+			<a href="{{ path('app_login') }}" class="{{ base ~ ' ' ~ (currentRoute == 'app_login' ? active : inactive) }}">
 				<i class="bi bi-lock"></i>
 			</a>
 		</div>
 	</footer>
 {% else %}
-	<footer class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 py-3 px-6 md:hidden z-50">
+	<footer class="{{ footerMobileClass }}">
 		<div
 			class="flex justify-around items-center text-2xl">
 
 			{# PROFILE #}
-			<a href="{{ path('app_profile_index') }}" class="
-			flex 
-			flex-col 
-			items-center
-			{% if app.request.attributes.get('_route') == 'app_profile_index' %}
-	          text-blue-600
-			{% else %}
-	          text-blue-400 opacity-60
-			{% endif %}">						          
+			<a href="{{ path('app_profile_index') }}" class="{{ base ~ ' ' ~ (currentRoute == 'app_profile_index' ? active : inactive) }}">
 				<i class="bi bi-house"></i>
 			</a>
 
 			{# ADD TRICK #}
-			<a href="{{ path('app_profile_tricks_add') }}" class="
-			flex 
-			flex-col 
-			items-center
-			{% if app.request.attributes.get('_route') == 'app_profile_tricks_add' %}
-				text-blue-600
-			{% else %}
-	          text-blue-400 opacity-60
-			{% endif %}">
+			<a href="{{ path('app_profile_tricks_add') }}" class="{{ base ~ ' ' ~ (currentRoute == 'app_profile_tricks_add' ? active : inactive) }}">
 				<i class="bi bi-plus-circle"></i>
 			</a>
 

@@ -6,7 +6,6 @@
 {% block body %}
 	<section
 		class="relative bg-[#979EAB] pb-12">
-
 		<!-- Hero image -->
 		<div class="absolute inset-0">
 			<img src="{{ asset('images/backgrounds/image-cover.jpg') }}" alt="Hero" class="w-full h-[400px] sm:h-[500px] md:h-[600px] object-cover brightness-75">
@@ -17,8 +16,6 @@
 		<div class="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32 pt-20 ">
 			<div
 				class="bg-white rounded-xl shadow-lg max-w-6xl mx-auto overflow-hidden pb-[42px]">
-
-
 				{# Flash messages #}
 				{% for message in app.flashes('error') %}
 					<div class="alert alert-danger">
@@ -38,22 +35,13 @@
                 %}
 
 				{# Conteneur featured image #}
-					<div
-					id="featured-container" data-existing-image="{{ featuredPath ?? '' }}" class="
-																																																																																																																																																																	relative
-																																																																																																																																																																	w-full
-																																																																																																																																																																	min-h-[30vh]
-																																																																																																																																																																	sm:min-h-[55vh]
-																																																																																																																																																																	md:min-h-[60vh]
-																																																																																																																																																																	border-2
-																																																																																																																																																																    flex items-center justify-center
-																																																																																																																																																															        overflow-hidden"> {# Aperçu image #}
-					<img
+				{% set featuredContainerClass = "relative w-full min-h-[30vh] sm:min-h-[55vh] md:min-h-[60vh] border-2 flex items-center justify-center overflow-hidden" %}
+
+					<div id="featured-container" data-existing-image="{{ featuredPath ?? '' }}" class="{{ featuredContainerClass }}"> <img
 					id="featured-preview" src="{{ featuredPath }}" class="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-300 rounded-t-xl {{ featuredPath ? '' : 'opacity-0' }}">
 
 					{# Placeholder #}
-					<span id="featured-placeholder" class="absolute inset-0 flex items-center justify-center bg-gray-200
-																																																																																																																																																																		{{ featuredPath ? 'opacity-0' : '' }}"></span>
+					<span id="featured-placeholder" class="absolute inset-0 flex items-center justify-center bg-gray-200 {{ featuredPath ? 'opacity-0' : '' }}"></span>
 
 					{# Overlay texte/hero (facultatif) #}
 					<div class="bg-[#00214D]/50 backdrop-blur-sm p-6 md:p-10 rounded-xl max-w-xl text-center pointer-events-none">
@@ -91,15 +79,11 @@
 					</div>
 				{% endif %}
 
+				{% set imagePrototypeClass = "media-item media-image relative w-full md:w-40
+                md:flex-shrink-0  md:snap-start" %}
+
 				{% set imagePrototype %}
-				<div class="
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					media-item
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					media-image
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					relative
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					w-full
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					md:w-40
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																			        md:flex-shrink-0
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																			        md:snap-start" data-image-status="new">
+				<div class="{{ imagePrototypeClass }}" data-image-status="new">
 					<div class="mb-3 w-full aspect-video rounded overflow-hidden border relative">
 						<img class="image-preview hidden w-full h-full object-cover object-center"/>
 						<div class="image-placeholder absolute inset-0 bg-gray-100 flex items-center justify-center rounded border">
@@ -130,15 +114,11 @@
 				</div>
 				{% endset %}
 
+				{% set videoPrototypeClass = "media-item media-video relative  w-full
+					md:w-40 md:flex-shrink-0 md:snap-start" %}
+
 				{% set videoPrototype %}
-				<div class="
-																																																																																																																																																																																																																						media-item
-																																																																																																																																																																																																																						media-video
-																																																																																																																																																																																																																						relative
-																																																																																																																																																																																																																				        w-full
-																																																																																																																																																																																																																						md:w-40
-																																																																																																																																																																																																																					    md:flex-shrink-0
-																																																																																																																																																																																																																					    md:snap-start">
+				<div class="{{ videoPrototypeClass }}">
 					<div class="mb-3 w-full aspect-video rounded border relative">
 						<iframe class="hidden w-full h-full rounded border" frameborder="0" allowfullscreen></iframe>
 
@@ -156,11 +136,9 @@
 								<i class="bi bi-trash3-fill"></i>
 							</button>
 
-
 							<button type="button" class="item-add p-2 rounded border border-[#2563eb] bg-white hover:bg-[#2563eb] hover:text-white transition text-[#2563eb]">
 								<i class="bi bi-pencil-fill"></i>
 							</button>
-
 
 							<button type="button" class="item-close hidden p-2 rounded border border-[#f6c000] text-[#f6c000] hover:bg-[#f6c000] hover:text-white transition">
 								<i class="bi bi-eye-slash-fill"></i>
@@ -172,15 +150,10 @@
                                     placeholder: 'Lien YouTube'
                                 }
                             }) }}
-
-
 						</div>
-
 					</div>
-
 				</div>
 				{% endset %}
-
 
 				{# -------- BOUTON COLLAPSE UNIQUE MOBILE -------- #}
 				<div class="md:hidden mt-6 px-4 mb-6">
@@ -192,22 +165,15 @@
 
 				{# ------ WRAPPER COLLAPSE / GRILLE ----- #}
 				<div id="media-collapse" class="hidden md:block">
-					<div
-						class="grid md:grid-cols-2 gap-8 px-4 md:px-8 lg:px-8 mt-8 mb-8">
+					<div class="grid md:grid-cols-2 gap-8 px-4 md:px-8 lg:px-8 mt-8 mb-8">
+
+						{% set gridBase = "grid grid-cols-1 gap-6" %}
+						{% set gridDesktop = "md:flex md:flex-row md:gap-4 md:overflow-x-auto md:scroll-smooth md:snap-x md:snap-mandatory" %}
 
 						{# ============== IMAGES ============= #}
 						<div class="relative">
 							<div
-								id="image-wrapper" data-index="{{ form.images|length }}" class="
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																														grid
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																														grid-cols-1
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																														gap-6
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																													    md:flex
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																														md:flex-row
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																														md:gap-4
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																										                md:overflow-x-auto
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																														md:scroll-smooth
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																														md:snap-x md:snap-mandatory">
+								id="image-wrapper" data-index="{{ form.images|length }}" class="{{ gridBase }} {{ gridDesktop }}">
 
 								{# --- Images temporaires --- #}
 								{% for filename in tempImages %}
@@ -223,7 +189,6 @@
 										<input type="hidden" class="uploaded-filename" name="images_filenames[]" value="{{ filename }}">
 										<input type="hidden" class="removed-image" name="removed_images[]">
 
-
 										<div class="media-actions flex justify-end gap-2 mt-2">
 											<div class="flex flex-row-reverse items-center gap-2">
 												<button type="button" class="remove-item p-2 rounded border-[#f8285a] bg-[#f8285a] text-white hover:bg-[#d81a48] hover:border-[#d81a48]">
@@ -236,9 +201,7 @@
 										</div>
 									</div>
 								{% endfor %}
-
 							</div>
-
 							<div class="mt-4">
 								<button type="button" id="add-image" class="w-full bg-blue-100 text-blue-600 px-6 py-3 rounded-2xl hover:bg-[#056ee9] hover:text-white font-semibold transition-all duration-300 uppercase">
 									Ajouter une image
@@ -249,18 +212,7 @@
 
 						{# ========== VIDEOS =========== #}
 						<div class="relative">
-
-							<div id="video-wrapper" class="
-																																																																																																																																																																																																																																																																																																																																		grid
-																																																																																																																																																																																																																																																																																																																																		grid-cols-1
-																																																																																																																																																																																																																																																																																																																																		gap-6
-																																																																																																																																																																																																																																																																																																																																		md:flex
-																																																																																																																																																																																																																																																																																																																																		md:flex-row
-																																																																																																																																																																																																																																																																																																																																		md:gap-4
-																																																																																																																																																																																																																																																																																																																																		md:overflow-x-auto
-																																																																																																																																																																																																																																																																																																																																		md:scroll-smooth
-																																																																																																																																																																																																																																																																																																																																		md:snap-x md:snap-mandatory">
-
+							<div id="video-wrapper" class="{{ gridBase }} {{ gridDesktop }}">
 								{% for videoForm in form.videos %}
 									<div class="media-item media-video relative w-full md:w-40 md:flex-shrink-0 md:snap-start" data-video-id="{{ videoForm.vars.data.getIdentifier() }}">
 										<div class="mb-3 w-full aspect-video rounded border relative">
@@ -278,25 +230,18 @@
 													<i class="bi bi-trash3-fill"></i>
 													<span class="sr-only">Remove</span>
 												</button>
-
-
 												{{ form_widget(videoForm.url, {attr:{class:'item-input w-0 opacity-0 transition-all duration-300'}}) }}
 											</div>
 										</div>
 									</div>
 								{% endfor %}
-
 							</div>
-
 							<div class="mt-4">
 								<button type="button" id="add-video" class="w-full bg-blue-100 text-blue-600 px-6 py-3 rounded-2xl hover:bg-[#056ee9] hover:text-white font-semibold transition-all duration-300 uppercase">
 									Ajouter une vidéo
 								</button>
 							</div>
-
 						</div>
-
-
 					</div>
 
 					{# ---------------- PROTOTYPES CACHÉS ---------------- #}
@@ -337,20 +282,13 @@
 						<div class="text-[#d81a48] text-sm">{{ form_errors(form.category) }}</div>
 					</div>
 					<div class="flex justify-end mt-4 gap-4">
-
-
 						{{ form_row(form.save) }}
 					</div>
-					{# Token CSRF #}
-
 				</div>
-
 				{{ form_widget(form._token) }}
 				{{ form_end(form, { render_rest: false }) }}
 			</section>
-
 		{% endblock %}
-
 
 		{% block javascripts %}
 			{{ parent() }}
@@ -361,7 +299,6 @@ delete: "{{ path('profile_images_temp_delete') }}"
 };
 			</script>
 			<script src="{{ asset('js/featured-image.js') }}"></script>
-
 			<script src="{{ asset('js/media-collapse.js') }}"></script>
 			<script src="{{ asset('js/utils.js') }}"></script>
 			<script src="{{ asset('js/template.js') }}"></script>

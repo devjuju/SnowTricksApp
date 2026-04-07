@@ -15,13 +15,11 @@
 
 		<!-- Centered card -->
 		<div class="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32 pt-20 ">
-
 			<div
 				class="bg-white rounded-xl shadow-lg max-w-6xl mx-auto overflow-hidden pb-[42px]">
 
 				<!-- Featured Image Hero -->
 				<div class="relative min-h-[30vh] sm:min-h-[55vh] md:min-h-[60vh] flex items-center justify-center overflow-hidden">
-
 					<img src="{{ asset('uploads/featured_images/' ~ trick.featuredImage) }}" class="absolute inset-0 w-full h-full object-cover object-top md:object-center" alt="{{ trick.title }}">
 
 					<div class="relative bg-[#00214D]/50 backdrop-blur-sm p-6 md:p-10 rounded-xl max-w-xl text-center">
@@ -29,9 +27,7 @@
 							{{ trick.title }}
 						</h1>
 					</div>
-
 				</div>
-
 
 				<!-- Formulaire d'ajouts de médias -->
 				{# Flash messages #}
@@ -45,9 +41,11 @@
 
 				{{ form_start(form, { attr: { novalidate:'novalidate', enctype:'multipart/form-data' } }) }}
 
+				{% set imagePrototypeClass = "media-item media-image relative w-full md:w-40
+                md:flex-shrink-0  md:snap-start" %}
+
 				{% set imagePrototype %}
-				<div class="
-																																																																																																																																																																 media-item media-image relative w-full md:w-40 md:flex-shrink-0 md:snap-start">
+				<div class="{{ imagePrototypeClass }}">
 					<div class="mb-3 w-full aspect-video rounded overflow-hidden border relative">
 						<img class="image-preview hidden w-full h-full object-cover object-center"/>
 						<div class="image-placeholder absolute inset-0 bg-gray-100 flex items-center justify-center rounded border">
@@ -66,8 +64,6 @@
 								<i class="bi bi-trash3-fill"></i>
 								<span class="sr-only">Remove</span>
 							</button>
-
-
 							{{ form_widget(form.images.vars.prototype.file, {
                                 attr: {
                                     class: 'item-input w-0 opacity-0 transition-all duration-300 border rounded px-3 text-sm',
@@ -79,15 +75,11 @@
 				</div>
 				{% endset %}
 
+				{% set videoPrototypeClass = "media-item media-video relative  w-full
+					md:w-40 md:flex-shrink-0 md:snap-start" %}
+
 				{% set videoPrototype %}
-				<div class="
-																																																																																																																																																																						media-item
-																																																																																																																																																																						media-video
-																																																																																																																																																																						relative
-																																																																																																																																																																						w-full
-																																																																																																																																																																						md:w-40
-																																																																																																																																																																						md:flex-shrink-0
-																																																																																																																																																																						md:snap-start">
+				<div class="{{ videoPrototypeClass }}">
 					<div class="mb-3 w-full aspect-video rounded border relative">
 						<iframe class="hidden w-full h-full rounded border" frameborder="0" allowfullscreen></iframe>
 
@@ -105,11 +97,9 @@
 								<i class="bi bi-trash3-fill"></i>
 							</button>
 
-
 							<button type="button" class="item-add p-2 rounded border border-[#2563eb] bg-white hover:bg-[#2563eb] hover:text-white transition text-[#2563eb]">
 								<i class="bi bi-pencil-fill"></i>
 							</button>
-
 
 							<button type="button" class="item-close hidden p-2 rounded border border-[#f6c000] text-[#f6c000] hover:bg-[#f6c000] hover:text-white transition">
 								<i class="bi bi-eye-slash-fill"></i>
@@ -136,28 +126,21 @@
 
 				{# ------ WRAPPER COLLAPSE / GRILLE ----- #}
 				<div id="media-collapse" class="hidden md:block">
-					<div
-						class="grid md:grid-cols-2 gap-8 px-4 md:px-8 lg:px-8 mt-8 mb-8">
+					<div class="grid md:grid-cols-2 gap-8 px-4 md:px-8 lg:px-8 mt-8 mb-8">
+
+						{% set gridBase = "grid grid-cols-1 gap-6" %}
+
+						{% set gridDesktop = "md:flex md:flex-row md:gap-4 md:overflow-x-auto md:scroll-smooth md:snap-x md:snap-mandatory" %}
 
 						{# ============== IMAGES ============= #}
 						<div class="relative">
-							<div id="image-wrapper" class="
-																																																																																																																																																																																																																																																																													grid
-																																																																																																																																																																																																																																																																													grid-cols-1
-																																																																																																																																																																																																																																																																													gap-6
-																																																																																																																																																																																																																																																																												    md:flex
-																																																																																																																																																																																																																																																																													md:flex-row
-																																																																																																																																																																																																																																																																													md:gap-4
-																																																																																																																																																																																																																																																																									                md:overflow-x-auto
-																																																																																																																																																																																																																																																																													md:scroll-smooth
-																																																																																																																																																																																																																																																																													md:snap-x md:snap-mandatory">
-
-								{# Images existantes #}
-
+							<div
+								id="image-wrapper" class="{{ gridBase }} {{ gridDesktop }}">
 
 								{# --- Images temporaires --- #}
-									{% for filename in tempImages %}
-										<div class="media-item media-image flex-shrink-0 w-40 snap-start relative" data-is-temp="true"> <div class="mb-3 w-full aspect-video rounded overflow-hidden border relative">
+								{% for filename in tempImages %}
+									<div class="media-item media-image flex-shrink-0 w-40 snap-start relative" data-is-temp="true">
+										<div class="mb-3 w-full aspect-video rounded overflow-hidden border relative">
 											<img src="{{ asset('uploads/images_tmp/' ~ filename) }}" class="image-preview w-full h-full object-cover object-center" data-filename="{{ filename }}">
 											<div class="image-placeholder absolute inset-0 bg-gray-100 flex items-center justify-center rounded border hidden">
 												<i class="bi bi-image text-2xl text-gray-400"></i>
@@ -181,31 +164,17 @@
 										</div>
 									</div>
 								{% endfor %}
-
 							</div>
-
 							<div class="mt-4">
 								<button type="button" id="add-image" class="w-full bg-blue-100 text-blue-600 px-6 py-3 rounded-2xl hover:bg-[#056ee9] hover:text-white font-semibold transition-all duration-300 uppercase">
 									Ajouter une image
 								</button>
 							</div>
-
 						</div>
 
 						{# ========== VIDEOS =========== #}
 						<div class="relative">
-
-							<div id="video-wrapper" class="
-																																																																																																																																																																																																																																																																												grid
-																																																																																																																																																																																																																																																																												grid-cols-1
-																																																																																																																																																																																																																																																																												gap-6
-																																																																																																																																																																																																																																																																												md:flex
-																																																																																																																																																																																																																																																																												md:flex-row
-																																																																																																																																																																																																																																																																												md:gap-4
-																																																																																																																																																																																																																																																																												md:overflow-x-auto
-																																																																																																																																																																																																																																																																												md:scroll-smooth
-																																																																																																																																																																																																																																																																												md:snap-x md:snap-mandatory">
-
+							<div id="video-wrapper" class="{{ gridBase }} {{ gridDesktop }}">
 								{% for video in form.videos %}
 									<div class="media-item media-video relative w-full md:w-40 md:flex-shrink-0 md:snap-start">
 										<div class="mb-3 w-full aspect-video rounded border relative">
@@ -224,23 +193,18 @@
 													<span class="sr-only">Remove</span>
 												</button>
 
-
 												{{ form_widget(video.url, {attr:{class:'item-input w-0 opacity-0 transition-all duration-300'}}) }}
 											</div>
 										</div>
 									</div>
 								{% endfor %}
-
 							</div>
-
 							<div class="mt-4">
 								<button type="button" id="add-video" class="w-full bg-blue-100 text-blue-600 px-6 py-3 rounded-2xl hover:bg-[#056ee9] hover:text-white font-semibold transition-all duration-300 uppercase">
 									Ajouter une vidéo
 								</button>
 							</div>
-
 						</div>
-
 					</div>
 				</div>
 
@@ -253,22 +217,17 @@
 					{{ videoPrototype|raw }}
 				</template>
 
-
-				<div class="px-4 md:px-8  ">
-
+				<div class="px-4 md:px-8">
 					<div class="flex flex-col justify-end md:flex-row md:justify-end mt-4 gap-4 mb-8">
-
 						<a href="{{ path('app_profile_tricks_edit', {slug: trick.slug}) }}" class="bg-[#f8285a] text-white px-6 py-3 rounded-2xl hover:bg-[#d81a48] font-semibold transition-all duration-300 uppercase">
 							Annuler
 						</a>
 						{{ form_row(form.save) }}
 					</div>
-
 				</div>
 
 				{{ form_widget(form._token) }}
 				{{ form_end(form, { render_rest: false }) }}
-
 
 				<!-- Trick Content -->
 				<div class="px-4 md:px-8 lg:px-16  ">
@@ -292,10 +251,8 @@
 									{{ trick.createdAt|date('d/m/Y') }}
 								{% endif %}
 							</div>
-
 						</div>
 					</div>
-
 					<hr class="border-0 h-px bg-gray-300 my-8">
 				</div>
 
@@ -314,17 +271,10 @@
 							</button>
 						</div>
 					{% endif %}
-
 				</div>
-
-
 			</div>
-
 		</div>
-
-
 	</section>
-
 {% endblock %}
 
 
@@ -336,7 +286,6 @@ upload: "{{ path('profile_images_temp') }}",
 delete: "{{ path('profile_images_temp_delete') }}"
 };
 	</script>
-
 	<script src="{{ asset('js/media-collapse.js') }}"></script>
 	<script src="{{ asset('js/template.js') }}"></script>
 	<script src="{{ asset('js/utils.js') }}"></script>

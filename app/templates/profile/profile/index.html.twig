@@ -5,23 +5,12 @@
 {% endblock %}
 
 {% block body %}
+	{% set sectionHeroClass = "relative px-6 sm:px-0 md:px-[93px] bg-[#D3DCEB]
+	pt-[120px] pb-[42px] bg-cover bg-center bg-no-repeat
+	min-h-screen flex items-center" %}
 
 	<!-- Section Hero  -->
-	<section class="relative px-6 sm:px-0
-																																																												md:px-[93px]
-																																																												bg-[#D3DCEB]
-																																																												pt-[120px]
-																																																												pb-[42px]
-		
-		
-		
-																																																												bg-cover
-																																																												bg-center
-																																					bg-no-repeat
-																																					min-h-screen
-		
-																																																												flex items-center" style="background-image: url('{{ asset('images/backgrounds/image-cover.jpg') }}')">
-
+	<section class="{{ sectionHeroClass }}" style="background-image: url('{{ asset('images/backgrounds/image-cover.jpg') }}')">
 
 		<div class="w-full flex justify-center">
 			<div class="bg-[#00214D]/50 backdrop-blur-sm p-6 md:p-10 rounded-xl max-w-xl">
@@ -56,31 +45,6 @@
 
 		</div>
 
-
-		<!-- Bouton descendre -->
-		<button id="scroll-down" class="
-																																																																																																																																								fixed
-																																																																																																																																								right-6
-																																																																																																																																								bottom-24
-																																																																																																																																								md:bottom-8
-																																																																																																																																								z-[60]
-																																																																																																																																							  bg-white/70
-																																																																																																																																							  dark:bg-gray-800/70
-																																																																																																																																							  text-black dark:text-white
-																																																																																																																																								p-4
-																																																																																																																																								rounded-full
-																																																																																																																																								shadow-lg
-																																																																																																																																								hover:scale-110
-																																																																																																																																								transition-transform
-																																																																																																																																								duration-300
-																																																																																																																																								opacity-100
-																																																																																																																																								translate-y-0
-																																																																																																																																								pointer-events-auto">
-			<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewbox="0 0 24 24" stroke="currentColor">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-			</svg>
-		</button>
-
 	</section>
 
 
@@ -106,34 +70,28 @@
 		</div>
 	</section>
 
+	{% set scrollDownClass = "fixed right-6 bottom-24 md:bottom-8 z-[60] bg-white/70 dark:bg-gray-800/70 text-black dark:text-white p-4 rounded-full shadow-lg hover:scale-110 transition-transform duration-300 opacity-100 translate-y-0 pointer-events-auto" %}
+
+	<!-- Bouton descendre -->
+	<button id="scroll-down" class="{{ scrollDownClass }}">
+		<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewbox="0 0 24 24" stroke="currentColor">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+		</svg>
+	</button>
+
+	{% set scrollTopClass = "fixed right-6 bottom-24 md:bottom-8 z-[60] bg-white/70  dark:bg-gray-800/70 text-black dark:text-white p-4 rounded-full shadow-lg hover:scale-110
+	transition-all duration-500 opacity-0 translate-y-10 pointer-events-none" %}
 
 	<!-- Bouton remonter -->
-	<button id="scroll-top" class="
-																																																																																																																									fixed
-																																																																																																																									right-6
-																																																																																																																									bottom-24
-																																																																																																																									md:bottom-8
-																																																																																																																									z-[60]
-																																																																																																																								  bg-white/70
-																																																																																																																								  dark:bg-gray-800/70
-																																																																																																																								  text-black
-																																																																																																																								  dark:text-white
-																																																																																																																									p-4
-																																																																																																																									rounded-full
-																																																																																																																									shadow-lg
-																																																																																																																									hover:scale-110
-																																																																																																																									transition-all
-																																																																																																																									duration-500
-																																																																																																																									opacity-0
-																																																																																																																									translate-y-10
-																																																																																																																									pointer-events-none">
+	<button id="scroll-top" class="{{ scrollTopClass }}">
 		<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewbox="0 0 24 24" stroke="currentColor">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
 		</svg>
 	</button>
 {% endblock %}
+
 {% block javascripts %}
 	{{ parent() }}
-
+	<script src="{{ asset('js/scroll.js') }}"></script>
 	<script src="{{ asset('js/load.js') }}"></script>
 {% endblock %}
