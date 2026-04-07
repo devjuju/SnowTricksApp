@@ -42,28 +42,51 @@ class JWTService
         ) === 1;
     }
 
+    private function safeBase64Decode(string $data): string|false
+    {
+        $decoded = base64_decode($data, true);
+
+        if ($decoded === false) {
+            return false;
+        }
+
+        return $decoded;
+    }
+
     // On récupère le payload d'un token
     public function getPayload(string $token): array
     {
-        // On "casse" le token
-        $array = explode('.', $token);
+        $parts = explode('.', $token);
 
-        // On décode le payload
-        $payload = json_decode(base64_decode($array[1]), true);
+        if (count($parts) !== 3) {
+            return [];
+        }
 
-        return $payload;
+        $payload = $this->safeBase64Decode($parts[1]);
+
+        if ($payload === false) {
+            return [];
+        }
+
+        return json_decode($payload, true) ?? [];
     }
 
     // On récupère le header d'un token
     public function getHeader(string $token): array
     {
-        // On "casse" le token
-        $array = explode('.', $token);
+        $parts = explode('.', $token);
 
-        // On décode le header
-        $header = json_decode(base64_decode($array[0]), true);
+        if (count($parts) !== 3) {
+            return [];
+        }
 
-        return $header;
+        $header = $this->safeBase64Decode($parts[0]);
+
+        if ($header === false) {
+            return [];
+        }
+
+        return json_decode($header, true) ?? [];
     }
 
     // On vérifie si le token est expiré
@@ -71,20 +94,33 @@ class JWTService
     {
         $payload = $this->getPayload($token);
 
-        $now = new DateTimeImmutable();
-        return $payload['exp'] < $now->getTimestamp();
+        if (!isset($payload['exp'])) {
+            return true;
+        }
+
+        return $payload['exp'] < (new DateTimeImmutable())->getTimestamp();
     }
 
     // On vérifie la signature du token
     public function check(string $token, string $secret): bool
     {
-        // On récupère le header et le payload
-        $header = $this->getHeader($token);
-        $payload = $this->getPayload($token);
+        $parts = explode('.', $token);
 
-        // On régénère un token avec le header et le payload (la même chose que le token passé en argument) avec la même clé secrète
-        $verifToken = $this->generate($header, $payload, $secret, 0);
+        if (count($parts) !== 3) {
+            return false;
+        }
 
-        return $token === $verifToken;
+        [$header, $payload, $signature] = $parts;
+
+        $verifSignature = $this->generate(
+            $this->getHeader($token),
+            $this->getPayload($token),
+            $secret,
+            0
+        );
+
+        $verifParts = explode('.', $verifSignature);
+
+        return hash_equals($signature, $verifParts[2] ?? '');
     }
 }
