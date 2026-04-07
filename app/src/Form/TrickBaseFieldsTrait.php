@@ -54,9 +54,8 @@ trait TrickBaseFieldsTrait
                 'allow_delete' => true,
                 'by_reference' => false,
                 'prototype' => true,
-                'prototype_name' => '__image__',
+                'prototype_name' => '__name__', // 🔥 AJOUT IMPORTANT
                 'required' => false,
-                'label' => false,
             ])
 
             ->add('videos', CollectionType::class, [
@@ -65,10 +64,7 @@ trait TrickBaseFieldsTrait
                 'allow_delete' => true,
                 'by_reference' => false,
                 'prototype' => true,
-                'prototype_name' => '__video__',
-                'required' => false,
-                'label' => false,
-                'delete_empty' => true,
+                'prototype_name' => '__name__', // IMPORTANT
             ]);
     }
 }

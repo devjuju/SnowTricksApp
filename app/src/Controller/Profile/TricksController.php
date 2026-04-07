@@ -3,10 +3,10 @@
 namespace App\Controller\Profile;
 
 use App\Entity\Tricks;
-use App\Entity\Users;
 use App\Form\TrickAddFormType;
 use App\Form\TrickUpdateFormType;
 use App\Repository\TricksRepository;
+use App\Service\ImagesUploaderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,8 +15,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Service\FeaturedImageUploaderService;
 use App\Service\FeaturedImageTempService;
 use App\Service\ImagesTempService;
-use App\Service\MediaManagerService;
 use App\Service\SlugService;
+use App\Service\TrickMediaManagerService;
 
 #[Route('/profile/tricks')]
 class TricksController extends AbstractController
@@ -27,118 +27,78 @@ class TricksController extends AbstractController
         EntityManagerInterface $em,
         FeaturedImageTempService $featuredImageTempService,
         ImagesTempService $imagesTempService,
-        MediaManagerService $mediaManager,
+        TrickMediaManagerService $trickMediaManagerService,
         SlugService $slugService
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $user = $this->getUser();
+        $trick = new Tricks();
+        $trick->setUser($this->getUser());
+        $imagesTempService->setContext('trick_add');
 
-        if (!$user instanceof Users) {
-            throw new \LogicException('User not authenticated');
-        }
-
-        // =========================
-        // 🧹 CLEAR TEMP ON FIRST LOAD
-        // =========================
+        // Si ce n'est pas un POST, on vide les temporaires
         if (!$request->isMethod('POST')) {
             $featuredImageTempService->clear();
             $imagesTempService->clear();
         }
-
-        // =========================
-        // 🧾 FORM
-        // =========================
-        $trick = new Tricks();
 
         $form = $this->createForm(TrickAddFormType::class, $trick, [
             'featured_image_temp_service' => $featuredImageTempService,
         ]);
 
         $form->handleRequest($request);
-
         $saveButton = $form->get('save');
 
-        // =========================
-        // ✏ SAVE TRICK
-        // =========================
-        if (
-            $form->isSubmitted() &&
-            $saveButton instanceof \Symfony\Component\Form\SubmitButton &&
-            $saveButton->isClicked()
-        ) {
+        if ($form->isSubmitted() && $saveButton instanceof \Symfony\Component\Form\SubmitButton && $saveButton->isClicked()) {
+
+            // Générer un slug unique si le titre existe
+            if ($trick->getTitle()) {
+                $trick->setSlug($slugService->generateUniqueSlug($trick, 'title', $em));
+            }
+
+            // -------------------------
+            // Gestion des images temporaires même si le formulaire est invalide
+            // -------------------------
+            $uploadedImages = $request->files->get('trick_add_form')['images'] ?? [];
+            foreach ($uploadedImages as $imageFormData) {
+                $file = $imageFormData['file'] ?? null;
+                if ($file) {
+                    $imagesTempService->upload($file);
+                }
+            }
+
+            // Si le formulaire est valide
             if ($form->isValid()) {
 
-                // =========================
-                // 👤 USER OWNER
-                // =========================
-                $trick->setUser($user);
-
-                // =========================
-                // 🔗 SLUG GENERATION
-                // =========================
-                $trick->setSlug(
-                    $slugService->generateUniqueSlug($trick, 'title', $em)
-                );
-
-                // =========================
-                // 🖼 FEATURED IMAGE FINALIZE
-                // =========================
+                // Featured image
                 $tempFeaturedImage = $featuredImageTempService->get();
-
                 if ($tempFeaturedImage) {
                     $featuredImageTempService->moveToFinal($tempFeaturedImage);
                     $trick->setFeaturedImage($tempFeaturedImage);
                     $featuredImageTempService->clear();
                 }
 
-                // =========================
-                // 🚀 MEDIA MANAGER (IMAGES + VIDEOS)
-                // =========================
-                $mediaManager->handleImages($trick, $request, $user);
-                $mediaManager->handleVideos($trick, $request);
+                // Gestion images et vidéos
+                $trickMediaManagerService->handle($trick, $request);
 
-                // =========================
-                // 💾 SAVE
-                // =========================
                 $em->persist($trick);
                 $em->flush();
 
-                // 🔥 ici seulement
-                $imagesTempService->cleanup();
-
-                $this->addFlash('success', 'Figure créée avec succès');
-
+                $this->addFlash('success', 'Figure ajoutée avec succès');
                 return $this->redirectToRoute('app_profile_index');
             }
         }
 
-
-        // =========================
-        // 🎨 RENDER
-        // =========================
+        // -------------------------
+        // Rendu du formulaire
+        // -------------------------
         return $this->render('profile/tricks/add.html.twig', [
             'form' => $form->createView(),
+            'trick' => $trick,
             'tempFeaturedImage' => $featuredImageTempService->get(),
-            'tempImages' => $this->resolveTempImages($request, $imagesTempService),
+            'tempImages' => $imagesTempService->getAll(),
         ]);
     }
-
-
-    private function resolveTempImages(Request $request, ImagesTempService $service): array
-    {
-        if (!$request->isMethod('POST')) {
-            return $service->getAll();
-        }
-
-        return $service->getUnused(
-            $request->request->all('replace_images', []),
-            $request->request->all('removed_images', [])
-        );
-    }
-
-
-
 
 
 
@@ -148,127 +108,90 @@ class TricksController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         TricksRepository $repository,
+        ImagesUploaderService $imagesUploaderService,
         FeaturedImageUploaderService $featuredImageUploaderService,
         FeaturedImageTempService $featuredImageTempService,
         ImagesTempService $imagesTempService,
-        MediaManagerService $mediaManager,
+        TrickMediaManagerService $trickMediaManagerService,
         SlugService $slugService
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $user = $this->getUser();
-
-        if (!$user instanceof Users) {
-            throw new \LogicException('User not authenticated');
-        }
-
-        // =========================
-        // 🔍 LOAD TRICK
-        // =========================
         $trick = $repository->findOneBy(['slug' => $slug]);
-
-        if (!$trick) {
-            throw $this->createNotFoundException('Figure introuvable');
-        }
+        if (!$trick) throw $this->createNotFoundException('Figure introuvable');
 
         $this->denyAccessUnlessGranted('TRICK_EDIT', $trick);
 
-        // =========================
-        // 🧹 CLEAR TEMP ON GET
-        // =========================
         if (!$request->isMethod('POST')) {
             $featuredImageTempService->clear();
             $imagesTempService->clear();
         }
 
-        // =========================
-        // 🧾 FORM
-        // =========================
         $form = $this->createForm(TrickUpdateFormType::class, $trick, [
             'featured_image_temp_service' => $featuredImageTempService,
         ]);
-
         $form->handleRequest($request);
 
         $deleteButton = $form->get('delete');
         $saveButton = $form->get('save');
 
-        // =========================
-        // 🗑 DELETE TRICK
-        // =========================
-        if (
-            $form->isSubmitted() &&
-            $deleteButton instanceof \Symfony\Component\Form\SubmitButton &&
-            $deleteButton->isClicked()
-        ) {
-            $mediaManager->deleteAll($trick);
+        if ($form->isSubmitted()) {
 
-
-            $em->flush();
-
-            $this->addFlash('success', 'Figure supprimée avec succès');
-
-            return $this->redirectToRoute('app_profile_index');
-        }
-
-        // =========================
-        // ✏ UPDATE TRICK
-        // =========================
-        if (
-            $form->isSubmitted() &&
-            $saveButton instanceof \Symfony\Component\Form\SubmitButton &&
-            $saveButton->isClicked()
-        ) {
-            if ($form->isValid()) {
-
-                // =========================
-                // 🔗 SLUG UPDATE
-                // =========================
-                if ($trick->getTitle()) {
-                    $trick->setSlug(
-                        $slugService->generateUniqueSlug($trick, 'title', $em)
-                    );
+            // SUPPRESSION
+            if ($deleteButton instanceof \Symfony\Component\Form\SubmitButton && $deleteButton->isClicked()) {
+                if ($trick->getFeaturedImage()) {
+                    $featuredImageUploaderService->delete($trick->getFeaturedImage());
                 }
 
-                // =========================
-                // 🖼 FEATURED IMAGE
-                // =========================
-                $tempFeaturedImage = $featuredImageTempService->get();
-
-                if ($tempFeaturedImage) {
-                    $featuredImageTempService->moveToFinal($tempFeaturedImage);
-                    $trick->setFeaturedImage($tempFeaturedImage);
-                    $featuredImageTempService->clear();
+                foreach ($trick->getImages() as $image) {
+                    $imagesUploaderService->delete($image->getPicture());
+                    $em->remove($image);
                 }
 
-                // =========================
-                // 🚀 MEDIA MANAGER (IMAGES + VIDEOS)
-                // =========================
-                $mediaManager->handleImages($trick, $request, $user);
-                $mediaManager->handleVideos($trick, $request);
+                foreach ($trick->getVideos() as $video) {
+                    $em->remove($video);
+                }
 
-                // =========================
-                // 💾 SAVE
-                // =========================
+                $em->remove($trick);
                 $em->flush();
 
-                // 🔥 ici seulement
-                $imagesTempService->cleanup();
-
-                $this->addFlash('success', 'Figure modifiée avec succès');
-
+                $this->addFlash('success', 'Figure supprimée avec succès');
                 return $this->redirectToRoute('app_profile_index');
+            }
+
+            // MODIFICATION
+            if ($saveButton instanceof \Symfony\Component\Form\SubmitButton && $saveButton->isClicked()) {
+
+                // Générer un slug unique si le titre a changé
+                if ($trick->getTitle()) {
+                    $trick->setSlug($slugService->generateUniqueSlug($trick, 'title', $em));
+                }
+
+                if ($form->isValid()) {
+                    // Featured image
+                    $tempFeaturedImage = $featuredImageTempService->get();
+                    if ($tempFeaturedImage) {
+                        $featuredImageTempService->moveToFinal($tempFeaturedImage);
+                        $trick->setFeaturedImage($tempFeaturedImage);
+                        $featuredImageTempService->clear();
+                    }
+
+                    $trickMediaManagerService->handle($trick, $request);
+
+
+                    $em->flush();
+
+                    $this->addFlash('success', 'Figure modifiée avec succès');
+                    return $this->redirectToRoute('app_profile_index');
+                }
             }
         }
 
-        // =========================
-        // 🎨 RENDER
-        // =========================
         return $this->render('profile/tricks/edit.html.twig', [
             'form' => $form->createView(),
             'trick' => $trick,
             'tempFeaturedImage' => $featuredImageTempService->get(),
-            'tempImages' => $this->resolveTempImages($request, $imagesTempService),
+            'tempImages' => $imagesTempService->getAll(),
         ]);
     }
 
@@ -279,14 +202,11 @@ class TricksController extends AbstractController
         Request $request,
         TricksRepository $repository,
         EntityManagerInterface $em,
-        MediaManagerService $mediaManager
+        FeaturedImageUploaderService $featuredImageUploaderService,
+        ImagesUploaderService $imagesUploaderService
     ): Response {
-
         $trick = $repository->findOneBy(['slug' => $slug]);
-
-        if (!$trick) {
-            throw $this->createNotFoundException('Figure introuvable');
-        }
+        if (!$trick) throw $this->createNotFoundException('Figure introuvable');
 
         $this->denyAccessUnlessGranted('TRICK_DELETE', $trick);
 
@@ -295,14 +215,23 @@ class TricksController extends AbstractController
             return $this->redirectToRoute('app_profile_index');
         }
 
-        $mediaManager->deleteAll($trick);
+        if ($trick->getFeaturedImage()) {
+            $featuredImageUploaderService->delete($trick->getFeaturedImage());
+        }
 
+        foreach ($trick->getImages() as $image) {
+            $imagesUploaderService->delete($image->getPicture());
+            $em->remove($image);
+        }
+
+        foreach ($trick->getVideos() as $video) {
+            $em->remove($video);
+        }
+
+        $em->remove($trick);
         $em->flush();
 
-
-
         $this->addFlash('success', 'Figure supprimée avec succès');
-
         return $this->redirectToRoute('app_profile_index');
     }
 }

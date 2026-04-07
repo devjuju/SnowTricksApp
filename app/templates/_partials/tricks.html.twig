@@ -10,13 +10,15 @@
 
 		<div class="absolute bottom-0 left-0 right-0 bg-black/40 backdrop-blur-sm px-4 py-3">
 			<div class="flex justify-between items-center">
-				<h3 class="font-[Raleway] text-white text-lg font-semibold uppercase">{{ trick.title }}</h3>
+				<h3 class="font-[Raleway] text-white text-lg font-semibold uppercase truncate max-w-[70%]">
+					{{ trick.title }}
+				</h3>
 
 				<div
 					class="flex justify-end gap-2 mt-2">
 					{# ------------------- Actions pour le propriétaire ------------------- #}
 					{% if app.user and trick.user.id == app.user.id %}
-						<a href="{{ path('app_profile_tricks_edit', { slug: trick.slug }) }}" class="flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-800 text-sm font-medium transition-all duration-300">
+						<a href="{{ path('app_profile_tricks_edit', { slug: trick.slug }) }}" class="flex items-center gap-1 w-12 h-10 bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-800 text-sm font-medium transition-all duration-300">
 							<i class="bi bi-pencil-fill"></i>
 
 						</a>
@@ -24,13 +26,12 @@
 						{# Formulaire séparé pour la suppression #}
 						<form action="{{ path('app_profile_tricks_delete', {'slug': trick.slug}) }}" method="post" onsubmit="return confirm('Voulez-vous vraiment supprimer cette figure ?');" class="inline">
 							<input type="hidden" name="_token" value="{{ csrf_token('delete-trick-' ~ trick.id) }}">
-							<button type="submit" class="flex items-center gap-1 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm font-medium transition-all duration-300 ">
+							<button type="submit" class="flex items-center gap-1 bg-red-500 text-white px-3 py-1 w-12 h-10 rounded-lg hover:bg-red-600 text-sm font-medium transition-all duration-300 ">
 								<i class="bi bi-trash3-fill"></i>
 
 							</button>
 						</form>
 					{% endif %}
-
 
 				</div>
 			</div>

@@ -15,7 +15,7 @@ Alpine.start();
 import 'flowbite';
 
 import './js/navbar.js';
-import './js/scroll.js';
+
 
 
 console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');

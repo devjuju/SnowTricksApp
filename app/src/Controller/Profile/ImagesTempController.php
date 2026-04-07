@@ -9,9 +9,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Service\ImagesTempService;
 
+
 #[Route('/profile/images')]
 class ImagesTempController extends AbstractController
 {
+    private const CONTEXT = 'trick_upload';
+
     #[Route('/temp', name: 'profile_images_temp', methods: ['POST'])]
     public function upload(Request $request, ImagesTempService $imagesTempService): JsonResponse
     {
@@ -31,12 +34,11 @@ class ImagesTempController extends AbstractController
                 return new JsonResponse(['error' => 'Type invalide'], 400);
             }
 
-            $result = $imagesTempService->upload($file);
+            $filename = $imagesTempService->upload($file, self::CONTEXT);
 
             $uploaded[] = [
-                'publicId' => $result['publicId'],
-                'filename' => $result['filename'],
-                'url' => '/uploads/images_tmp/' . $result['filename'],
+                'filename' => $filename,
+                'url' => '/uploads/images_tmp/' . $filename,
             ];
         }
 
@@ -46,12 +48,15 @@ class ImagesTempController extends AbstractController
     #[Route('/temp/delete', name: 'profile_images_temp_delete', methods: ['POST'])]
     public function delete(Request $request, ImagesTempService $imagesTempService): JsonResponse
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
         $filename = $request->request->get('filename');
+
         if (!$filename) {
             return new JsonResponse(['error' => 'Nom manquant'], 400);
         }
 
-        $imagesTempService->delete($filename);
+        $imagesTempService->delete($filename, self::CONTEXT);
 
         return new JsonResponse(['success' => true]);
     }

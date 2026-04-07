@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use App\Entity\Users;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\String\Slugger\SluggerInterface;
@@ -34,11 +33,12 @@ class ImagesTempService
         $this->sessionKey = 'temp_images_' . $context;
     }
 
-    public function upload(UploadedFile $file): array
+    // -------------------------
+    // UPLOAD TEMP
+    // -------------------------
+    public function upload(UploadedFile $file): string
     {
         $this->validateFile($file);
-
-        $publicId = bin2hex(random_bytes(16));
 
         $originalName = (new UnicodeString($file->getClientOriginalName()))
             ->beforeLast('.')
@@ -56,24 +56,51 @@ class ImagesTempService
 
         $file->move($this->tempDir, $filename);
 
-        // 🔥 stocker mapping publicId → filename
-        $images = $this->getAll();
-        $images[$publicId] = $filename;
+        $this->add($filename);
 
-        $this->session?->set($this->sessionKey, $images);
-
-        return [
-            'publicId' => $publicId,
-            'filename' => $filename,
-        ];
+        return $filename;
     }
 
-    public function add(string $publicId, string $filename): void
+    // ✅ FIX add()
+    public function add(string $filename): void
     {
         $images = $this->getAll();
-        $images[$publicId] = $filename;
 
-        $this->session?->set($this->sessionKey, $images);
+        // 🔥 anti doublon strict
+        if (in_array($filename, $images, true)) {
+            return;
+        }
+
+        // 🔥 sécurité FS
+        if (!$this->filesystem->exists($this->tempDir . '/' . $filename)) {
+            return;
+        }
+
+        $images[] = $filename;
+
+        $this->session?->set(
+            $this->sessionKey,
+            array_values(array_unique($images))
+        );
+    }
+
+    public function uploadMultiple(?array $files, string $type = 'image'): array
+    {
+        $uploadedFiles = [];
+
+        if (!$files) {
+            return [];
+        }
+
+        foreach ($files as $file) {
+            $filename = $this->upload($file, $type);
+
+            if ($filename && !in_array($filename, $uploadedFiles, true)) {
+                $uploadedFiles[] = $filename;
+            }
+        }
+
+        return array_values(array_unique($uploadedFiles));
     }
 
     public function getAll(): array
@@ -81,8 +108,9 @@ class ImagesTempService
         return $this->session?->get($this->sessionKey, []) ?? [];
     }
 
-
-    // ✅ FIX logique
+    // -------------------------
+    // MOVE TEMP -> FINAL
+    // -------------------------
     public function moveToFinal(string $filename): bool
     {
         $tmpPath = $this->tempDir . '/' . $filename;
@@ -94,33 +122,65 @@ class ImagesTempService
 
         $this->filesystem->rename($tmpPath, $finalPath, true);
 
-        // ❌ mauvais : removeByFilename
-        // ✔ correct : rebuild session map
-
-        $images = $this->getAll();
-
-        $images = array_filter(
-            $images,
-            fn($file) => $file !== $filename
-        );
-
-        $this->session?->set($this->sessionKey, $images);
+        $this->removeFromSession($filename);
 
         return true;
     }
 
+    // ✅ FIX moveAllToFinal()
+    public function moveAllToFinal(): array
+    {
+        $files = $this->getAll();
+        $moved = [];
 
+        foreach ($files as $filename) {
+
+            if (!$filename) continue;
+
+            $tmpPath = $this->tempDir . '/' . $filename;
+            $finalPath = $this->finalDir . '/' . $filename;
+
+            if (!$this->filesystem->exists($tmpPath)) {
+                continue;
+            }
+
+            // 🔥 ANTI MOVE DOUBLE
+            if ($this->filesystem->exists($finalPath)) {
+                $this->removeFromSession($filename);
+                continue;
+            }
+
+            $this->filesystem->rename($tmpPath, $finalPath, true);
+            $this->removeFromSession($filename);
+
+            $moved[] = $filename;
+        }
+
+        return array_values(array_unique($moved));
+    }
+
+    // -------------------------
+    // DELETE SAFE (TEMP + FINAL)
+    // -------------------------
     public function delete(string $filename): void
     {
-        $path = $this->tempDir . '/' . $filename;
+        $paths = [
+            $this->tempDir . '/' . $filename,
+            $this->finalDir . '/' . $filename,
+        ];
 
-        if ($this->filesystem->exists($path)) {
-            $this->filesystem->remove($path);
+        foreach ($paths as $path) {
+            if ($this->filesystem->exists($path)) {
+                $this->filesystem->remove($path);
+            }
         }
 
         $this->removeFromSession($filename);
     }
 
+    // -------------------------
+    // CLEAR SESSION + TEMP FILES
+    // -------------------------
     public function clear(): void
     {
         foreach ($this->getAll() as $filename) {
@@ -134,23 +194,38 @@ class ImagesTempService
         $this->session?->remove($this->sessionKey);
     }
 
+    // -------------------------
+    // REPLACE (SAFE VERSION)
+    // -------------------------
+    public function replace(string $old, UploadedFile $file): string
+    {
+        $newFilename = $this->upload($file);
+
+        $this->delete($old);
+
+        return $newFilename;
+    }
+
+    // -------------------------
+    // SESSION HELPERS
+    // -------------------------
     private function removeFromSession(string $filename): void
     {
-        $images = $this->getAll();
+        $images = array_filter(
+            $this->getAll(),
+            fn($img) => $img !== $filename
+        );
 
-        foreach ($images as $publicId => $file) {
-            if ($file === $filename) {
-                unset($images[$publicId]);
-            }
-        }
-
-        if ($images) {
-            $this->session?->set($this->sessionKey, $images);
+        if (!empty($images)) {
+            $this->session?->set($this->sessionKey, array_values($images));
         } else {
             $this->session?->remove($this->sessionKey);
         }
     }
 
+    // -------------------------
+    // FS HELPERS
+    // -------------------------
     private function ensureDirectoryExists(string $dir): void
     {
         if (!$this->filesystem->exists($dir)) {
@@ -169,108 +244,5 @@ class ImagesTempService
         if ($file->getSize() > 5 * 1024 * 1024) {
             throw new \RuntimeException('Fichier trop volumineux (max 5MB).');
         }
-    }
-
-    // =========================
-    // 📂 GET FULL TEMP PATH
-    // =========================
-    public function getPath(string $filename): string
-    {
-        return rtrim($this->tempDir, '/') . '/' . ltrim($filename, '/');
-    }
-
-    // =========================
-    // 📂 GET FINAL PATH
-    // =========================
-    public function getFinalPath(string $filename): string
-    {
-        return rtrim($this->finalDir, '/') . '/' . ltrim($filename, '/');
-    }
-
-    // =========================
-    // ✅ FILE EXISTS (TEMP)
-    // =========================
-    public function exists(string $filename): bool
-    {
-        return $this->filesystem->exists($this->getPath($filename));
-    }
-
-    public function moveToFinalByPublicId(string $publicId): ?string
-    {
-        $images = $this->getAll();
-
-        if (!isset($images[$publicId])) {
-            return null;
-        }
-
-        $filename = $images[$publicId];
-
-        $tmpPath = $this->tempDir . '/' . $filename;
-        $finalPath = $this->finalDir . '/' . $filename;
-
-        if (!$this->filesystem->exists($tmpPath)) {
-            return null;
-        }
-
-        $this->filesystem->rename($tmpPath, $finalPath, true);
-
-        unset($images[$publicId]);
-        $this->session?->set($this->sessionKey, $images);
-
-        return $filename;
-    }
-
-    public function getByUserId(int $userId): array
-    {
-        return $this->session->get('images_' . $userId, []);
-    }
-
-    public function getByPublicId(string $publicId): ?string
-    {
-        $images = $this->getAll();
-        return $images[$publicId] ?? null;
-    }
-
-    public function existsByPublicId(string $publicId): bool
-    {
-        return isset($this->getAll()[$publicId]);
-    }
-
-    public function cleanup(): void
-    {
-        foreach ($this->getAll() as $filename) {
-            $path = $this->tempDir . '/' . $filename;
-
-            if ($this->filesystem->exists($path)) {
-                $this->filesystem->remove($path);
-            }
-        }
-
-        $this->session?->remove($this->sessionKey);
-    }
-
-    // ✅ FIX OBLIGATOIRE (simple et propre)
-    // ✔️ sécurise toujours les arrays
-    public function getUnused(array $replacements = [], array $removed = []): array
-    {
-        $images = $this->getAll();
-
-        if (!$images) {
-            return [];
-        }
-
-        $usedInReplace = array_values($replacements);
-
-        // 🔥 FORCE SAFE ARRAYS
-        $removed = is_array($removed) ? $removed : [$removed];
-        $usedInReplace = is_array($usedInReplace) ? $usedInReplace : [$usedInReplace];
-
-        $blacklist = array_merge($usedInReplace, $removed);
-
-        return array_filter(
-            $images,
-            fn($filename, $publicId) => !in_array($publicId, $blacklist, true),
-            ARRAY_FILTER_USE_BOTH
-        );
     }
 }

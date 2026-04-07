@@ -83,9 +83,7 @@ class Videos
      */
     public function getIdentifier(): string
     {
-        return $this->youtubeId
-            ?? $this->url
-            ?? (string) $this->id;
+        return $this->youtubeId ?? (string) $this->id;
     }
 
     /**
@@ -113,7 +111,7 @@ class Videos
      */
     public function isValid(): bool
     {
-        return $this->youtubeId !== null;
+        return !empty($this->youtubeId);
     }
 
     // -------------------------
@@ -148,5 +146,12 @@ class Videos
         return ($id && preg_match('/^[a-zA-Z0-9_-]{11}$/', $id))
             ? $id
             : null;
+    }
+
+    public static function getEmbedFromUrl(string $url): ?string
+    {
+        $id = self::extractYoutubeId($url);
+
+        return $id ? "https://www.youtube.com/embed/$id" : null;
     }
 }

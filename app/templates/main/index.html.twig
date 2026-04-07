@@ -6,31 +6,37 @@
 {% block body %}
 
 	<!-- Section Hero -->
-	<section class="
-																						px-6
-																						md:px-[93px]
-																						bg-[#D3DCEB]
-																						pt-[120px]
-																						pb-[42px]
-		
-																						bg-cover
-																						bg-center
-																						bg-no-repeat
-																						min-h-screen
-																						flex items-center" style="background-image: url('{{ asset('images/backgrounds/image-cover.jpg') }}')">
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-			<div class="flex items-center justify-center">
-				<div class="bg-[#00214D]/50 backdrop-blur-sm p-6 md:p-10 rounded-xl max-w-xl text-center md:text-left">
-					<h1 class="text-white font-bold uppercase mb-4 font-[Raleway]" style="font-size: clamp(26px, 5vw, 56px)">
-						Bienvenue sur SnowTricks
-					</h1>
-					<p class="text-white text-base md:text-lg">
-						Découvrez et partagez des figures de snowboard avec notre communauté passionnée.
-					</p>
-				</div>
+	<!-- Section Hero  -->
+		<section class="relative px-6 sm:px-0
+																																																																																											md:px-[93px]
+																																																																																											bg-[#D3DCEB]
+																																																																																											pt-[120px]
+																																																																																											pb-[42px]
+			
+			
+			
+																																																																																											bg-cover
+																																																																																											bg-center
+																																																																				bg-no-repeat
+																																																																				min-h-screen
+			
+																																																																																											flex items-center" style="background-image: url('{{ asset('images/backgrounds/image-cover.jpg') }}')"> <div class="w-full flex justify-center text-center">
+			<div class="bg-[#00214D]/50 backdrop-blur-sm p-6 md:p-10 rounded-xl max-w-xl">
+
+				<h1 class="text-white font-bold uppercase mb-4 font-[Raleway]" style="font-size: clamp(26px, 5vw, 56px)">
+					Bienvenue sur SnowTricks
+				</h1>
+
+				<p class="text-white text-base md:text-lg">
+					Découvrez et partagez des figures de snowboard avec notre communauté passionnée.
+				</p>
+
+
 			</div>
+
 		</div>
 	</section>
+
 
 	<!-- Section Tricks -->
 	<section class="px-6 md:px-[93px] bg-[#D3DCEB] pt-[60px] pb-[42px]">
@@ -41,7 +47,7 @@
 		<!-- Bouton Load More -->
 		<div class="mt-6 flex justify-center">
 			<button
-				data-load-more data-page="{{ page }}" data-url="{{ path('app_main') }}" data-container="#tricks-container" class="load-more-btn bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-800 font-semibold transition-all duration-300 uppercase flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+				data-load-more data-page="{{ page }}" data-url="{{ path('app_main') }}" data-container="#tricks-container" class="load-more-btn bg-blue-600 text-white px-6 py-3 rounded-2xl hover:bg-blue-800 font-semibold transition-all duration-300 uppercase flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
 
 
 				<!-- Spinner (caché par défaut) -->
@@ -56,23 +62,23 @@
 
 	<!-- Bouton descendre -->
 	<button id="scroll-down" class="
-																															fixed
-																															right-6
-																															bottom-24
-																															md:bottom-8
-																															z-[60]
-																														  bg-white/70
-																														  dark:bg-gray-800/70
-																														  text-black dark:text-white
-																															p-4
-																															rounded-full
-																															shadow-lg
-																															hover:scale-110
-																															transition-transform
-																															duration-300
-																															opacity-100
-																															translate-y-0
-																															pointer-events-auto">
+																																																																		fixed
+																																																																		right-6
+																																																																		bottom-24
+																																																																		md:bottom-8
+																																																																		z-[60]
+																																																																	  bg-white/70
+																																																																	  dark:bg-gray-800/70
+																																																																	  text-black dark:text-white
+																																																																		p-4
+																																																																		rounded-full
+																																																																		shadow-lg
+																																																																		hover:scale-110
+																																																																		transition-transform
+																																																																		duration-300
+																																																																		opacity-100
+																																																																		translate-y-0
+																																																																		pointer-events-auto">
 		<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewbox="0 0 24 24" stroke="currentColor">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
 		</svg>
@@ -80,31 +86,29 @@
 
 	<!-- Bouton remonter -->
 	<button id="scroll-top" class="
-																															fixed
-																															right-6
-																															bottom-24
-																															md:bottom-8
-																															z-[60]
-																														  bg-white/70
-																														  dark:bg-gray-800/70
-																														  text-black
-																														  dark:text-white
-																															p-4
-																															rounded-full
-																															shadow-lg
-																															hover:scale-110
-																															transition-all
-																															duration-500
-																															opacity-0
-																															translate-y-10
-																															pointer-events-none">
+																																																																		fixed
+																																																																		right-6
+																																																																		bottom-24
+																																																																		md:bottom-8
+																																																																		z-[60]
+																																																																	  bg-white/70
+																																																																	  dark:bg-gray-800/70
+																																																																	  text-black
+																																																																	  dark:text-white
+																																																																		p-4
+																																																																		rounded-full
+																																																																		shadow-lg
+																																																																		hover:scale-110
+																																																																		transition-all
+																																																																		duration-500
+																																																																		opacity-0
+																																																																		translate-y-10
+																																																																		pointer-events-none">
 		<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewbox="0 0 24 24" stroke="currentColor">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
 		</svg>
 	</button>
-
 {% endblock %}
-
 {% block javascripts %}
 	{{ parent() }}
 
