@@ -1,11 +1,16 @@
 /* -------- UTILS -------- */
-const isDesktopLayout = (wrapper) =>
+
+window.isDesktopLayout = (wrapper) =>
     window.getComputedStyle(wrapper).flexDirection === "row";
 
-const smartScroll = (wrapper, element) => {
+window.smartScroll = (wrapper, element) => {
+    if (!wrapper || !element) return;
+
+    const isDesktop = window.isDesktopLayout(wrapper);
+
     element.scrollIntoView({
         behavior: "smooth",
-        inline: isDesktopLayout(wrapper) ? "start" : "nearest",
-        block: isDesktopLayout(wrapper) ? "nearest" : "start",
+        inline: isDesktop ? "start" : "nearest",
+        block: isDesktop ? "nearest" : "start",
     });
 };

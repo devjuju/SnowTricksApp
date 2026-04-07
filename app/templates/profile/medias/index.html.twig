@@ -47,7 +47,7 @@
 
 				{% set imagePrototype %}
 				<div class="
-																																																																																																																																																										 media-item media-image relative w-full md:w-40 md:flex-shrink-0 md:snap-start">
+																																																																																																																																																																 media-item media-image relative w-full md:w-40 md:flex-shrink-0 md:snap-start">
 					<div class="mb-3 w-full aspect-video rounded overflow-hidden border relative">
 						<img class="image-preview hidden w-full h-full object-cover object-center"/>
 						<div class="image-placeholder absolute inset-0 bg-gray-100 flex items-center justify-center rounded border">
@@ -81,13 +81,13 @@
 
 				{% set videoPrototype %}
 				<div class="
-																																																																																																																																																																media-item
-																																																																																																																																																																media-video
-																																																																																																																																																																relative
-																																																																																																																																																																w-full
-																																																																																																																																																																md:w-40
-																																																																																																																																																																md:flex-shrink-0
-																																																																																																																																																																md:snap-start">
+																																																																																																																																																																						media-item
+																																																																																																																																																																						media-video
+																																																																																																																																																																						relative
+																																																																																																																																																																						w-full
+																																																																																																																																																																						md:w-40
+																																																																																																																																																																						md:flex-shrink-0
+																																																																																																																																																																						md:snap-start">
 					<div class="mb-3 w-full aspect-video rounded border relative">
 						<iframe class="hidden w-full h-full rounded border" frameborder="0" allowfullscreen></iframe>
 
@@ -142,15 +142,15 @@
 						{# ============== IMAGES ============= #}
 						<div class="relative">
 							<div id="image-wrapper" class="
-																																																																																																																																																																																																																																																																				grid
-																																																																																																																																																																																																																																																																				grid-cols-1
-																																																																																																																																																																																																																																																																				gap-6
-																																																																																																																																																																																																																																																																			    md:flex
-																																																																																																																																																																																																																																																																				md:flex-row
-																																																																																																																																																																																																																																																																				md:gap-4
-																																																																																																																																																																																																																																																																                md:overflow-x-auto
-																																																																																																																																																																																																																																																																				md:scroll-smooth
-																																																																																																																																																																																																																																																																				md:snap-x md:snap-mandatory">
+																																																																																																																																																																																																																																																																													grid
+																																																																																																																																																																																																																																																																													grid-cols-1
+																																																																																																																																																																																																																																																																													gap-6
+																																																																																																																																																																																																																																																																												    md:flex
+																																																																																																																																																																																																																																																																													md:flex-row
+																																																																																																																																																																																																																																																																													md:gap-4
+																																																																																																																																																																																																																																																																									                md:overflow-x-auto
+																																																																																																																																																																																																																																																																													md:scroll-smooth
+																																																																																																																																																																																																																																																																													md:snap-x md:snap-mandatory">
 
 								{# Images existantes #}
 
@@ -196,15 +196,15 @@
 						<div class="relative">
 
 							<div id="video-wrapper" class="
-																																																																																																																																																																																																																																																																			grid
-																																																																																																																																																																																																																																																																			grid-cols-1
-																																																																																																																																																																																																																																																																			gap-6
-																																																																																																																																																																																																																																																																			md:flex
-																																																																																																																																																																																																																																																																			md:flex-row
-																																																																																																																																																																																																																																																																			md:gap-4
-																																																																																																																																																																																																																																																																			md:overflow-x-auto
-																																																																																																																																																																																																																																																																			md:scroll-smooth
-																																																																																																																																																																																																																																																																			md:snap-x md:snap-mandatory">
+																																																																																																																																																																																																																																																																												grid
+																																																																																																																																																																																																																																																																												grid-cols-1
+																																																																																																																																																																																																																																																																												gap-6
+																																																																																																																																																																																																																																																																												md:flex
+																																																																																																																																																																																																																																																																												md:flex-row
+																																																																																																																																																																																																																																																																												md:gap-4
+																																																																																																																																																																																																																																																																												md:overflow-x-auto
+																																																																																																																																																																																																																																																																												md:scroll-smooth
+																																																																																																																																																																																																																																																																												md:snap-x md:snap-mandatory">
 
 								{% for video in form.videos %}
 									<div class="media-item media-video relative w-full md:w-40 md:flex-shrink-0 md:snap-start">
@@ -342,4 +342,6 @@ delete: "{{ path('profile_images_temp_delete') }}"
 	<script src="{{ asset('js/utils.js') }}"></script>
 	<script src="{{ asset('js/images.js') }}"></script>
 	<script src="{{ asset('js/videos.js') }}"></script>
+	<script src="{{ asset('js/load.js') }}"></script>
+
 {% endblock %}

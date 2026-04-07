@@ -1,18 +1,17 @@
-/* -------- SAFE TEMPLATE CLONE -------- */
-const cloneTemplate = (templateId, index) => {
+
+window.cloneTemplate = (templateId, index) => {
     const template = document.getElementById(templateId);
-    if (!template) return null;
+    if (!template?.content) return null;
 
-    const clone = template.content.cloneNode(true);
+    const fragment = template.content.cloneNode(true);
 
-    // remplace __name__ dans TOUS les attributs
-    clone.querySelectorAll("*").forEach((el) => {
-        [...el.attributes].forEach((attr) => {
+    fragment.querySelectorAll("*").forEach((el) => {
+        for (const attr of el.attributes) {
             if (attr.value.includes("__name__")) {
-                attr.value = attr.value.replace(/__name__/g, index);
+                attr.value = attr.value.replace(/__name__/g, String(index));
             }
-        });
+        }
     });
 
-    return clone.firstElementChild;
+    return fragment.firstElementChild ?? null;
 };
