@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
   const imagesContainer = document.querySelector('#image-wrapper');
   const addImageButton = document.querySelector('#add-image');
-  const template = document.querySelector('#image-prototype');
-
+  const prototypeHtml = document.querySelector('#image-prototype').dataset.prototype;
   let index = imagesContainer.querySelectorAll('.media-item').length;
 
+  // Fonction commune pour tous les items (existants, temporaires, nouveaux)
   function setupImageItem(item) {
     const removeBtn = item.querySelector('.remove-item');
     const addBtn = item.querySelector('.item-add');
@@ -14,42 +14,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const placeholder = item.querySelector('.image-placeholder');
     const uploadedFilename = item.querySelector('.uploaded-filename');
 
-    if (previewImg?.src) {
-      placeholder?.classList.add('hidden');
-      addBtn?.classList.add('hidden');
-      closeBtn?.classList.remove('hidden');
+    // Affichage initial
+    if (previewImg && previewImg.src) {
+      placeholder.classList.add('hidden');
+      addBtn.classList.add('hidden');
+      closeBtn.classList.remove('hidden');
     }
 
-    addBtn?.addEventListener('click', () => inputFile?.click());
+    // Ouvrir le file picker
+    addBtn.addEventListener('click', () => inputFile.click());
 
-    inputFile?.addEventListener('change', (e) => {
-      const file = e.target.files?.[0];
+    // Prévisualisation de l'image sélectionnée
+    inputFile.addEventListener('change', (e) => {
+      const file = e.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
       reader.onload = (event) => {
         previewImg.src = event.target.result;
         previewImg.classList.remove('hidden');
-        placeholder?.classList.add('hidden');
-        addBtn?.classList.add('hidden');
-        closeBtn?.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+        addBtn.classList.add('hidden');
+        closeBtn.classList.remove('hidden');
       };
       reader.readAsDataURL(file);
-
       uploadedFilename.value = file.name;
     });
 
-    removeBtn?.addEventListener('click', () => {
-      const removed = item.querySelector('.removed-image');
-      if (uploadedFilename.value && removed) {
-        removed.value = uploadedFilename.value;
+    // Supprimer l'image
+    removeBtn.addEventListener('click', () => {
+      if (uploadedFilename.value) {
+        item.querySelector('.removed-image').value = uploadedFilename.value;
       }
       item.remove();
     });
 
-    closeBtn?.addEventListener('click', () => {
+    // Fermer / réinitialiser l'image
+    closeBtn.addEventListener('click', () => {
       previewImg.classList.add('hidden');
-      placeholder?.classList.remove('hidden');
+      placeholder.classList.remove('hidden');
       closeBtn.classList.add('hidden');
       addBtn.classList.remove('hidden');
       inputFile.value = '';
@@ -57,32 +60,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function getPrototype(index) {
-    const html = template.innerHTML;
-    return html.replace(/__name__/g, index);
-  }
+  // Initialiser toutes les images existantes et temporaires
+  imagesContainer.querySelectorAll('.media-item').forEach(setupImageItem);
 
-  function createElementFromHTML(html) {
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = html.trim();
-    return wrapper.firstElementChild;
-  }
-
-  imagesContainer
-    .querySelectorAll('.media-item')
-    .forEach(setupImageItem);
-
-  addImageButton?.addEventListener('click', () => {
-    const html = getPrototype(index);
-    const newItem = createElementFromHTML(html);
-
-    if (!newItem) return;
-
+  // Ajouter un nouvel élément via prototype
+  addImageButton.addEventListener('click', () => {
+    const template = document.createElement('div');
+    template.innerHTML = prototypeHtml.replace(/__name__/g, index);
+    const newItem = template.firstElementChild;
     imagesContainer.appendChild(newItem);
-    setupImageItem(newItem);
-
     index++;
-
+    setupImageItem(newItem);
+    // Scroll vers la nouvelle image
     newItem.scrollIntoView({ behavior: 'smooth', inline: 'center' });
   });
 });
