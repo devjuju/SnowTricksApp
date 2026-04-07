@@ -1,3 +1,5 @@
+/* global cloneTemplate, smartScroll */
+
 document.addEventListener("DOMContentLoaded", () => {
     /* -------- IMAGE SECTION -------- */
     const imageWrapper = document.getElementById("image-wrapper");

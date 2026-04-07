@@ -22,32 +22,57 @@ class SlugService
      */
     public function generateUniqueSlug(object $entity, string $field = 'title', ?EntityManagerInterface $em = null): string
     {
-        $em = $em ?? $this->em;
+        $em ??= $this->em;
 
+        $getter = $this->resolveGetter($entity, $field);
+        $value = $entity->$getter();
+
+        $baseSlug = $this->slugger->slug($value)->lower()->toString();
+
+        return $this->makeUniqueSlug($entity, $baseSlug, $em);
+    }
+
+    private function resolveGetter(object $entity, string $field): string
+    {
         $getter = 'get' . ucfirst($field);
+
         if (!method_exists($entity, $getter)) {
-            throw new \InvalidArgumentException("Le champ {$field} n'existe pas sur l'entité " . get_class($entity));
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Le champ %s n\'existe pas sur l\'entité %s',
+                    $field,
+                    $entity::class
+                )
+            );
         }
 
-        $value = $entity->$getter();
-        $baseSlug = strtolower($this->slugger->slug($value)->toString());
+        return $getter;
+    }
+
+
+    private function makeUniqueSlug(object $entity, string $baseSlug, EntityManagerInterface $em): string
+    {
+        $repository = $em->getRepository($entity::class);
+        $entityId = method_exists($entity, 'getId') ? $entity->getId() : null;
+
         $slug = $baseSlug;
         $i = 1;
 
-        $repository = $em->getRepository(get_class($entity));
-        $entityId = method_exists($entity, 'getId') ? $entity->getId() : null;
-
-        // Boucle pour générer un slug unique
-        while ($existing = $repository->findOneBy(['slug' => $slug])) {
-            // Ignorer l'entité en cours si on est en édition
-            if ($entityId && $existing->getId() === $entityId) {
-                break;
-            }
-
-            $slug = $baseSlug . '-' . $i;
-            $i++;
+        while ($this->slugExists($repository, $slug, $entityId)) {
+            $slug = $baseSlug . '-' . $i++;
         }
 
         return $slug;
+    }
+
+    private function slugExists($repository, string $slug, ?int $entityId): bool
+    {
+        $existing = $repository->findOneBy(['slug' => $slug]);
+
+        if (!$existing) {
+            return false;
+        }
+
+        return $entityId && $existing->getId() === $entityId ? false : true;
     }
 }

@@ -1,3 +1,4 @@
+/* global cloneTemplate, smartScroll */
 document.addEventListener("DOMContentLoaded", () => {
     const videoWrapper = document.getElementById("video-wrapper");
 
