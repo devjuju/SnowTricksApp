@@ -5,6 +5,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let index = imagesContainer.querySelectorAll('.media-item').length;
 
+  function replaceIndex(node, index) {
+    const walker = document.createTreeWalker(node, NodeFilter.SHOW_ELEMENT, null);
+
+    while (walker.nextNode()) {
+      const el = walker.currentNode;
+
+      // Replace attributes safely
+      [...el.attributes].forEach(attr => {
+        if (attr.value && attr.value.includes('__name__')) {
+          el.setAttribute(
+            attr.name,
+            attr.value.replace(/__name__/g, index)
+          );
+        }
+      });
+
+      // Replace input values if needed
+      if (el.value && typeof el.value === 'string') {
+        if (el.value.includes('__name__')) {
+          el.value = el.value.replace(/__name__/g, index);
+        }
+      }
+    }
+  }
+
   function setupImageItem(item) {
     const removeBtn = item.querySelector('.remove-item');
     const addBtn = item.querySelector('.item-add');
@@ -69,31 +94,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // init existing items
-  imagesContainer
-    .querySelectorAll('.media-item')
-    .forEach(setupImageItem);
+  imagesContainer.querySelectorAll('.media-item').forEach(setupImageItem);
 
   addImageButton?.addEventListener('click', () => {
     if (!prototypeTemplate) return;
 
-    const template = document.createElement('template');
+    // SAFE: clone DOM directly (no innerHTML)
+    const fragment = prototypeTemplate.content.cloneNode(true);
 
-    // SAFE: DOM-based template cloning (no raw HTML injection)
-    template.innerHTML = prototypeTemplate.innerHTML;
+    replaceIndex(fragment, index);
 
-    const node = template.content.cloneNode(true);
+    const newItem = fragment.querySelector('.media-item');
 
-    const newItem = node.firstElementChild || node;
+    imagesContainer.appendChild(fragment);
 
-    // Symfony placeholder replacement (safe because NOT innerHTML injection)
-    newItem.innerHTML = newItem.innerHTML.replace(/__name__/g, index);
-
-    imagesContainer.appendChild(newItem);
-
-    setupImageItem(newItem);
+    if (newItem) {
+      setupImageItem(newItem);
+      newItem.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+    }
 
     index++;
-
-    newItem.scrollIntoView({ behavior: 'smooth', inline: 'center' });
   });
 });

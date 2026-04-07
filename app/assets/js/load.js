@@ -26,9 +26,7 @@ function setLoadingState(btn, ui, isLoading) {
     btn.disabled = isLoading;
 
     if (ui.text) {
-        ui.text.textContent = isLoading
-            ? "Chargement..."
-            : "Afficher plus";
+        ui.text.textContent = isLoading ? "Chargement..." : "Afficher plus";
     }
 
     if (ui.spinner) {
@@ -70,11 +68,20 @@ async function handleClick(btn, container, ui) {
 }
 
 function getNextPage(btn) {
-    return parseInt(btn.dataset.page || "1", 10) + 1;
+    return (parseInt(btn.dataset.page || "1", 10) + 1);
 }
 
+// ----------------------
+// SECURITY FIXED FETCH
+// ----------------------
+
 async function fetchData(url, page) {
-    const response = await fetch(`${url}?page=${page}`, {
+    // SAFE: ensure URL is relative (prevents external injection)
+    const safeUrl = new URL(url, window.location.origin);
+
+    safeUrl.searchParams.set("page", page);
+
+    const response = await fetch(safeUrl.toString(), {
         headers: { "X-Requested-With": "XMLHttpRequest" }
     });
 
@@ -84,17 +91,28 @@ async function fetchData(url, page) {
 }
 
 // ----------------------
-// DOM
+// DOM SAFE RENDERING
 // ----------------------
 
 function appendContent(container, html) {
-    if (!html || !html.trim()) return;
+    if (!html || typeof html !== "string") return;
 
-    // safer than insertAdjacentHTML
-    const template = document.createElement("template");
-    template.innerHTML = html;
-    container.appendChild(template.content);
+    // SAFE: no innerHTML, use DOMParser instead
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    const fragment = document.createDocumentFragment();
+
+    Array.from(doc.body.childNodes).forEach(node => {
+        fragment.appendChild(node);
+    });
+
+    container.appendChild(fragment);
 }
+
+// ----------------------
+// BUTTON UPDATE
+// ----------------------
 
 function updateButton(btn, data, page, ui) {
     if (!data.hasMore) {
