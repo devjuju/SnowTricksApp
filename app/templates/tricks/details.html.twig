@@ -112,18 +112,18 @@
 
 				<!-- Comment Form -->
 				<div class="mt-12">
+					{% set fieldHeight = "h-12" %}
 					{% if app.user %}
 						{{ form_start(commentForm, { attr: { class: 'w-full max-w-xl mx-auto bg-white p-4 rounded-lg ' } }) }}
 						<div class="flex flex-col md:flex-row gap-2">
 							{{ form_widget(commentForm.content, {
-                            attr: {
-                                class: 'flex-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 h-12 resize-none',
+                                attr: {
+                                class: fieldHeight ~ ' flex-1 rounded-xl border border-[#1b84ff] px-4',
                                 placeholder: 'Écrire un commentaire...'
-                            }
-                        }) }}
-							<button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition h-12">
-								Laisser un commentaire
-							</button>
+                                }
+                            }) }}
+							<button type="submit" class="{{ fieldHeight }} bg-blue-600 text-white px-6 rounded-2xl hover:bg-blue-800 font-semibold uppercase">Ecrire un commentaire</button>
+
 						</div>
 						{{ form_end(commentForm) }}
 					{% else %}
@@ -144,7 +144,7 @@
 					<!-- Bouton Load More -->
 					{% if totalComments > limit %}
 						<div class="text-center mt-6">
-							<button id="load-more-comments" data-load-more data-container="#comments-container" data-url="{{ path('app_tricks_details', { slug: trick.slug }) }}" data-page="{{ page }}" class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-800 font-semibold transition-all duration-300 uppercase">
+							<button id="load-more-comments" data-load-more data-container="#comments-container" data-url="{{ path('app_tricks_details', { slug: trick.slug }) }}" data-page="{{ page }}" class="bg-blue-600 text-white px-6 py-3 rounded-2xl hover:bg-blue-800 font-semibold transition-all duration-300 uppercase">
 								<span class="load-text">Afficher plus</span>
 							</button>
 						</div>

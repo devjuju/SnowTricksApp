@@ -214,7 +214,7 @@
 						<div class="relative">
 							<div id="video-wrapper" class="{{ gridBase }} {{ gridDesktop }}">
 								{% for videoForm in form.videos %}
-									<div class="media-item media-video relative w-full md:w-40 md:flex-shrink-0 md:snap-start" data-video-id="{{ videoForm.vars.data.getIdentifier() }}">
+									<div class="media-item media-video relative w-full md:w-40 md:flex-shrink-0 md:snap-start">
 										<div class="mb-3 w-full aspect-video rounded border relative">
 											<iframe src="{{ videoForm.vars.data.getEmbedUrl()|default('') }}" class="w-full h-full rounded border"></iframe>
 											<div class="video-placeholder absolute inset-0 bg-gray-100 flex items-center justify-center rounded border {{ videoForm.vars.data.getEmbedUrl() ? 'hidden' : '' }}">

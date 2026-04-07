@@ -109,7 +109,18 @@ document.addEventListener("DOMContentLoaded", () => {
         addBtn?.addEventListener("click", openInput);
         editBtn?.addEventListener("click", openInput);
         closeBtn?.addEventListener("click", closeInput);
-        removeBtn?.addEventListener("click", () => item.remove());
+        removeBtn?.addEventListener("click", () => {
+        if (!confirm("Supprimer cette vidéo ?")) return;
+
+        const removedInput = item.querySelector(".removed-video");
+        const videoId = item.querySelector(".video-id")?.value;
+
+        if (removedInput && videoId) {
+        removedInput.value = videoId;
+        }
+
+        item.classList.add("opacity-30", "pointer-events-none");
+        });
 
         updatePreview();
         isNew ? openInput() : updateUI();

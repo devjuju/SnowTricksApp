@@ -266,7 +266,7 @@
 					<!-- Bouton Load More -->
 					{% if totalComments > limit %}
 						<div class="text-center mt-6">
-							<button id="load-more-comments" data-load-more data-container="#comments-container" data-url="{{ path('app_tricks_details', { slug: trick.slug }) }}" data-page="{{ page }}" class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-800 font-semibold transition-all duration-300 uppercase">
+							<button id="load-more-comments" data-load-more data-container="#comments-container" data-url="{{ path('app_tricks_details', { slug: trick.slug }) }}" data-page="{{ page }}" class="bg-blue-600 text-white px-6 py-3 rounded-2xl hover:bg-blue-800 font-semibold transition-all duration-300 uppercase">
 								<span class="load-text">Afficher plus</span>
 							</button>
 						</div>
