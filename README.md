@@ -48,7 +48,7 @@ docker-compose exec php php bin/console doctrine:fixtures:load
 
 ## ⚙️ Installation détaillée
 
-<details> <summary>📦 Voir les étapes complètes</summary> </details>
+<details> <summary>📦 Voir les étapes complètes</summary>
 
 1. Lancer les conteneurs
 
@@ -89,6 +89,8 @@ docker-compose exec php php bin/console doctrine:database:create
 docker-compose exec php php bin/console doctrine:migrations:migrate
 docker-compose exec php php bin/console doctrine:fixtures:load
 ```
+
+</details>
 
 ## 🌐 Accès aux services
 
