@@ -10,6 +10,15 @@ Ce projet a été réalisé pour Jimmy Sweat, entrepreneur passionné de snowboa
 - permettre aux utilisateurs d’en ajouter
 - échanger via un système de commentaires
 
+## 🧩 Fonctionnalités principales
+
+📋 Liste des figures (page d’accueil)
+➕ Création de figure
+✏️ Modification de figure
+👁️ Consultation d’une figure
+💬 Système de commentaires
+🔐 Authentification utilisateur
+
 ## 🚀 Stack technique
 
 - Backend : Symfony
