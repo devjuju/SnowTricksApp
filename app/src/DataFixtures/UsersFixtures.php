@@ -19,25 +19,25 @@ class UsersFixtures extends Fixture
         $usersData = [
             [
                 'username' => 'JimmySweat',
-                'email' => 'jimmy@snowtricks.local',
+                'email' => 'jimmy@snowtricks.com',
                 'password' => 'Snow2025!',
                 'roles' => ['ROLE_MEMBER']
             ],
             [
                 'username' => 'SnowFox',
-                'email' => 'snowfox@tricks.local',
+                'email' => 'snowfox@tricks.com',
                 'password' => 'FoxRider123',
                 'roles' => ['ROLE_MEMBER']
             ],
             [
                 'username' => 'ShredMaster',
-                'email' => 'shredmaster@tricks.local',
+                'email' => 'shredmaster@tricks.com',
                 'password' => 'Shred2025',
                 'roles' => ['ROLE_MEMBER']
             ],
             [
                 'username' => 'MountainSoul',
-                'email' => 'mountainsoul@tricks.local',
+                'email' => 'mountainsoul@tricks.com',
                 'password' => 'SoulRide99',
                 'roles' => ['ROLE_MEMBER']
             ],
