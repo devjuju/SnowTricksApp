@@ -1,214 +1,202 @@
 # 🏂 SnowTricks (Symfony + Docker)
 
-Plateforme collaborative de figures de snowboard développée avec Symfony et conteneurisée avec Docker.
+Application collaborative autour des figures de snowboard développée avec Symfony.
 
-Ce projet permet aux utilisateurs de consulter, créer et commenter des figures de snowboard dans un environnement reproductible et prêt à l’emploi.
+## 📌 Contexte
 
----
+Ce projet a été réalisé pour Jimmy Sweat, entrepreneur passionné de snowboard, souhaitant créer une plateforme collaborative pour :
 
-## 🚀 Fonctionnalités
+- découvrir des figures (tricks)
+- permettre aux utilisateurs d’en ajouter
+- échanger via un système de commentaires
 
-- 📚 Annuaire des figures de snowboard
-- ➕ Création de nouvelles figures
-- ✏️ Modification des figures
-- 👀 Consultation détaillée d’une figure
-- 💬 Système de commentaires par figure
-- 🔐 Authentification des utilisateurs
-- 🧑‍💻 Gestion des comptes utilisateurs
-- 🛠️ Espace administrateur
+## 🚀 Stack technique
 
-Framework utilisé : Symfony
+- Backend : Symfony
+- Frontend : Tailwind CSS (compilé en local)
+- Environnement : Docker
+- Base de données : MySQL 8
+- Assets : Node.js 20
+- Emails : MailHog
 
----
+## 🐳 Démarrage rapide (TL;DR)
 
-## 🧱 Architecture
-
-Le projet repose sur une architecture Docker avec plusieurs services :
-
-- **PHP (Symfony)** → exécution de l’application
-- **Nginx** → serveur web
-- **MySQL** → base de données
-
----
-
-## 🛠️ Prérequis
-
-- Docker
-- Docker Compose
-
----
-
-## ⚙️ Installation
-
-### 1. Cloner le projet
-
-```bash id="clone"
-git clone https://github.com/ton-username/snowtricks.git
+```bash
+git clone https://github.com/devjuju/SnowTricksApp.git
 cd snowtricks
+
+docker-compose up -d --build
+
+docker-compose exec php composer install
+docker-compose exec node npm install
+docker-compose exec node npm run build
+
+docker-compose exec php php bin/console doctrine:migrations:migrate
+docker-compose exec php php bin/console doctrine:fixtures:load
 ```
 
----
+👉 Application disponible sur : **http://localhost:8187**
 
-### 2. Lancer les conteneurs
+## ⚙️ Installation détaillée
 
-```bash id="up"
+<details> <summary>📦 Voir les étapes complètes</summary> </details>
+
+1. Lancer les conteneurs
+
+```bash
 docker-compose up -d --build
 ```
 
----
+2. Installer les dépendances
 
-### 3. Installer les dépendances Symfony
-
-Entrer dans le container PHP :
-
-```bash id="execphp"
-docker exec -it snowtricks_php bash
+```bash
+docker-compose exec php composer install
+docker-compose exec node npm install
 ```
 
-Puis :
+3. Compiler les assets (Tailwind)
 
-```bash id="composer"
-composer install
+```bash
+docker-compose exec node npm run build
 ```
 
----
+Ou en mode développement :
 
-### 4. Configurer la base de données
-
-Créer la base et exécuter les migrations :
-
-```bash id="db"
-php bin/console doctrine:database:create
-php bin/console doctrine:migrations:migrate
+```bash
+docker-compose exec node npm run dev
 ```
 
-(optionnel) Charger des données :
+4. Configuration de la base de données
+   Vérifier votre fichier .env ou .env.local :
 
-```bash id="fixtures"
-php bin/console doctrine:fixtures:load
+```env
+DATABASE_URL="mysql://snowtricks_user:snowtricks_pass@database:3306/snowtricks_db"
 ```
 
----
+5. Base de données
 
-## 🌐 Accès à l’application
-
-Une fois les conteneurs lancés :
-
-👉 http://localhost:8080
-
----
-
-## ⚙️ Configuration
-
-### Variables d’environnement
-
-Dans `.env` ou `.env.local` :
-
-```env id="env"
-DATABASE_URL="mysql://symfony:symfony@database:3306/snowtricks"
+```bash
+docker-compose exec php php bin/console doctrine:database:create
+docker-compose exec php php bin/console doctrine:migrations:migrate
+docker-compose exec php php bin/console doctrine:fixtures:load
 ```
 
----
+## 🌐 Accès aux services
 
-## 🐳 Services Docker
+| Service     | URL                                            |
+| ----------- | ---------------------------------------------- |
+| Application | [http://localhost:8187](http://localhost:8187) |
+| phpMyAdmin  | [http://localhost:8186](http://localhost:8186) |
+| MailHog     | [http://localhost:8125](http://localhost:8125) |
 
-### PHP
+## 🔐 Accès base de données (phpMyAdmin)
 
-- Contient Symfony
-- Port interne : 9000
+- Serveur : database
+- Utilisateur : root
+- Mot de passe : snowtricks_pass
 
-### Nginx
+## 👤 Comptes de test
 
-- Expose l’application sur :
-  👉 http://localhost:8080
+| Rôle  | Email                                               | Mot de passe |
+| ----- | --------------------------------------------------- | ------------ |
+| Admin | [admin@snowtricks.com](mailto:admin@snowtricks.com) | password     |
+| User  | [user@snowtricks.com](mailto:user@snowtricks.com)   | password     |
 
-### MySQL
+## 🏗️ Architecture du projet
 
-- Host : `database`
-- Port : `3306`
-- Base : `snowtricks`
-- User : `symfony`
-- Password : `symfony`
-
----
-
-## 📁 Structure du projet
-
-```id="structure"
-├── docker/
-│   ├── php/
-│   ├── nginx/
-│
+```text
+.
+├── app/
+├── php/
+├── apache/
+├── mysql/
 ├── docker-compose.yml
-├── .env
-├── src/
-├── templates/
-├── public/
-├── config/
-├── migrations/
 ```
 
----
+Architecture basée sur le pattern MVC de Symfony :
 
-## 🧠 Architecture applicative
+- Controller : gestion des requêtes
+- Entity : représentation des données
+- Repository : accès base de données
+- Twig : rendu des vues
 
-Le projet suit le pattern MVC :
+## 🐳 Architecture Docker
 
-- **Model** → Doctrine Entities
-- **View** → Twig templates
-- **Controller** → gestion des routes et logique métier
-
----
-
-## 🔐 Sécurité
-
-- Authentification Symfony
-- Gestion des rôles
-- Protection des routes sensibles
-- Validation des formulaires
-
----
-
-## 💬 Système de commentaires
-
-Chaque figure possède un espace de discussion permettant aux utilisateurs d’échanger autour des tricks.
-
----
-
-## 🚧 Améliorations possibles
-
-- Upload d’images pour les figures
-- Pagination des listes
-- API REST / GraphQL
-- Système de likes
-- Notifications utilisateurs
-- Modération des commentaires
-- Tests automatisés (PHPUnit)
-
----
+| Service    | Description                       |
+| ---------- | --------------------------------- |
+| php        | Apache + PHP (Symfony)            |
+| node       | Compilation des assets (Tailwind) |
+| database   | MySQL 8                           |
+| phpmyadmin | Interface base de données         |
+| mailhog    | Test des emails                   |
 
 ## 🧪 Commandes utiles
 
-```bash id="cmd1"
-docker-compose up -d --build
-docker-compose down
+```bash
+# Accéder au conteneur PHP
+docker-compose exec php bash
+
+# Accéder au conteneur Node
+docker-compose exec node sh
+
+# Voir les logs
 docker-compose logs -f
+
+# Stopper les conteneurs
+docker-compose down
+
+# Reset complet (⚠️ supprime la base)
+docker-compose down -v
 ```
 
-Entrer dans le container PHP :
+## 🔒 Sécurité
 
-```bash id="cmd2"
-docker exec -it snowtricks_php bash
+- Authentification utilisateur
+- Protection CSRF
+- Validation des formulaires
+- Gestion des rôles
+
+## 📈 Qualité du code
+
+- Respect des standards Symfony
+- Code structuré (MVC)
+- Utilisation de Doctrine ORM
+- Analyse via SymfonyInsight / Codacy
+
+## 💡 Choix techniques
+
+### 🐳 Docker
+
+- Environnement reproductible
+- Aucune configuration locale requise
+- Lancement rapide pour l’évaluateur
+
+### 🎨 Tailwind CSS (sans CDN)
+
+- Compilation via Node.js
+- Meilleures performances
+- Approche moderne du CSS
+
+## 🚀 Améliorations possibles
+
+- Pagination des figures
+- API REST
+- Tests automatisés
+- Amélioration UX/UI
+
+## ⚠️ En cas de problème
+
+```bash
+docker-compose down -v
+docker-compose up -d --build
 ```
 
----
+Puis relancer :
+
+```bash
+docker-compose exec php php bin/console doctrine:migrations:migrate
+```
 
 ## 👨‍💻 Auteur
 
-Projet réalisé dans un cadre pédagogique afin de pratiquer Symfony et Docker dans un environnement proche de la production.
-
----
-
-## 📄 Licence
-
-Projet libre à usage éducatif et personnel.
+Projet réalisé dans le cadre de la formation OpenClassrooms.
