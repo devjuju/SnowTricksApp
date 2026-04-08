@@ -6,6 +6,9 @@ use App\Entity\Categories;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
+// Jeux de données représentant les principales catégories de tricks snowboard
+// utilisées pour structurer la base de contenu du site SnowTricks
+
 class CategoriesFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void

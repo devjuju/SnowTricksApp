@@ -7,6 +7,9 @@ use Doctrine\Persistence\ObjectManager;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use App\Entity\Images;
 
+// Jeux d’images simulant une galerie pour chaque trick
+// Permet de tester les fonctionnalités de carousel et affichage dynamique
+
 class ImagesFixtures extends Fixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void

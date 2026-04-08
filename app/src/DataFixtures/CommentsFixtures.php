@@ -7,22 +7,49 @@ use Doctrine\Persistence\ObjectManager;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use App\Entity\Comments;
 
+// Commentaires simulant une communauté active de snowboardeurs
+// permettant de démontrer le système de pagination / "load more comments"
+
 class CommentsFixtures extends Fixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
         $commentsData = [
-            ['content' => "Super trick ! J'adore", 'trick' => 'trick_backflip', 'user' => 'Jimmy'],
-            ['content' => "Ici commentaire de Jimmy", 'trick' => 'trick_nos_grab', 'user' => 'Jimmy'],
-            ['content' => "Un commentaire anoyme qui apprécie la figure", 'trick' => 'trick_nos_grab', 'user' => 'Anonyme'],
-            ['content' => "j'adorai savoir faire ça !", 'trick' => 'trick_nos_grab', 'user' => 'Incognito'],
-            ['content' => "Et un commentaire de plus !", 'trick' => 'trick_nos_grab', 'user' => 'Jimmy'],
-            ['content' => "j'adore", 'trick' => 'trick_nos_grab', 'user' => 'Incognito'],
-            ['content' => "Et un commentaire de moi !", 'trick' => 'trick_nos_grab', 'user' => 'Jimmy'],
-            ['content' => "j'adorai savoir faire ça !", 'trick' => 'trick_nos_grab', 'user' => 'Incognito'],
-            ['content' => "super commentaire !", 'trick' => 'trick_nos_grab', 'user' => 'Jimmy'],
-            ['content' => "Encore un commentaire !", 'trick' => 'trick_nos_grab', 'user' => 'Incognito'],
-            ['content' => "plus de commentaires positifs !", 'trick' => 'trick_nos_grab', 'user' => 'Jimmy'],
+            [
+                'content' => "Le Backflip est vraiment impressionnant ! J’essaie de le réussir depuis des semaines.",
+                'trick' => 'trick_backflip',
+                'user' => 'SnowFox'
+            ],
+            [
+                'content' => "Très bon tuto pour le Nos Grab, les explications sont claires.",
+                'trick' => 'trick_nos_grab',
+                'user' => 'ShredMaster'
+            ],
+            [
+                'content' => "Est-ce que quelqu’un a des conseils pour mieux gérer l’équilibre en l’air ?",
+                'trick' => 'trick_nos_grab',
+                'user' => 'MountainSoul'
+            ],
+            [
+                'content' => "Ce trick demande vraiment de la pratique, mais le rendu est stylé.",
+                'trick' => 'trick_nos_grab',
+                'user' => 'JimmySweat'
+            ],
+            [
+                'content' => "Je valide totalement, surtout en freestyle c’est un must.",
+                'trick' => 'trick_nos_grab',
+                'user' => 'SnowFox'
+            ],
+            [
+                'content' => "Premier essai hier, grosse chute mais je vais persévérer 😄",
+                'trick' => 'trick_nos_grab',
+                'user' => 'MountainSoul'
+            ],
+            [
+                'content' => "Le Cork est vraiment technique, respect à ceux qui le maîtrisent.",
+                'trick' => 'trick_cork',
+                'user' => 'MountainSoul'
+            ],
         ];
 
         foreach ($commentsData as $data) {

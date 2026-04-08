@@ -7,6 +7,9 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
+// Users de démonstration cohérents avec l’univers SnowTricks
+// Utilisés pour simuler une communauté active en environnement de développement
+
 class UsersFixtures extends Fixture
 {
     public function __construct(private readonly UserPasswordHasherInterface $hasher) {}
@@ -15,21 +18,27 @@ class UsersFixtures extends Fixture
     {
         $usersData = [
             [
-                'username' => 'Jimmy',
-                'email' => 'jimmy@example.com',
-                'password' => 'motdepasse',
+                'username' => 'JimmySweat',
+                'email' => 'jimmy@snowtricks.local',
+                'password' => 'Snow2025!',
                 'roles' => ['ROLE_MEMBER']
             ],
             [
-                'username' => 'Anonyme',
-                'email' => 'anonyme@example.com',
-                'password' => 'passesecret',
+                'username' => 'SnowFox',
+                'email' => 'snowfox@tricks.local',
+                'password' => 'FoxRider123',
                 'roles' => ['ROLE_MEMBER']
             ],
             [
-                'username' => 'Incognito',
-                'email' => 'incognito@example.com',
-                'password' => 'passecache',
+                'username' => 'ShredMaster',
+                'email' => 'shredmaster@tricks.local',
+                'password' => 'Shred2025',
+                'roles' => ['ROLE_MEMBER']
+            ],
+            [
+                'username' => 'MountainSoul',
+                'email' => 'mountainsoul@tricks.local',
+                'password' => 'SoulRide99',
                 'roles' => ['ROLE_MEMBER']
             ],
         ];

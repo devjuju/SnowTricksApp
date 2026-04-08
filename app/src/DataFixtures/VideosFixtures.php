@@ -7,6 +7,10 @@ use Doctrine\Persistence\ObjectManager;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use App\Entity\Videos;
 
+// Dataset de démonstration pour la galerie vidéo SnowTricks
+// Chaque entrée représente un contenu externe (YouTube) lié à un trick
+// Objectif : simuler une plateforme communautaire riche en médias
+
 class VideosFixtures extends Fixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void

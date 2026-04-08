@@ -108,10 +108,10 @@ docker-compose exec php php bin/console doctrine:fixtures:load
 
 ## 👤 Comptes de test
 
-| Rôle  | Email                                               | Mot de passe |
-| ----- | --------------------------------------------------- | ------------ |
-| Admin | [admin@snowtricks.com](mailto:admin@snowtricks.com) | password     |
-| User  | [user@snowtricks.com](mailto:user@snowtricks.com)   | password     |
+| Rôle   | Pseudo  | Email               | Mot de passe |
+| ------ | ------- | ------------------- | ------------ |
+| Admin  | Jimmy   | jimmy@example.com   | motdepasse   |
+| Member | Anonyme | anonyme@example.com | passesecret  |
 
 ## 🏗️ Architecture du projet
 
