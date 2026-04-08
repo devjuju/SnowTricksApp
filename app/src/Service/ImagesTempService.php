@@ -9,10 +9,25 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\String\UnicodeString;
 
+/**
+ * Service de gestion des images temporaires
+ *
+ * Rôle principal :
+ * - gérer les uploads temporaires (session + filesystem)
+ * - permettre la validation avant passage en "final"
+ * - déplacer les fichiers vers stockage définitif
+ * - assurer la cohérence entre session et filesystem
+ *
+ * ⚠️ Ce service agit comme un mini "storage manager"
+ */
 class ImagesTempService
 {
     private ?SessionInterface $session;
     private Filesystem $filesystem;
+
+    /**
+     * Clé de session utilisée pour stocker les fichiers temporaires
+     */
     private string $sessionKey = 'temp_images';
 
     public function __construct(
@@ -24,18 +39,34 @@ class ImagesTempService
         $this->session = $requestStack->getSession();
         $this->filesystem = new Filesystem();
 
+        // S'assure que les dossiers existent dès l'initialisation du service
         $this->ensureDirectoryExists($this->tempDir);
         $this->ensureDirectoryExists($this->finalDir);
     }
 
+    /**
+     * Permet de contextualiser les uploads (ex: trick, user, post...)
+     *
+     * Chaque contexte a sa propre clé de session
+     */
     public function setContext(string $context): void
     {
         $this->sessionKey = 'temp_images_' . $context;
     }
 
-    // -------------------------
-    // UPLOAD TEMP
-    // -------------------------
+    // =========================
+    // 📤 UPLOAD TEMPORAIRE
+    // =========================
+
+    /**
+     * Upload un fichier en zone temporaire
+     *
+     * Étapes :
+     * - validation sécurité (type + taille)
+     * - génération d'un nom sécurisé unique
+     * - déplacement vers dossier temporaire
+     * - stockage en session
+     */
     public function upload(UploadedFile $file): string
     {
         $this->validateFile($file);
@@ -47,6 +78,7 @@ class ImagesTempService
         $safeName = $this->slugger->slug($originalName);
         $extension = $file->guessExtension() ?: 'bin';
 
+        // Nom unique pour éviter collisions
         $filename = sprintf(
             '%s-%s.%s',
             $safeName,
@@ -61,17 +93,21 @@ class ImagesTempService
         return $filename;
     }
 
-    // ✅ FIX add()
+    /**
+     * Ajoute un fichier à la session temporaire
+     *
+     * ⚠️ protège contre :
+     * - doublons
+     * - fichiers inexistants
+     */
     public function add(string $filename): void
     {
         $images = $this->getAll();
 
-        // 🔥 anti doublon strict
         if (in_array($filename, $images, true)) {
             return;
         }
 
-        // 🔥 sécurité FS
         if (!$this->filesystem->exists($this->tempDir . '/' . $filename)) {
             return;
         }
@@ -84,6 +120,9 @@ class ImagesTempService
         );
     }
 
+    /**
+     * Upload multiple fichiers
+     */
     public function uploadMultiple(?array $files, string $type = 'image'): array
     {
         $uploadedFiles = [];
@@ -103,14 +142,21 @@ class ImagesTempService
         return array_values(array_unique($uploadedFiles));
     }
 
+    /**
+     * Retourne tous les fichiers temporaires du contexte courant
+     */
     public function getAll(): array
     {
         return $this->session?->get($this->sessionKey, []) ?? [];
     }
 
-    // -------------------------
-    // MOVE TEMP -> FINAL
-    // -------------------------
+    // =========================
+    // 🔁 TRANSITION TEMP → FINAL
+    // =========================
+
+    /**
+     * Déplace un fichier du dossier temporaire vers le dossier final
+     */
     public function moveToFinal(string $filename): bool
     {
         $tmpPath = $this->tempDir . '/' . $filename;
@@ -127,7 +173,14 @@ class ImagesTempService
         return true;
     }
 
-    // ✅ FIX moveAllToFinal()
+    /**
+     * Déplace tous les fichiers temporaires vers le dossier final
+     *
+     * ⚠️ Gère aussi :
+     * - fichiers déjà existants
+     * - nettoyage session
+     * - anti double move
+     */
     public function moveAllToFinal(): array
     {
         $files = $this->getAll();
@@ -144,7 +197,7 @@ class ImagesTempService
                 continue;
             }
 
-            // 🔥 ANTI MOVE DOUBLE
+            // Empêche écrasement ou double déplacement
             if ($this->filesystem->exists($finalPath)) {
                 $this->removeFromSession($filename);
                 continue;
@@ -159,9 +212,15 @@ class ImagesTempService
         return array_values(array_unique($moved));
     }
 
-    // -------------------------
-    // DELETE SAFE (TEMP + FINAL)
-    // -------------------------
+    // =========================
+    // 🗑️ SUPPRESSION
+    // =========================
+
+    /**
+     * Supprime un fichier (temp + final + session)
+     *
+     * ⚠️ suppression globale volontaire
+     */
     public function delete(string $filename): void
     {
         $paths = [
@@ -178,9 +237,9 @@ class ImagesTempService
         $this->removeFromSession($filename);
     }
 
-    // -------------------------
-    // CLEAR SESSION + TEMP FILES
-    // -------------------------
+    /**
+     * Nettoie tous les fichiers temporaires du contexte
+     */
     public function clear(): void
     {
         foreach ($this->getAll() as $filename) {
@@ -194,9 +253,9 @@ class ImagesTempService
         $this->session?->remove($this->sessionKey);
     }
 
-    // -------------------------
-    // REPLACE (SAFE VERSION)
-    // -------------------------
+    /**
+     * Remplace un fichier existant par un nouveau upload
+     */
     public function replace(string $old, UploadedFile $file): string
     {
         $newFilename = $this->upload($file);
@@ -206,9 +265,15 @@ class ImagesTempService
         return $newFilename;
     }
 
-    // -------------------------
-    // SESSION HELPERS
-    // -------------------------
+    // =========================
+    // 🧠 SESSION HELPERS
+    // =========================
+
+    /**
+     * Retire un fichier de la session
+     *
+     * ⚠️ maintient la cohérence session ↔ filesystem
+     */
     private function removeFromSession(string $filename): void
     {
         $images = array_filter(
@@ -223,9 +288,13 @@ class ImagesTempService
         }
     }
 
-    // -------------------------
-    // FS HELPERS
-    // -------------------------
+    // =========================
+    // 📁 FILESYSTEM HELPERS
+    // =========================
+
+    /**
+     * Crée les dossiers s'ils n'existent pas
+     */
     private function ensureDirectoryExists(string $dir): void
     {
         if (!$this->filesystem->exists($dir)) {
@@ -233,6 +302,13 @@ class ImagesTempService
         }
     }
 
+    /**
+     * Validation de sécurité des fichiers uploadés
+     *
+     * ⚠️ protège contre :
+     * - fichiers non image
+     * - fichiers trop volumineux
+     */
     private function validateFile(UploadedFile $file): void
     {
         $allowed = ['image/jpeg', 'image/png', 'image/webp'];

@@ -1,0 +1,46 @@
+{# ========== VIDEOS =========== #}
+<div class="relative">
+	<div id="video-wrapper" class="{{ gridBase }} {{ gridDesktop }}">
+
+		{% for videoForm in form.videos %}
+			<div class="media-item media-video relative w-full md:w-40 md:flex-shrink-0 md:snap-start">
+				<div class="mb-3 w-full aspect-video rounded border relative">
+					<iframe src="{{ videoForm.vars.data.getEmbedUrl()|default('') }}" class="w-full h-full rounded border"></iframe>
+					<div class="video-placeholder absolute inset-0 bg-gray-100 flex items-center justify-center rounded border {{ videoForm.vars.data.getEmbedUrl() ? 'hidden' : '' }}">
+						<i class="bi bi-play-btn text-3xl text-gray-400"></i>
+					</div>
+				</div>
+
+				<input type="hidden" class="removed-video" name="removed_videos[]" value="">
+				<input type="hidden" class="video-id" value="{{ videoForm.vars.data.id }}">
+
+				<div class="media-actions flex justify-end gap-2 mt-2">
+					<div class="flex flex-row-reverse items-center gap-2">
+						<button type="button" class="remove-item p-2 rounded bg-[#f8285a] text-white hover:bg-[#d81a48] hover:border-[#d81a48]">
+							<i class="bi bi-trash3-fill"></i>
+							<span class="sr-only">Remove</span>
+						</button>
+
+						<button type="button" class="item-add p-2 rounded border bg-[#2563eb] hover:bg-[#1f40ae]">
+							<i class="bi bi-pencil-fill"></i>
+							<span class="sr-only">Add</span>
+						</button>
+
+						<button type="button" class="item-edit hidden p-2 rounded bg-[#2563eb] hover:bg-[#1f40ae] text-white">
+							<i class="bi bi-pencil-fill"></i>
+							<span class="sr-only">Edit</span>
+						</button>
+
+						<button type="button" class="item-close hidden p-2 rounded border border-[#f6c000] text-[#f6c000]">
+							<i class="bi bi-eye-slash-fill"></i>
+							<span class="sr-only">Close</span>
+						</button>
+
+						{{ form_widget(videoForm.url, {attr:{class:'item-input w-0 opacity-0 transition-all duration-300'}}) }}
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+	<hr class="border-0 h-px bg-blue-100 mt-4 mb-4">
+</div>

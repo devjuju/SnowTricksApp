@@ -1,0 +1,47 @@
+<div class="px-4 md:px-8 lg:px-24 mt-8">
+	<div class="mb-4">
+		{{ form_widget(form.title, {
+            attr: {
+                class: 'w-full rounded-xl border border-[#1b84ff]  bg-[white] px-4 py-2',
+                            }
+            }) }}
+		<div class="text-[#d81a48] text-sm">{{ form_errors(form.title) }}</div>
+	</div>
+	<div class="mb-4">
+		{{ form_widget(form.content, {
+            attr: {
+            class: 'w-full h-28 sm:h-36 rounded-xl border border-[#1b84ff]  bg-white px-4 py-2 ',
+            }
+        }) }}
+		<div class="text-[#d81a48] text-sm">{{ form_errors(form.content) }}</div>
+	</div>
+	<div class="mb-4">
+		{{ form_widget(form.category, {
+             attr: {
+              class: ' rounded-xl border border-[#1b84ff]  bg-white px-4 py-2  px-4 pr-10 py-2 ',
+              }
+        }) }}
+		<div class="text-[#d81a48] text-sm">{{ form_errors(form.category) }}</div>
+	</div>
+	<div class="flex items-center justify-start gap-2 ">
+		<h3 class="text-sm font-medium text-gray-600 mb-2 ">
+			Images ({{ form.images|length }})
+		</h3>
+
+		<h3 class="text-sm font-medium text-gray-600 mb-2 ">
+			Vidéos ({{ form.videos|length }})
+		</h3>
+	</div>
+
+	<div class="flex flex-col justify-end md:flex-row md:justify-end mt-4 gap-4">
+
+		{% if trick.images|length == 0 and trick.videos|length == 0 %}
+			<a href="{{ path('app_profile_add_medias_trick', {slug: trick.slug}) }}" class=" bg-blue-100 text-blue-600 px-6 py-3 rounded-2xl hover:bg-[#056ee9] hover:text-white font-semibold transition-all duration-300 uppercase">
+				Ajouter des médias
+			</a>
+		{% endif %}
+
+		{{ form_row(form.delete) }}
+		{{ form_row(form.save) }}
+	</div>
+</div>

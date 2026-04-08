@@ -22,14 +22,18 @@ class SecurityController extends AbstractController
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        // Redirection si l'utilisateur est déjà connecté
+        // Redirection si l'utilisateur est déjà authentifié
         if ($this->getUser()) {
             return $this->redirectToRoute('app_profile_index');
         }
 
+        // Récupération des erreurs de connexion (Symfony Security)
         $error = $authenticationUtils->getLastAuthenticationError();
+
+        // Récupération du dernier username saisi (UX utilisateur)
         $lastUsername = $authenticationUtils->getLastUsername();
 
+        // Pré-remplissage du formulaire de login
         $form = $this->createForm(LoginFormType::class, [
             'username' => $lastUsername
         ]);
@@ -43,7 +47,7 @@ class SecurityController extends AbstractController
     #[Route(path: '/logout', name: 'app_logout')]
     public function logout(): void
     {
-        // Intercepté par le firewall
+        // Géré automatiquement par le firewall Symfony (aucune logique nécessaire ici)
     }
 
     #[Route(path: '/mot-de-passe-oublie', name: 'forgotten_password')]
@@ -53,6 +57,8 @@ class SecurityController extends AbstractController
         JWTService $jwtService,
         SendEmailService $sendEmailService
     ): Response {
+
+        // Formulaire de demande de réinitialisation de mot de passe
         $form = $this->createForm(ResetPasswordRequestType::class);
         $form->handleRequest($request);
 
@@ -60,11 +66,16 @@ class SecurityController extends AbstractController
 
             $username = $form->get('username')->getData();
 
+            // Recherche utilisateur en base (insensible à la casse)
             $user = $usersRepository->findOneBy([
                 'username' => mb_strtolower($username)
             ]);
 
             if ($user) {
+
+                // ==========================
+                // 🔐 GÉNÉRATION DU TOKEN JWT
+                // ==========================
 
                 $header = [
                     'alg' => 'HS256',
@@ -75,28 +86,31 @@ class SecurityController extends AbstractController
                     'user_id' => $user->getId(),
                 ];
 
+                // Token signé pour sécuriser la réinitialisation
                 $token = $jwtService->generate(
                     $header,
                     $payload,
                     $this->getParameter('app.jwtsecret')
                 );
 
+                // Génération du lien absolu de reset password
                 $url = $this->generateUrl(
                     'reset_password',
                     ['token' => $token],
                     UrlGeneratorInterface::ABSOLUTE_URL
                 );
 
+                // Envoi de l'email contenant le lien sécurisé
                 $sendEmailService->send(
                     'no-reply@snowtricks.test',
-                    $user->getEmail(), // toujours email en base
+                    $user->getEmail(),
                     'Récupération de votre mot de passe',
                     'reset_password',
                     compact('user', 'url')
                 );
             }
 
-            // Message identique dans tous les cas
+            // Message volontairement générique pour éviter l’énumération de comptes
             $this->addFlash(
                 'success',
                 'Si un compte correspond à ce nom d’utilisateur, un email a été envoyé.'
@@ -120,18 +134,30 @@ class SecurityController extends AbstractController
         EntityManagerInterface $entityManagerInterface
     ): Response {
 
-        if ($jwt->isValid($token) && !$jwt->isExpired($token) && $jwt->check($token, $this->getParameter('app.jwtsecret'))) {
+        // ==========================
+        // 🔐 VALIDATION DU TOKEN JWT
+        // ==========================
+
+        if (
+            $jwt->isValid($token) &&
+            !$jwt->isExpired($token) &&
+            $jwt->check($token, $this->getParameter('app.jwtsecret'))
+        ) {
 
             $payload = $jwt->getPayload($token);
 
+            // Récupération utilisateur lié au token
             $user = $usersRepository->find($payload['user_id']);
 
             if ($user) {
+
+                // Formulaire de nouveau mot de passe
                 $form = $this->createForm(ResetPasswordFormType::class);
                 $form->handleRequest($request);
 
                 if ($form->isSubmitted() && $form->isValid()) {
 
+                    // Hash du nouveau mot de passe (sécurité Symfony)
                     $user->setPassword(
                         $passwordHasher->hashPassword(
                             $user,
@@ -141,7 +167,11 @@ class SecurityController extends AbstractController
 
                     $entityManagerInterface->flush();
 
-                    $this->addFlash('success', 'Mot de passe mis à jour avec succès ! Vous pouvez maintenant vous connecter.');
+                    $this->addFlash(
+                        'success',
+                        'Mot de passe mis à jour avec succès ! Vous pouvez maintenant vous connecter.'
+                    );
+
                     return $this->redirectToRoute('app_login');
                 }
 
@@ -151,7 +181,9 @@ class SecurityController extends AbstractController
             }
         }
 
+        // Cas d’erreur : token invalide ou expiré
         $this->addFlash('danger', 'Le token est invalide ou a expiré');
+
         return $this->redirectToRoute('app_login');
     }
 }

@@ -2,9 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Tricks;
 use App\Repository\TricksRepository;
-use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,31 +13,38 @@ final class MainController extends AbstractController
     #[Route('/', name: 'app_main')]
     public function index(Request $request, TricksRepository $tricksRepository): Response
     {
+        // Pagination sécurisée : page minimum = 1
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
+        // Récupération paginée des tricks
         $tricks = $tricksRepository->findByTrickPaginated($page, $limit);
 
+        // Cas AJAX : chargement dynamique (bouton "voir plus")
         if ($request->isXmlHttpRequest()) {
 
-            $html = $this->renderView('_partials/tricks.html.twig', [
+            // Rendu partiel HTML pour injection JS
+            $html = $this->renderView('_partials/main/tricks/item.html.twig', [
                 'tricks' => $tricks
             ]);
 
+            // Calcul offset pour savoir si d'autres tricks existent
             $offset = ($page - 1) * $limit;
 
-            // ✅ CORRECTION ICI
+            // Nombre total de tricks en base
             $totalTricks = $tricksRepository->count([]);
 
+            // Détermine s’il reste du contenu à charger
             $hasMore = ($offset + $limit) < $totalTricks;
 
+            // Retour JSON pour front JS
             return $this->json([
                 'html' => $html,
                 'hasMore' => $hasMore
             ]);
         }
 
-        // Page classique
+        // Mode normal (chargement initial page)
         $totalTricks = $tricksRepository->count([]);
 
         return $this->render('main/index.html.twig', [

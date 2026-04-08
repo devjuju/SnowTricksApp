@@ -1,0 +1,51 @@
+{# Featured image Upload #}
+
+{# Détermination du chemin de l'image mise en avant à afficher #}
+{% set featuredPath =
+    tempFeaturedImage ? asset('uploads/featured_images_tmp/' ~ tempFeaturedImage)
+    : (trick.featuredImage ? asset('uploads/featured_images/' ~ trick.featuredImage) : null)
+%}
+
+{# Conteneur featured image #}
+{% set featuredContainerClass = "relative w-full min-h-[30vh] sm:min-h-[55vh] md:min-h-[60vh] border-2 flex items-center justify-center overflow-hidden" %}
+
+	<div id="featured-container" data-existing-image="{{ featuredPath ?? '' }}" class="{{ featuredContainerClass }}"> <img
+	id="featured-preview" src="{{ featuredPath }}" class="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-300 rounded-t-xl {{ featuredPath ? '' : 'opacity-0' }}">
+
+	{# Placeholder #}
+	<span id="featured-placeholder" class="absolute inset-0 flex items-center justify-center bg-gray-200 {{ featuredPath ? 'opacity-0' : '' }}"></span>
+
+	{# Overlay texte/hero (facultatif) #}
+	<div class="bg-[#00214D]/50 backdrop-blur-sm p-6 md:p-10 rounded-xl max-w-xl text-center pointer-events-none">
+		<h1 class="font-[Raleway] text-white font-bold uppercase" style="font-size: clamp(26px, 5vw, 56px)">Trick</h1>
+	</div>
+	{# Champ file Symfony #}
+	{{ form_widget(form.featuredImage, {
+        attr: {
+        class: 'hidden',
+        accept: 'image/png, image/jpeg, image/webp',
+        id: 'featured-input'
+        }
+    }) }}
+
+	{# Actions Edit/Delete sous le cercle #}
+	<div class="absolute top-2 right-2 flex gap-2">
+		<button type="button" id="edit-featured" class="p-2 rounded bg-[#2563eb] hover:bg-[#1e40af] text-white shadow-lg">
+			<i class="bi bi-pencil-fill"></i>
+			<span class="sr-only">Edit</span>
+		</button>
+		<button type="button" id="delete-featured" class="p-2 rounded bg-[#f8285a] text-white hover:bg-[#d81a48]">
+			<i class="bi bi-trash"></i>
+			<span class="sr-only">Delete</span>
+		</button>
+	</div>
+	{# Champ caché suppression (backend) #}
+	{{ form_widget(form.deleteFeaturedImage) }}
+</div>
+
+{# Erreur validation #}
+{% if form.featuredImage.vars.errors|length > 0 and form.vars.submitted %}
+	<div id="featured-error" class="text-red-500 text-sm px-4 md:px-8 lg:px-8 mt-4">
+		{{ form_errors(form.featuredImage) }}
+	</div>
+{% endif %}

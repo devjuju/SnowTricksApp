@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     while (walker.nextNode()) {
       const el = walker.currentNode;
 
-      // Replace attributes safely
       [...el.attributes].forEach(attr => {
         if (attr.value && attr.value.includes('__name__')) {
           el.setAttribute(
@@ -21,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
 
-      // Replace input values if needed
       if (el.value && typeof el.value === 'string') {
         if (el.value.includes('__name__')) {
           el.value = el.value.replace(/__name__/g, index);
@@ -93,13 +91,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // init existing items
   imagesContainer.querySelectorAll('.media-item').forEach(setupImageItem);
 
   addImageButton?.addEventListener('click', () => {
     if (!prototypeTemplate) return;
 
-    // SAFE: clone DOM directly (no innerHTML)
     const fragment = prototypeTemplate.content.cloneNode(true);
 
     replaceIndex(fragment, index);

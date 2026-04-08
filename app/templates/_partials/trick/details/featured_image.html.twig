@@ -1,0 +1,10 @@
+<div class="relative min-h-[30vh] sm:min-h-[55vh] md:min-h-[60vh] flex items-center justify-center overflow-hidden">
+
+	<img src="{{ asset('uploads/featured_images/' ~ trick.featuredImage) }}" class="absolute inset-0 w-full h-full object-cover object-top md:object-center" alt="{{ trick.title }}">
+
+	<div class="relative bg-[#00214D]/50 backdrop-blur-sm p-6 md:p-10 rounded-xl max-w-xl text-center">
+		<h1 class="font-[Raleway] text-white font-bold uppercase" style="font-size: clamp(26px, 5vw, 56px)">
+			{{ trick.title }}
+		</h1>
+	</div>
+</div>

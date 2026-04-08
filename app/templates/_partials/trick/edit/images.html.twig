@@ -1,0 +1,54 @@
+{# ============== IMAGES ============= #}
+<div class="relative">
+	<div
+		id="image-wrapper" data-index="{{ form.images|length }}" class="{{ gridBase }} {{ gridDesktop }}">
+
+		{# Images existantes #}
+		{% for imageForm in form.images %}
+			{% if imageForm.vars.data.picture %}
+				<div class="media-item media-image relative w-full md:w-40 md:flex-shrink-0 md:snap-start">
+					<div class="mb-3 w-full aspect-video rounded overflow-hidden border relative">
+						{% if imageForm.vars.data.picture %}
+							<img src="{{ asset('uploads/images/' ~ imageForm.vars.data.picture) }}" class="image-preview w-full h-full object-cover" data-filename="{{ imageForm.vars.data.picture }}">
+						{% else %}
+							<img class="image-preview hidden w-full h-full object-cover">
+						{% endif %}
+						<div class="image-placeholder absolute inset-0 bg-gray-100 flex items-center justify-center rounded border {{ imageForm.vars.data.picture ? 'hidden' : '' }}">
+							<i class="bi bi-image text-2xl text-gray-400"></i>
+						</div>
+					</div>
+
+					<input type="hidden" class="uploaded-filename" name="images_filenames[]" value="{{ imageForm.vars.data.picture }}">
+					<input type="hidden" class="removed-image" name="removed_images[]">
+
+					<div class="media-actions flex justify-end gap-2 mt-2">
+						<div class="flex flex-row-reverse items-center gap-2">
+							<button type="button" class="remove-item p-2 rounded bg-[#f8285a] text-white hover:bg-[#d81a48] hover:border-[#d81a48]">
+								<i class="bi bi-trash3-fill"></i>
+								<span class="sr-only">Remove</span>
+							</button>
+
+							<button type="button" class="item-add p-2 rounded border border-[#2563eb] bg-[#2563eb] text-white hover:bg-[#1e40af] hover:text-white transition">
+								<i class="bi bi-pencil-fill"></i>
+								<span class="sr-only">Add</span>
+							</button>
+
+							<button type="button" class="item-edit p-2 rounded border border-[#2563eb] text-white hover:bg-[#1f40ae] hover:text-white transition hidden bg-[#2563eb] hover:border-[#1f40ae]">
+								<i class="bi bi-pencil-fill"></i>
+								<span class="sr-only">Edit</span>
+							</button>
+
+							<button type="button" class="item-close hidden p-2 rounded border border-[#f6c000] text-[#f6c000]">
+								<i class="bi bi-eye-slash-fill"></i>
+								<span class="sr-only">Close</span>
+							</button>
+
+							{{ form_widget(imageForm.file, {attr:{class:'item-input w-0 opacity-0 transition-all duration-300'}}) }}
+						</div>
+					</div>
+				</div>
+			{% endif %}
+		{% endfor %}
+	</div>
+	<hr class="border-0 h-px bg-blue-100 mt-4 mb-4">
+</div>

@@ -1,55 +1,64 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<meta charset="UTF-8">
+		<meta
+		charset="UTF-8">
+
+		{# Titre dynamique du site, surchargeable par les pages enfants #}
 		<title>
 			{% block title %}Snowtricks
 			{% endblock %}
 		</title>
+
+		{# Favicon inline pour éviter requête HTTP supplémentaire #}
 		<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+		<meta
+		name="viewport" content="width=device-width, initial-scale=1.0">
+
+		{# Préconnexion Google Fonts pour améliorer les performances de chargement #}
 		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+		<link
+		rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
+		{# Chargement des polices globales du projet #}
+		<link
+		href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+		{# Librairie d'icônes Bootstrap utilisée pour l'UI #}
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-
 		{% block stylesheets %}
+			{# Assets compilés via Webpack Encore (CSS principal du projet) #}
 			{{ encore_entry_link_tags('app') }}
+
+			{# Icônes additionnelles RemixIcon #}
 			<link href="https://cdn.jsdelivr.net/npm/remixicon@2.4.0/fonts/remixicon.css" rel="stylesheet">
 		{% endblock %}
 
 		{% block javascripts %}
+			{# JS principal compilé via Webpack Encore #}
 			{{ encore_entry_script_tags('app') }}
 		{% endblock %}
 	</head>
+
 	<body
-		class="font-[Montserrat] ">
-		<!-- FLASH MESSAGES GLOBAL -->
-		<div class="fixed top-4 left-0 w-full flex flex-col items-center z-50 space-y-2 px-4">
-			{% for label, messages in app.flashes %}
-				{% for message in messages %}
-					<div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" class="px-4 py-3 rounded-lg shadow-md max-w-xl w-full
-																																										                {% if label == 'success' %} bg-green-100 text-green-800 {% endif %}
-																																										                {% if label == 'error' %} bg-red-100 text-red-800 {% endif %}
-																																										                {% if label == 'warning' %} bg-yellow-100 text-yellow-800 {% endif %}
-																																										                {% if label == 'info' %} bg-blue-100 text-blue-800 {% endif %}">
+		class="font-[Montserrat]">
 
-						<div class="flex justify-between items-center">
-							<span>{{ message|raw }}</span>
-							<button @click="show = false" class="ml-4 font-bold text-xl">&times;</button>
-						</div>
-					</div>
-				{% endfor %}
-			{% endfor %}
-		</div>
+		{# ================= FLASH MESSAGES GLOBAL SYSTEM ================= #}
+		{% include '_partials/flash.html.twig' %}
+
+		{# NAVBAR PRINCIPALE (site-wide navigation) #}
 		{% include '_partials/navbar.html.twig' %}
-		{% block body %}{% endblock %}
-		{% include '_partials/mobile.html.twig' %}
-		{% include '_partials/footer.html.twig' %}
 
+		{# CONTENU DYNAMIQUE DES PAGES #}
+		{% block body %}{% endblock %}
+
+		{# MENU MOBILE (UX responsive) #}
+		{% include '_partials/mobile.html.twig' %}
+
+		{# FOOTER GLOBAL #}
+		{% include '_partials/footer.html.twig' %}
 
 	</body>
 </html>

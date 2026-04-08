@@ -1,0 +1,27 @@
+{% set hasImages = trick.images|length > 0 %}
+{% set hasVideos = trick.videos|length > 0 %}
+{% set hasMedias = hasImages or hasVideos %}
+
+{% if hasMedias %}
+	{# ----- BOUTON COLLAPSE UNIQUE MOBILE ----- #}
+	<div class="md:hidden mt-6 px-4 mb-6">
+		<button type="button" class="w-full flex justify-between items-center px-4 py-3 bg-gray-100 rounded-lg font-medium" data-collapse-toggle="media-collapse">
+			<span>Médias</span>
+			<i class="bi bi-chevron-down transition-transform"></i>
+		</button>
+	</div>
+{% endif %}
+
+
+{% if hasMedias %}
+	{# ------ WRAPPER COLLAPSE / GRILLE ----- #}
+	<div id="media-collapse" class="hidden md:block">
+		<div class="grid md:grid-cols-2 gap-8 px-4 md:px-8 lg:px-8 mt-4 mb-4 ">
+			{% set gridBase = "grid grid-cols-1 gap-6" %}
+			{% set gridDesktop = "md:flex md:flex-row md:gap-4 md:overflow-x-auto md:scroll-smooth md:snap-x md:snap-mandatory" %}
+
+			{% include '_partials/trick/edit/images.html.twig' %}
+			{% include '_partials/trick/edit/videos.html.twig' %}
+		</div>
+	</div>
+{% endif %}

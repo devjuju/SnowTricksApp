@@ -1,0 +1,28 @@
+<div class="mt-12">
+
+	{% if app.user %}
+		{{ form_start(commentForm, { attr: { class: 'w-full max-w-xl mx-auto bg-white p-4 rounded-lg' } }) }}
+
+		<div class="flex flex-col md:flex-row gap-2">
+
+			{{ form_widget(commentForm.content, {
+				attr: {
+				class: 'h-12 flex-1 rounded-xl border border-[#1b84ff] px-4',
+				placeholder: 'Écrire un commentaire...'
+				}
+			}) }}
+
+			<button type="submit" class="h-12 bg-blue-600 text-white px-6 rounded-2xl hover:bg-blue-800 font-semibold uppercase">
+				Écrire un commentaire
+			</button>
+		</div>
+
+		{{ form_end(commentForm) }}
+
+	{% else %}
+		<p class="text-gray-600 text-center mt-4">
+			<a href="{{ path('app_login') }}" class="text-blue-600 hover:underline">Connectez-vous</a>
+			pour laisser un commentaire.
+		</p>
+	{% endif %}
+</div>

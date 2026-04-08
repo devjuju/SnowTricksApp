@@ -30,13 +30,17 @@ class TricksController extends AbstractController
         TrickMediaManagerService $trickMediaManagerService,
         SlugService $slugService
     ): Response {
+        // Sécurité : accès réservé aux utilisateurs connectés
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
+        // Initialisation d’un nouveau trick lié à l’utilisateur
         $trick = new Tricks();
         $trick->setUser($this->getUser());
+
+        // Contexte pour la gestion des images temporaires (évite collisions)
         $imagesTempService->setContext('trick_add');
 
-        // Si ce n'est pas un POST, on vide les temporaires
+        // Nettoyage des fichiers temporaires si accès hors soumission
         if (!$request->isMethod('POST')) {
             $featuredImageTempService->clear();
             $imagesTempService->clear();
@@ -51,13 +55,14 @@ class TricksController extends AbstractController
 
         if ($form->isSubmitted() && $saveButton instanceof \Symfony\Component\Form\SubmitButton && $saveButton->isClicked()) {
 
-            // Générer un slug unique si le titre existe
+            // Génération d’un slug unique pour éviter les conflits SEO / URL
             if ($trick->getTitle()) {
                 $trick->setSlug($slugService->generateUniqueSlug($trick, 'title', $em));
             }
 
             // -------------------------
-            // Gestion des images temporaires même si le formulaire est invalide
+            // Gestion des uploads temporaires même si le formulaire est invalide
+            // Permet de conserver les fichiers côté UX
             // -------------------------
             $uploadedImages = $request->files->get('trick_add_form')['images'] ?? [];
             foreach ($uploadedImages as $imageFormData) {
@@ -70,7 +75,10 @@ class TricksController extends AbstractController
             // Si le formulaire est valide
             if ($form->isValid()) {
 
-                // Featured image
+                // -------------------------
+                // Déplacement de l’image principale du temporaire vers stockage final
+                // uniquement si le formulaire est valide
+                // -------------------------
                 $tempFeaturedImage = $featuredImageTempService->get();
                 if ($tempFeaturedImage) {
                     $featuredImageTempService->moveToFinal($tempFeaturedImage);
@@ -78,7 +86,7 @@ class TricksController extends AbstractController
                     $featuredImageTempService->clear();
                 }
 
-                // Gestion images et vidéos
+                // Service centralisé pour gérer images + vidéos (séparation des responsabilités)
                 $trickMediaManagerService->handle($trick, $request);
 
                 $em->persist($trick);
@@ -115,6 +123,8 @@ class TricksController extends AbstractController
         TrickMediaManagerService $trickMediaManagerService,
         SlugService $slugService
     ): Response {
+
+        // Sécurité : vérifie que l'utilisateur a le droit de modifier ce trick
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         $trick = $repository->findOneBy(['slug' => $slug]);
@@ -132,12 +142,13 @@ class TricksController extends AbstractController
         ]);
         $form->handleRequest($request);
 
+        // Gestion multi-actions via boutons (update / delete)
         $deleteButton = $form->get('delete');
         $saveButton = $form->get('save');
 
         if ($form->isSubmitted()) {
 
-            // SUPPRESSION
+            // Suppression propre des fichiers associés (évite fichiers orphelins)
             if ($deleteButton instanceof \Symfony\Component\Form\SubmitButton && $deleteButton->isClicked()) {
                 if ($trick->getFeaturedImage()) {
                     $featuredImageUploaderService->delete($trick->getFeaturedImage());
@@ -159,10 +170,9 @@ class TricksController extends AbstractController
                 return $this->redirectToRoute('app_profile_index');
             }
 
-            // MODIFICATION
             if ($saveButton instanceof \Symfony\Component\Form\SubmitButton && $saveButton->isClicked()) {
 
-                // Générer un slug unique si le titre a changé
+                // Regénération du slug si le titre est modifié
                 if ($trick->getTitle()) {
                     $trick->setSlug($slugService->generateUniqueSlug($trick, 'title', $em));
                 }
@@ -210,6 +220,7 @@ class TricksController extends AbstractController
 
         $this->denyAccessUnlessGranted('TRICK_DELETE', $trick);
 
+        // Protection CSRF pour sécuriser la suppression
         if (!$this->isCsrfTokenValid('delete-trick-' . $trick->getId(), $request->request->get('_token'))) {
             $this->addFlash('error', 'Token invalide.');
             return $this->redirectToRoute('app_profile_index');
@@ -228,6 +239,7 @@ class TricksController extends AbstractController
             $em->remove($video);
         }
 
+        // Suppression complète : base + fichiers + relations
         $em->remove($trick);
         $em->flush();
 

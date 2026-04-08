@@ -1,0 +1,20 @@
+<!-- Section Tricks -->
+<section class="px-6 md:px-[93px] bg-[#D3DCEB] pt-[60px] pb-[42px]">
+	<div id="tricks-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-6">
+		{% include '_partials/profile/tricks/item.html.twig' with { tricks: tricks } %}
+	</div>
+
+	<!-- Bouton Load More -->
+	<div class="mt-6 flex justify-center">
+		<button
+			data-load-more data-page="{{ page }}" data-url="{{ path('app_profile_index') }}" data-container="#tricks-container" class="load-more-btn bg-blue-600 text-white px-6 py-3 rounded-2xl hover:bg-blue-800 font-semibold transition-all duration-300 uppercase flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+
+			<!-- Spinner (caché par défaut) -->
+			<svg class="load-spinner hidden w-5 h-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24">
+				<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+				<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+			</svg>
+			<span class="load-text">Afficher plus</span>
+		</button>
+	</div>
+</section>

@@ -1,0 +1,105 @@
+{% set imagePrototypeClass = "media-item media-image relative w-full md:w-40
+md:flex-shrink-0  md:snap-start" %}
+
+{% set imagePrototype %}
+<div class="{{ imagePrototypeClass }}" data-image-status="new">
+	<div class="mb-3 w-full aspect-video rounded overflow-hidden border relative">
+		<img class="image-preview hidden w-full h-full object-cover object-center"/>
+		<div class="image-placeholder absolute inset-0 bg-gray-100 flex items-center justify-center rounded border">
+			<i class="bi bi-image text-2xl text-gray-400"></i>
+		</div>
+	</div>
+
+	<input type="hidden" class="uploaded-filename" name="images_tmp[]">
+	<input type="hidden" class="removed-image" name="removed_images[]">
+	<input type="hidden" class="replace-image" name="replace_images[]">
+
+	<div class="media-actions flex justify-end gap-2 mt-2">
+		<div class="flex flex-row-reverse items-center gap-2">
+
+			<button type="button" class="remove-item p-2 rounded bg-[#f8285a] text-white hover:bg-[#d81a48]">
+				<i class="bi bi-trash3-fill"></i>
+				<span class="sr-only">Remove</span>
+			</button>
+
+			{{ form_widget(form.images.vars.prototype.file, {
+                attr: {
+                class: 'item-input w-0 opacity-0 transition-all duration-300 border rounded px-3 text-sm',
+                accept: 'image/png,image/jpeg,image/webp'
+                }
+            }) }}
+		</div>
+	</div>
+</div>
+{% endset %}
+
+{% set videoPrototypeClass = "media-item media-video relative  w-full md:w-40 md:flex-shrink-0 md:snap-start" %}
+
+{% set videoPrototype %}
+<div class="{{ videoPrototypeClass }}">
+	<div class="mb-3 w-full aspect-video rounded border relative">
+		<iframe class="hidden w-full h-full rounded border" frameborder="0" allowfullscreen></iframe>
+
+		<div class="video-placeholder absolute inset-0 bg-gray-100 flex items-center justify-center rounded border">
+			<i class="bi bi-play-btn text-3xl text-gray-400"></i>
+		</div>
+	</div>
+
+	<input type="hidden" class="removed-video" name="removed_videos[]">
+
+	<div class="media-actions flex justify-end gap-2 mt-2">
+		<div class="flex flex-row-reverse items-center gap-2">
+
+			<button type="button" class="remove-item p-2 rounded bg-[#f8285a] text-white hover:bg-[#d81a48]">
+				<i class="bi bi-trash3-fill"></i>
+			</button>
+
+			<button type="button" class="item-add p-2 rounded border border-[#2563eb] bg-white hover:bg-[#2563eb] hover:text-white transition text-[#2563eb]">
+				<i class="bi bi-pencil-fill"></i>
+			</button>
+
+			<button type="button" class="item-close hidden p-2 rounded border border-[#f6c000] text-[#f6c000] hover:bg-[#f6c000] hover:text-white transition">
+				<i class="bi bi-eye-slash-fill"></i>
+			</button>
+
+			{{ form_widget(form.videos.vars.prototype.url, {
+                attr: {
+                class: 'item-input w-0 opacity-0 transition-all duration-300 border rounded px-3 py-2',
+                placeholder: 'Lien YouTube'
+            }
+            }) }}
+		</div>
+	</div>
+</div>
+{% endset %}
+
+{# -------- BOUTON COLLAPSE UNIQUE MOBILE -------- #}
+<div class="md:hidden mt-6 px-4 mb-6">
+	<button type="button" class="w-full flex justify-between items-center px-4 py-3 bg-gray-100 rounded-lg font-medium" data-collapse-toggle="media-collapse">
+		<span>Médias</span>
+		<i class="bi bi-chevron-down transition-transform"></i>
+	</button>
+</div>
+
+{# ------ WRAPPER COLLAPSE / GRILLE ----- #}
+<div id="media-collapse" class="hidden md:block">
+	<div class="grid md:grid-cols-2 gap-8 px-4 md:px-8 lg:px-8 mt-8 mb-8">
+
+		{% set gridBase = "grid grid-cols-1 gap-6" %}
+		{% set gridDesktop = "md:flex md:flex-row md:gap-4 md:overflow-x-auto md:scroll-smooth md:snap-x md:snap-mandatory" %}
+
+		{% include '_partials/trick/add/images.html.twig' %}
+		{% include '_partials/trick/add/videos.html.twig' %}
+
+	</div>
+
+	{# ---------------- PROTOTYPES CACHÉS ---------------- #}
+	<template id="image-prototype">
+		{{ imagePrototype|raw }}
+	</template>
+
+	<template id="video-prototype">
+		{{ videoPrototype|raw }}
+	</template>
+
+</div>

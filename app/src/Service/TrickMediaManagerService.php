@@ -11,6 +11,16 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\SecurityBundle\Security;
 
+/**
+ * Service de gestion des médias liés à un Trick
+ *
+ * Responsabilités :
+ * - gestion des images (upload temporaire → final, remplacement, suppression)
+ * - gestion des vidéos (suppression uniquement)
+ * - synchronisation des entités Doctrine
+ *
+ * ⚠️ Service métier central : il orchestre plusieurs sous-services
+ */
 class TrickMediaManagerService
 {
     public function __construct(
@@ -20,16 +30,37 @@ class TrickMediaManagerService
         private Security $security
     ) {}
 
+    /**
+     * Point d'entrée principal :
+     * applique toutes les opérations médias à un Trick
+     */
     public function handle(Tricks $trick, Request $request): void
     {
         $this->handleImages($trick, $request);
         $this->handleVideos($trick, $request);
+
+        // Nettoyage final des images invalides (sécurité + cohérence DB)
         $this->cleanupEmptyImages($trick);
     }
 
+    // =========================
+    // 🖼️ GESTION DES IMAGES
+    // =========================
+
+    /**
+     * Gère l'ensemble des opérations sur les images :
+     * - remplacement d'image existante
+     * - ajout d'images temporaires vers final
+     * - suppression d'images
+     */
     private function handleImages(Tricks $trick, Request $request): void
     {
-        // REPLACEMENT
+        /**
+         * =========================
+         * REPLACEMENT D'IMAGES
+         * =========================
+         * Remplace une image existante par une nouvelle version
+         */
         $replacements = $request->request->all('replace_images', []);
 
         foreach ($replacements as $old => $new) {
@@ -44,10 +75,17 @@ class TrickMediaManagerService
 
         $replacedFiles = array_values($replacements);
 
-        // AJOUT TEMP → FINAL
+        /**
+         * =========================
+         * AJOUT DES IMAGES TEMP → FINAL
+         * =========================
+         * Récupère les fichiers temporaires validés
+         * et les transforme en entités Images persistées
+         */
         foreach ($this->imagesTempService->moveAllToFinal() as $filename) {
             if (!$filename) continue;
 
+            // Ignore les fichiers déjà remplacés
             if (in_array($filename, $replacedFiles, true)) {
                 continue;
             }
@@ -60,7 +98,13 @@ class TrickMediaManagerService
             $this->em->persist($image);
         }
 
-        // SUPPRESSION
+        /**
+         * =========================
+         * SUPPRESSION D'IMAGES
+         * =========================
+         * Supprime les images demandées par l'utilisateur
+         * avec vérification des permissions (Voter)
+         */
         $removedImages = $request->request->all('removed_images', []);
 
         foreach ($removedImages as $filename) {
@@ -79,9 +123,15 @@ class TrickMediaManagerService
         }
     }
 
+    // =========================
+    // 🎥 GESTION DES VIDÉOS
+    // =========================
+
+    /**
+     * Gère la suppression des vidéos associées au Trick
+     */
     private function handleVideos(Tricks $trick, Request $request): void
     {
-        // SUPPRESSION
         $removedVideos = $request->request->all('removed_videos', []);
 
         foreach ($removedVideos as $id) {
@@ -96,6 +146,14 @@ class TrickMediaManagerService
         }
     }
 
+    // =========================
+    // 🧹 NETTOYAGE
+    // =========================
+
+    /**
+     * Supprime les images incohérentes ou invalides
+     * (ex: image sans fichier associé)
+     */
     private function cleanupEmptyImages(Tricks $trick): void
     {
         foreach ($trick->getImages() as $image) {

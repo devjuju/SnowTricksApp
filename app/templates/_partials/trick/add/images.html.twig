@@ -1,0 +1,38 @@
+{# ============== IMAGES ============= #}
+<div class="relative">
+	<div
+		id="image-wrapper" data-index="{{ form.images|length }}" class="{{ gridBase }} {{ gridDesktop }}">
+
+		{# --- Images temporaires --- #}
+		{% for filename in tempImages %}
+			<div class="media-item media-image flex-shrink-0 w-40 snap-start relative" data-image-status="new">
+				<div class="mb-3 w-full aspect-video rounded overflow-hidden border relative">
+					<img src="{{ asset('uploads/images_tmp/' ~ filename) }}" class="image-preview w-full h-full object-cover object-center" data-filename="{{ filename }}">
+					<div class="image-placeholder absolute inset-0 bg-gray-100 flex items-center justify-center rounded border hidden">
+						<i class="bi bi-image text-2xl text-gray-400"></i>
+					</div>
+				</div>
+
+				{# Input pour Symfony #}
+				<input type="hidden" class="uploaded-filename" name="images_filenames[]" value="{{ filename }}">
+				<input type="hidden" class="removed-image" name="removed_images[]">
+
+				<div class="media-actions flex justify-end gap-2 mt-2">
+					<div class="flex flex-row-reverse items-center gap-2">
+						<button type="button" class="remove-item p-2 rounded border-[#f8285a] bg-[#f8285a] text-white hover:bg-[#d81a48] hover:border-[#d81a48]">
+							<i class="bi bi-trash3-fill"></i>
+							<span class="sr-only">Remove</span>
+						</button>
+
+						<input type="file" class="item-input h-10 w-0 opacity-0 transition-all duration-300 border rounded px-3 text-sm file:h-full file:border-0 file:bg-transparent" accept="image/png,image/jpeg,image/webp">
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+	<div class="mt-4">
+		<button type="button" id="add-image" class="w-full bg-blue-100 text-blue-600 px-6 py-3 rounded-2xl hover:bg-[#056ee9] hover:text-white font-semibold transition-all duration-300 uppercase">
+			Ajouter une image
+		</button>
+	</div>
+</div>

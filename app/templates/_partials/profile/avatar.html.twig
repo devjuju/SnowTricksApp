@@ -1,0 +1,51 @@
+<div
+	class="mb-6 flex flex-col items-center relative group">
+	{# Détermination du chemin de l'avatar à afficher #}
+	{% set avatarPath =
+        tempAvatar
+        ? asset('uploads/avatars_tmp/' ~ tempAvatar)
+        : (user.avatar ? asset('uploads/avatars/' ~ user.avatar) : null)
+    %}
+
+	{# Conteneur cercle avatar #}
+	<div
+		id="avatar-container" data-existing-image="{{ avatarPath ?? '' }}" class="w-32 h-32 border-2 rounded-full flex items-center justify-center cursor-pointer overflow-hidden relative transition-all duration-300 hover:border-blue-400 hover:bg-gray-50 bg-blue-600 ">
+
+		{# Aperçu image #}
+		<img
+		id="avatar-preview" src="{{ avatarPath }}" class="absolute inset-0 w-full h-full object-cover rounded-full {{ avatarPath ? '' : 'opacity-0' }}">
+
+		{# Placeholder #}
+		<span id="avatar-placeholder" class="absolute text-white transition-opacity duration-300 text-center {{ avatarPath ? 'opacity-0' : '' }}" style="font-size:24px;">
+			<i class="bi bi-person-circle"></i>
+		</span>
+
+		{# Champ file Symfony #}
+		{{ form_widget(profileForm.avatar, { 
+            attr: { 
+            class: 'absolute w-full h-full opacity-0 cursor-pointer rounded-full', 
+            accept: 'image/png, image/jpeg, image/webp' 
+            } 
+        }) }}
+	</div>
+
+	{# Actions Edit/Delete sous le cercle #}
+	<div class="flex gap-2 mt-2 " id="avatar-actions">
+		<button type="button" id="edit-avatar" class="p-1 rounded bg-[#1b84ff] hover:bg-[#056ee9] text-white text-xs">
+			<i class="bi bi-pencil"></i>
+			<span class="sr-only">Edit</span>
+		</button>
+		<button type="button" id="delete-avatar" class="p-1 rounded border-[#f8285a] bg-[#f8285a] text-white hover:bg-[#d81a48] text-xs">
+			<i class="bi bi-trash"></i>
+			<span class="sr-only">Delete</span>
+		</button>
+	</div>
+
+	{# Erreur validation #}
+	<div id="avatar-error" class="absolute bottom-1 left-1 text-red-500 text-sm">
+		{{ form_errors(profileForm.avatar) }}
+	</div>
+
+	{# Champ caché suppression (backend) #}
+	{{ form_widget(profileForm.deleteAvatar) }}
+</div>

@@ -4,19 +4,9 @@
 {% endblock %}
 
 {% block body %}
-	<section class="
-			px-6
-			md:px-[93px]
-		  bg-[#D3DCEB]
-			pt-[120px]
-			pb-[42px]
-			bg-cover
-			bg-center
-			bg-no-repeat
-			min-h-screen
-			flex
-			items-center
-			justify-center" style="background-image: url('{{ asset('images/backgrounds/image-cover.jpg') }}')">
+	{% set sectionErrorClass = "px-6 md:px-[93px] bg-[#D3DCEB] pt-[120px] pb-[42px] bg-cover bg-center bg-no-repeat min-h-screen flex items-center justify-center" %}
+
+	<section class="{{ sectionErrorClass }}" style="background-image: url('{{ asset('images/backgrounds/image-cover.jpg') }}')">
 
 		<div class="bg-[#00214D]/50 backdrop-blur-sm p-6 md:p-10 rounded-xl max-w-xl text-center">
 			<h1 class="text-7xl text-white font-bold uppercase mb-4">500</h1>

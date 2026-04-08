@@ -1,0 +1,40 @@
+{# ================= FLASH MESSAGES COMPONENT ================= #}
+
+{% set containerClass = "fixed top-4 left-0 w-full flex flex-col items-center z-50 space-y-2 px-4" %}
+
+{% set baseClass = "px-4 py-3 rounded-lg shadow-md max-w-xl w-full" %}
+
+{% set successClass = "bg-green-100 text-green-800" %}
+{% set errorClass = "bg-red-100 text-red-800" %}
+{% set warningClass = "bg-yellow-100 text-yellow-800" %}
+{% set infoClass = "bg-blue-100 text-blue-800" %}
+
+<div class="{{ containerClass }}">
+
+	{% for label, messages in app.flashes %}
+		{% for message in messages %}
+
+			{% set typeClass =
+				label == 'success' ? successClass :
+				label == 'error' ? errorClass :
+				label == 'warning' ? warningClass :
+				label == 'info' ? infoClass :
+				'bg-gray-100 text-gray-800'
+			%}
+
+			<div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" class="{{ baseClass }} {{ typeClass }}">
+
+				<div class="flex justify-between items-center">
+					<span>{{ message|raw }}</span>
+
+					<button @click="show = false" class="ml-4 font-bold text-xl">
+						&times;
+					</button>
+				</div>
+
+			</div>
+
+		{% endfor %}
+	{% endfor %}
+
+</div>

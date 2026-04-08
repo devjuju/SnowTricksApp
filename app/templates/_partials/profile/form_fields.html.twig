@@ -1,0 +1,32 @@
+{# Email #}
+<div class="space-y-2 text-center">
+	{{ form_label(profileForm.email, 'Email', { label_attr: { class: 'font-medium text-gray-700' } }) }}
+	{{ form_widget(profileForm.email, { attr: {
+        class: 'w-full text-center border-0 border-b border-gray-300 focus:outline-none focus:border-blue-400 pb-2 text-gray-500'
+    }}) }}
+
+	<div class="text-red-500 text-sm">
+		{{ form_errors(profileForm.email) }}
+	</div>
+</div>
+
+{# Username #}
+<div class="space-y-2 text-center">
+	{{ form_label(profileForm.username, 'Nom d\'utilisateur', { label_attr: { class: 'font-medium text-gray-700' } }) }}
+            {{ form_widget(profileForm.username, { attr: {
+                class: 'w-full text-center border-0 border-b border-gray-300 focus:outline-none focus:border-blue-400 pb-2 text-gray-500'
+            }}) }}
+
+            <div class="text-red-500 text-sm">
+                {{ form_errors(profileForm.username) }}
+            </div>
+        </div>
+
+        {# Password #}
+        <div class="space-y-2 text-center">
+           {{ form_label(profileForm.plainPassword.first, 'Nouveau mot de passe') }}
+				{{ form_widget(profileForm.plainPassword.first, { attr: { class: 'w-full text-center border-0 border-b border-gray-300 focus:outline-none focus:border-blue-400 pb-2 text-gray-500' } }) }}
+				{{ form_label(profileForm.plainPassword.second, 'Répéter le mot de passe') }}
+				{{ form_widget(profileForm.plainPassword.second, { attr: { class: 'w-full text-center border-0 border-b border-gray-300 focus:outline-none focus:border-blue-400 pb-2 text-gray-500' } }) }}
+				<div class="text-red-500 text-sm">{{ form_errors(profileForm.plainPassword) }}</div>
+        </div>
