@@ -132,6 +132,15 @@ class TrickMediaManagerService
      */
     private function handleVideos(Tricks $trick, Request $request): void
     {
+        // 🔥 SUPPRIME les vidéos vides AVANT TOUT
+        foreach ($trick->getVideos() as $video) {
+            if (!$video->getUrl()) {
+                $trick->removeVideo($video);
+                $this->em->remove($video);
+            }
+        }
+
+        // suppression normale
         $removedVideos = $request->request->all('removed_videos', []);
 
         foreach ($removedVideos as $id) {

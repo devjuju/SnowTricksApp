@@ -1,5 +1,5 @@
 <?php
-// src/Form/TrickUpdateFormType.php
+
 namespace App\Form;
 
 use App\Entity\Tricks;

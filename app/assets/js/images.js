@@ -1,21 +1,19 @@
-/* global cloneTemplate, smartScroll */
-
 document.addEventListener("DOMContentLoaded", () => {
     const imageWrapper = document.getElementById("image-wrapper");
     if (!imageWrapper) return;
 
     let index = parseInt(imageWrapper.dataset.index || 0);
 
-    const validateFile = (file) => {
-        const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-        const maxSize = 2 * 1024 * 1024;
+    const MAX_SIZE = 2 * 1024 * 1024;
+    const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
-        if (!allowedTypes.includes(file.type)) {
+    const validateFile = (file) => {
+        if (!ALLOWED_TYPES.includes(file.type)) {
             alert("Type de fichier non autorisé");
             return false;
         }
 
-        if (file.size > maxSize) {
+        if (file.size > MAX_SIZE) {
             alert("Fichier trop lourd (max 2 Mo)");
             return false;
         }
@@ -83,10 +81,30 @@ document.addEventListener("DOMContentLoaded", () => {
                     },
                 });
 
-                const data = await res.json();
+                // 🚨 check HTTP error first
+                if (!res.ok) {
+                    let errorMessage = "Upload refusé par le serveur";
 
-                if (!res.ok || !data.images?.[0]) {
-                    alert(data.error || "Erreur upload");
+                    try {
+                        const err = await res.json();
+                        errorMessage = err.error || errorMessage;
+                    } catch (e) {}
+
+                    alert(errorMessage);
+                    return;
+                }
+
+                // 🚨 safe JSON parse
+                let data;
+                try {
+                    data = await res.json();
+                } catch (e) {
+                    alert("Réponse serveur invalide");
+                    return;
+                }
+
+                if (!data.images?.length) {
+                    alert("Aucune image retournée par le serveur");
                     return;
                 }
 
@@ -95,8 +113,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (replace && oldFilename) {
                     const form = item.closest("form");
-                    const input = document.createElement("input");
 
+                    const input = document.createElement("input");
                     input.type = "hidden";
                     input.name = `replace_images[${oldFilename}]`;
                     input.value = image.filename;
@@ -107,6 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 hiddenInput.value = image.filename;
                 showPreview(image.url);
                 updateUI();
+
             } catch (e) {
                 console.error(e);
                 alert("Erreur serveur");
@@ -126,11 +145,19 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!confirm("Supprimer cette image ?")) return;
 
             const filename = hiddenInput.value;
+
             if (removedInput && filename) {
-                removedInput.value = filename;
+                const form = item.closest("form");
+
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = "removed_images[]";
+                input.value = filename;
+
+                form.appendChild(input);
             }
 
-            item.classList.add("opacity-30", "pointer-events-none");
+            item.remove();
         });
 
         if (preview?.getAttribute("src")) {
@@ -151,6 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
         smartScroll(imageWrapper, element);
 
         element.classList.add("ring-2", "ring-blue-400");
+
         setTimeout(() => {
             element.classList.remove("ring-2", "ring-blue-400");
         }, 1500);

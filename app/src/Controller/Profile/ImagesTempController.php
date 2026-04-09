@@ -8,67 +8,75 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Service\ImagesTempService;
 
-
 #[Route('/profile/images')]
 class ImagesTempController extends AbstractController
 {
     private const CONTEXT = 'trick_upload';
+    private const MAX_SIZE = 2 * 1024 * 1024; // 2 Mo
 
     #[Route('/temp', name: 'profile_images_temp', methods: ['POST'])]
     public function upload(Request $request, ImagesTempService $imagesTempService): JsonResponse
     {
-        // Sécurité : uniquement utilisateurs connectés
+        // 🔐 Sécurité
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        // Récupération de plusieurs fichiers envoyés (input multiple)
+        // 📦 Récupération fichiers
         $files = $request->files->all('images');
 
-        // Vérification : aucun fichier envoyé
         if (!$files) {
             return new JsonResponse(['error' => 'Aucun fichier'], 400);
         }
 
-        // Tableau de retour pour le front (preview + gestion dynamique)
         $uploaded = [];
 
         foreach ($files as $file) {
 
-            // Validation du type MIME (sécurité basique côté serveur)
-            if (!in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/webp'])) {
-                return new JsonResponse(['error' => 'Type invalide'], 400);
+            // 🚨 Vérifie erreur upload PHP
+            if ($file->getError() !== UPLOAD_ERR_OK) {
+                return new JsonResponse(['error' => 'Erreur upload fichier'], 400);
             }
 
-            // Upload dans un dossier temporaire avec contexte
+            // 🎯 Vérification MIME
+            $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
+            if (!in_array($file->getMimeType(), $allowedMimeTypes, true)) {
+                return new JsonResponse(['error' => 'Type de fichier invalide'], 400);
+            }
+
+            // ⚖️ Vérification taille
+            if ($file->getSize() > self::MAX_SIZE) {
+                return new JsonResponse(['error' => 'Fichier trop lourd (max 2 Mo)'], 400);
+            }
+
+            // 💾 Upload temporaire
             $filename = $imagesTempService->upload($file, self::CONTEXT);
 
-            // Retour des infos nécessaires côté front
             $uploaded[] = [
                 'filename' => $filename,
                 'url' => '/uploads/images_tmp/' . $filename,
             ];
         }
 
-        // Retour JSON contenant toutes les images uploadées (multi-upload)
-        return new JsonResponse(['images' => $uploaded]);
+        return new JsonResponse([
+            'images' => $uploaded
+        ]);
     }
 
     #[Route('/temp/delete', name: 'profile_images_temp_delete', methods: ['POST'])]
     public function delete(Request $request, ImagesTempService $imagesTempService): JsonResponse
     {
+        // 🔐 Sécurité
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        // Récupération du nom du fichier à supprimer
         $filename = $request->request->get('filename');
 
-        // Vérification
         if (!$filename) {
-            return new JsonResponse(['error' => 'Nom manquant'], 400);
+            return new JsonResponse(['error' => 'Nom de fichier manquant'], 400);
         }
 
-        // Suppression via service (gestion centralisée + sécurité)
+        // 🧹 Suppression sécurisée
         $imagesTempService->delete($filename, self::CONTEXT);
 
-        // Confirmation côté front
         return new JsonResponse(['success' => true]);
     }
 }

@@ -1,9 +1,8 @@
 <?php
-// src/Form/TrickAddFormType.php
+
 namespace App\Form;
 
 use App\Entity\Tricks;
-use App\Form\Traits\TrickBaseFieldsTrait;
 use App\Form\TrickBaseFieldsTrait as FormTrickBaseFieldsTrait;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
