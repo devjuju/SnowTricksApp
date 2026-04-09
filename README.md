@@ -30,18 +30,6 @@ Ce projet a été réalisé pour Jimmy Sweat, entrepreneur passionné de snowboa
 - Assets : Node.js 20
 - Emails : MailHog
 
-## 📊 Qualité du code
-
-Le projet a obtenu un **Grade A sur Codacy**, garantissant un haut niveau de qualité et de bonnes pratiques.
-
-- 🔍 Analyse statique automatique (Codacy)
-- 🧹 Code propre et maintenable
-- 📏 Respect des standards Symfony
-- 🧱 Architecture MVC claire
-- 🔐 Bonnes pratiques de sécurité
-
-👉 Rapport complet : https://app.codacy.com/gh/devjuju/SnowTricksApp/dashboard
-
 ## 🐳 Démarrage rapide (TL;DR)
 
 ```bash
@@ -181,12 +169,17 @@ docker-compose down -v
 - Validation des formulaires
 - Gestion des rôles
 
-## 📈 Qualité du code
+## 📊 Qualité du code
 
-- Respect des standards Symfony
-- Code structuré (MVC)
-- Utilisation de Doctrine ORM
-- Analyse via SymfonyInsight / Codacy
+Le projet a obtenu un **Grade A sur Codacy**, garantissant un haut niveau de qualité et de bonnes pratiques.
+
+- 🔍 Analyse statique automatique (Codacy)
+- 🧹 Code propre et maintenable
+- 📏 Respect des standards Symfony
+- 🧱 Architecture MVC claire
+- 🔐 Bonnes pratiques de sécurité
+
+👉 Rapport complet : https://app.codacy.com/gh/devjuju/SnowTricksApp/dashboard
 
 ## 💡 Choix techniques
 
