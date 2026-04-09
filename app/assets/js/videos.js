@@ -110,17 +110,16 @@ document.addEventListener("DOMContentLoaded", () => {
         editBtn?.addEventListener("click", openInput);
         closeBtn?.addEventListener("click", closeInput);
         removeBtn?.addEventListener("click", () => {
-        if (!confirm("Supprimer cette vidéo ?")) return;
+    if (!confirm("Supprimer cette vidéo ?")) return;
 
-        const removedInput = item.querySelector(".removed-video");
-        const videoId = item.querySelector(".video-id")?.value;
+    const input = item.querySelector(".item-input");
 
-        if (removedInput && videoId) {
-        removedInput.value = videoId;
-        }
+    // 🔥 vide la valeur
+    if (input) input.value = "";
 
-        item.classList.add("opacity-30", "pointer-events-none");
-        });
+    // 🔥 OU supprime complètement le bloc
+    item.remove();
+});
 
         updatePreview();
         isNew ? openInput() : updateUI();

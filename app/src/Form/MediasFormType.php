@@ -46,7 +46,8 @@ class MediasFormType extends AbstractType
                 'allow_delete' => true,
                 'by_reference' => false,
                 'prototype' => true,
-                'prototype_name' => '__name__', // IMPORTANT
+                'prototype_name' => '__name__',
+                'delete_empty' => true,
             ])
 
             ->add('save', SubmitType::class, [

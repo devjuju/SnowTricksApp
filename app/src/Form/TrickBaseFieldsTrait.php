@@ -1,5 +1,5 @@
 <?php
-// src/Form/Traits/TrickBaseFieldsTrait.php
+
 namespace App\Form;
 
 use App\Entity\Categories;
@@ -7,7 +7,6 @@ use App\Form\ImageType;
 use App\Form\VideoType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -24,18 +23,14 @@ trait TrickBaseFieldsTrait
                     'placeholder' => 'Titre de la figure',
                     'class' => 'w-full rounded-xl border px-4 py-2'
                 ],
-                'constraints' => [
-                    new NotBlank(['message' => 'Veuillez entrer un titre.'])
-                ]
+
             ])
             ->add('content', TextareaType::class, [
                 'attr' => [
                     'placeholder' => 'Décrivez la figure en détail',
                     'class' => 'w-full h-28 sm:h-36 rounded-xl border px-4 py-2'
                 ],
-                'constraints' => [
-                    new NotBlank(['message' => 'Veuillez entrer un contenu.'])
-                ]
+
             ])
             ->add('category', EntityType::class, [
                 'class' => Categories::class,
@@ -44,9 +39,7 @@ trait TrickBaseFieldsTrait
                 'attr' => [
                     'class' => 'rounded-xl border px-4 py-2 pr-10'
                 ],
-                'constraints' => [
-                    new NotNull(['message' => 'Veuillez choisir une catégorie.'])
-                ]
+
             ])
             ->add('images', CollectionType::class, [
                 'entry_type' => ImageType::class,
@@ -54,7 +47,7 @@ trait TrickBaseFieldsTrait
                 'allow_delete' => true,
                 'by_reference' => false,
                 'prototype' => true,
-                'prototype_name' => '__name__', // 🔥 AJOUT IMPORTANT
+                'prototype_name' => '__name__',
                 'required' => false,
             ])
 
@@ -64,7 +57,8 @@ trait TrickBaseFieldsTrait
                 'allow_delete' => true,
                 'by_reference' => false,
                 'prototype' => true,
-                'prototype_name' => '__name__', // IMPORTANT
+                'prototype_name' => '__name__',
+                'delete_empty' => true,
             ]);
     }
 }

@@ -35,7 +35,6 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     private string $password;
 
     #[ORM\Column(length: 50, unique: true)]
-    #[Assert\NotBlank(message: "Le nom d’utilisateur est obligatoire.")]
     #[Assert\Length(
         min: 3,
         max: 50,

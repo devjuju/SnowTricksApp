@@ -1,5 +1,7 @@
 # 🏂 SnowTricks (Symfony + Docker)
 
+[![Codacy Badge]](https://app.codacy.com/gh/devjuju/SnowTricksApp/dashboard)
+
 Application collaborative autour des figures de snowboard développée avec Symfony.
 
 ## 📌 Contexte
@@ -27,6 +29,18 @@ Ce projet a été réalisé pour Jimmy Sweat, entrepreneur passionné de snowboa
 - Base de données : MySQL 8
 - Assets : Node.js 20
 - Emails : MailHog
+
+## 📊 Qualité du code
+
+Le projet a obtenu un **Grade A sur Codacy**, garantissant un haut niveau de qualité et de bonnes pratiques.
+
+- 🔍 Analyse statique automatique (Codacy)
+- 🧹 Code propre et maintenable
+- 📏 Respect des standards Symfony
+- 🧱 Architecture MVC claire
+- 🔐 Bonnes pratiques de sécurité
+
+👉 Rapport complet : https://app.codacy.com/gh/devjuju/SnowTricksApp/dashboard
 
 ## 🐳 Démarrage rapide (TL;DR)
 
